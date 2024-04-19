@@ -1,4 +1,5 @@
 #include <iostream>
+#include <regex>
 
 
 using namespace std;
@@ -11,6 +12,12 @@ int main() {
      *b := 13;
      *end.
      */
-    std::cout << "Hello, World!" << std::endl;
+    string text_program_pascal = " var a,b :intger;\n"
+                                 "begin\n"
+                                 "  a := 12;\n"
+                                 "  b := 13;\n"
+                                 " end.\n";
+    cout<<text_program_pascal;
+    cout<<regex_match("count", regex("[a-zA-Z]+"));
     return 0;
 }
