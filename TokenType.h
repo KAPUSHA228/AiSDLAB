@@ -14,7 +14,6 @@ public:
             {"CONST", "Const"},
             {"CONST", "Const"},
             {"VAR", "var"},
-            {"VARIABLE", "[a-zA-z]*"},
             {"TYPEINTEGER", "integer"},
             {"TYPEREAL", "real"},
             {"TYPESTRING", "string"},
@@ -53,6 +52,7 @@ public:
             {"DO", "do"},
             {"BEGIN", "begin"},
             {"END", "end"},
+            {"VARIABLE", "[a-zA-z]*"},
             {"SPACE", "[ \n\t]"}
         };
     }

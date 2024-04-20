@@ -2,6 +2,8 @@
 #include <regex>
 #include<string>
 
+#include "Lexer.h"
+
 using namespace std;
 
 int main() {
@@ -19,10 +21,15 @@ int main() {
             "  b := 13;\n"
             " end;\n";
     // cout<<text_program_pascal;
-    const std::string s = "const tata";
-    std::regex rgx("^const");
+
+    const std::string s = " +dshgdhgads)";
+    std::regex rgx("^[ \n\t]");
     std::smatch match;
-    if (std::regex_search(s.begin(), s.end(), match, rgx))
-        std::cout << "match: " << match[0] << '\n';
+    if (std::regex_search(s.begin(), s.end(), match, rgx)) {
+        string str2 = static_cast<string>(match[0]);
+        // cout << str2.length()<<endl;
+    }
+    Lexer lexer(text_program_pascal);
+
     return 0;
 }
