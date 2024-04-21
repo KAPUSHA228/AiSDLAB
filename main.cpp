@@ -34,7 +34,9 @@ int main() {
 
     Lexer lexer(text_program_pascal);
     Parser parser(lexer);
-    parser.parse();
+    try{ parser.parse(); }
+    catch(AgeException& e){ e.getMessage();}
+
 
     return 0;
 }
