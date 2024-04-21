@@ -16,7 +16,7 @@ class AgeException: public std::exception
 {
 public:
     AgeException(const std::string& message): message(message){}
-    std::string getMessage() const {return message;}
+    std::string getMessage() const {std::cout<<message; return message;}
     //const char * what() const throw() override {
     //    return message.c_str();
    // }
