@@ -20,6 +20,19 @@ public:
         this->value = std::move(value);
         this->pos = pos;
     }
+
+    void setType(std::string type) {
+        this->type = type;
+    }
+    std::string getType() {
+        return this->type;
+    }
+    std::string getValue() {
+        return this->value;
+    }
+    int getPos() {
+        return this->pos;
+    }
 };
 
 

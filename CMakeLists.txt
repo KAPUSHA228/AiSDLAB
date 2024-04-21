@@ -8,4 +8,8 @@ add_executable(project1 main.cpp
         Lexer.h
         Token.cpp
         Token.h
-        TokenType.h)
+        TokenType.h
+        Expression/Expression.h
+        Expression/RunnableExpression.h
+        Parser.h
+        Expression/ExceptionAST.h)
