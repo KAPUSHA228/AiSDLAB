@@ -32,7 +32,7 @@ public:
         vector = getLitTokenType();
         while (hasNext()) {
         }
-        printTokenList();
+        // printTokenList();
     }
 
     bool hasNext() {
@@ -57,6 +57,9 @@ public:
             }
         }
         return false;
+    }
+    std::vector<Token> getTokenList() {
+        return this->tokenList;
     }
 
     /*friend std::ostream& operator<<(std::ostream& ostr, const Lexer& v)
@@ -83,8 +86,8 @@ public:
             {"TYPEBOOLEAN", "boolean"},
             {"VALUEREAL", "[0-9]+\.[0-9]+"},
             {"VALUEINTEGER", "[0-9]+"},
-            {"VALUECHAR", "'[a-z0-9A-z]'"},
-            {"VALUESTRING", "'[a-z0-9A-z]+'"},
+            // {"VALUECHAR", "'[a-z0-9A-z]'"},
+            // {"VALUESTRING", "'[a-z0-9A-z]+'"},
             {"VALUEBOOLEANTrue", "True"},
             {"VALUEBOOLEANFalse", "False"},
             {"ASSIGN", ":="},

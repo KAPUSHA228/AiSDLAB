@@ -3,6 +3,7 @@
 #include<string>
 #include "Expression/Expression.h"
 #include "Lexer.h"
+#include "Parser.h"
 
 using namespace std;
 
@@ -32,7 +33,8 @@ int main() {
     forTestRegex(" +dshgdhgads)");
 
     Lexer lexer(text_program_pascal);
-    Expression ex();
+    Parser parser(lexer);
+    parser.parse();
     return 0;
 }
 
