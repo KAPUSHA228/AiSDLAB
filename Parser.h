@@ -8,9 +8,17 @@
 
 #include "Lexer.h"
 #include "Token.h"
+#include "Expression/ExceptionAST.h"
 #include "Expression/Expression.h"
 using namespace std;
-
+class AgeException
+{
+public:
+    AgeException(std::string message): message{message}{}
+    std::string getMessage() const {return message;}
+private:
+    std::string message;
+};
 class Parser {
 private:
     std::vector<Token> tokenList;
@@ -39,7 +47,7 @@ public:
     void initVariables() {
         while(!isTypeToken(";")) {
             if(!isTypeToken("VARIABLE")) {
-                throw "A variable is expected";
+                throw "Var is expected!";
             }
             else {
                 currentPos++;

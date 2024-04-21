@@ -11,4 +11,5 @@ add_executable(project1 main.cpp
         TokenType.h
         Expression/Expression.h
         Expression/RunnableExpression.h
-        Parser.h)
+        Parser.h
+        Expression/ExceptionAST.h)

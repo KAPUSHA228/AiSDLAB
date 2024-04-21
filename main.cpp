@@ -35,6 +35,7 @@ int main() {
     Lexer lexer(text_program_pascal);
     Parser parser(lexer);
     parser.parse();
+
     return 0;
 }
 
