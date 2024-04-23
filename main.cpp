@@ -26,16 +26,29 @@ int main() {
             "var c: string;\n"
             "begin\n"
             "   a := 1.2;\n"
-            "   b := '9';\n"
+            "   b := '19w';\n"
             "\tc := a + b;\n"
             "end.\n";
     // cout<<text_program_pascal;
     forTestRegex(" +dshgdhgads)");
-
-    Lexer lexer(text_program_pascal);
+string test_text=" program qq;"
+                 "const"
+                 "Pi: real = 3.1415926;"
+                 "var"
+                 "num1, num2: integer;"
+                 "Res, d: real;"
+                 "res2: string;"
+                 "begin"
+                 "res2 := 'Hello world';"
+                 "num1:=2;"
+                 "Write('Reader ', res2);"
+                 "num1:= num1 div 2;"
+                 "Write(num1);"
+                 "end.";
+     Lexer lexer(test_text);
     Parser parser(lexer);
-    try{ parser.parse(); }
-    catch(AgeException& e){ e.getMessage();}
+    //try{ parser.parse(); }
+    //catch(AgeException& e){ e.getMessage();}
 
 
     return 0;

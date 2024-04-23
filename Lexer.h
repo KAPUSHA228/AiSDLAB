@@ -47,11 +47,11 @@ public:
                 //std::cout <<"In line 1 were found the following elements: ";
                 std::string res = static_cast<std::string>(match[0]);
                 pos += res.length();
-                if (item.first != "SPACE_")
+                if (item.first != "SPACE")
                     tokenList.emplace_back(item.first, res, pos - res.length());
-                // std::cout<<"Type of lexema: " <<item.first <<
-                // "; The space spent on the lexema: " << res.length() <<
-                // "; Value of lexema: "<<res<<" ;"<<std::endl;
+                 std::cout<<"Type of lexema: " <<item.first <<
+                 "; The space spent on the lexema: " << res.length() <<
+                 "; Value of lexema: "<<res<<" ;"<<std::endl;
 
                 return true;
             }
@@ -75,9 +75,10 @@ public:
 
     std::vector<std::pair<std::string, std::string> > getLitTokenType() {
         return {
-            {"CONST", "Const"},
+            {"CONST", "const"},
             {"VAR", "var"},
             {"BEGIN", "begin"},
+            {"ENDofPROGRAM", "end."},
             {"END", "end"},
             {"TYPEINTEGER", "integer"},
             {"TYPEREAL", "real"},
@@ -86,8 +87,8 @@ public:
             {"TYPEBOOLEAN", "boolean"},
             {"VALUEREAL", "[0-9]+\.[0-9]+"},
             {"VALUEINTEGER", "[0-9]+"},
-            // {"VALUECHAR", "'[a-z0-9A-z]'"},
-            // {"VALUESTRING", "'[a-z0-9A-z]+'"},
+            {"VALUECHAR", "'.'"},
+            {"VALUESTRING", "'.+'"},
             {"VALUEBOOLEANTrue", "True"},
             {"VALUEBOOLEANFalse", "False"},
             {"ASSIGN", ":="},
@@ -121,8 +122,8 @@ public:
             {"CICLEFOR", "for"},
             {"CICLEWHILE", "while"},
             {"DO", "do"},
-            {"VARIABLE", "[a-zA-z]+"},
-            {"SPACE_", "[ \t\n]"}
+            {"VARIABLE", "[a-z0-9A-z_]+"},
+            {"SPACE", "[ \t\n]"}
         };
     }
 };
