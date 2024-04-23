@@ -12,4 +12,5 @@ add_executable(project1 main.cpp
         Expression/Expression.h
         Expression/RunnableExpression.h
         Parser.h
-        Expression/ExceptionAST.h)
+        Expression/ExceptionAST.h
+        HierarchyList.h)

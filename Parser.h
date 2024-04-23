@@ -39,28 +39,46 @@ public:
     void parse() {
         initVar();
     }
-
+void init(){
+        std::vector<Token>localList;
+        while(!isTypeToken(";")){
+           localList.push_back( tokenList[currentPos]);
+           currentPos++;
+        }
+    }
     void initVar() {
         if (isTypeToken("VAR")) {
             currentPos++;
             while (!isTypeToken("BEGIN")) {
-                initVariables();
-            }
-        } else {
-            throw AgeException( "Don't exist VAR!");
-        }
+                initVariables(); }}
+        else { throw AgeException( "Don't exist VAR!"); }
     }
     void initVariables() {
-        if(!switcher){
-        while(!isTypeToken(";")) {
-
-                if(!isTypeToken("VARIABLE")) {
-                throw AgeException("Var is expected!");
-                switcher=true;
-            }
-            else {    currentPos++;       }
-
-        }}
+        while(!isTypeToken("SEMICOLON")) {
+            if(isTypeToken("SPACE")) continue;
+            if(!isTypeToken("VARIABLE")) {
+                throw AgeException("Var is expected!");}
+            else { currentPos++; initAssign();}
+        }
+    }
+    void initAssign(){
+        while(!isTypeToken("SEMICOLON")){
+            if(isTypeToken("SPACE")) continue;
+            if (isTypeToken("COLON")){
+                currentPos++; initType();  }
+            else{throw AgeException("assign is not present"); }
+        }
+    }
+    void initType(){
+        while(!isTypeToken("SEMICOLON")){
+            if(isTypeToken("SPACE")) continue;
+            if((isTypeToken("TYPEINTEGER"))||
+            (isTypeToken("TYPEREAL"))||
+            (isTypeToken("TYPECHAR"))||
+            (isTypeToken("TYPESTRING")))
+            {throw AgeException("type is present");}
+            else{currentPos++;}
+        }
     }
     bool isTypeToken(const string &typeToken) {
         return tokenList[currentPos].getType() == typeToken;
