@@ -8,8 +8,10 @@
 #include "stdexcept"
 #include "Lexer.h"
 #include "Token.h"
+#include "HierarchyList.h"
 #include "Expression/ExceptionAST.h"
 #include "Expression/Expression.h"
+#include "Expression/RunnableExpression.h"
 static bool switcher= false;
 using namespace std;
 class AgeException: public std::exception
@@ -27,30 +29,61 @@ private:
 class Parser {
 private:
     std::vector<Token> tokenList;
-    std::vector<Expression> expressionList;
+    std::vector<Expression*> expressionList;
+    //HierarchyList hierarchyList;
+    std::vector<Token>localList; //вектор для хранения строк который пойдут цельно в выражения
     int currentPos = 0;
-
+    int chapter=0; // на каком разделе из возможных мы находимся (всего 5)
 
 public:
     explicit Parser(Lexer lexer) {
         this->tokenList = lexer.getTokenList();
     }
-
     void parse() {
-        initVar();
+        initDeclaration();
     }
-void init(){
-        std::vector<Token>localList;
-        while(!isTypeToken(";")){
-           localList.push_back( tokenList[currentPos]);
-           currentPos++;
+    void initDeclaration(){
+        if(isTypeToken("TITLE")){
+            while(!isTypeToken("SPACE"))
+            {   currentPos++;   } //скип названия, чтобы дойти до разделов Const или Var
+            currentPos++; }       //есть вариант вообще название не добавлять уже на стадии Lexer, но мб пригодится
+
+        if((isTypeToken("VAR"))||(isTypeToken("CONST"))){
+            currentPos++;
+            while (!isTypeToken("BEGIN")){
+                initStatement();
+            }
         }
+        currentPos++;
+        initBegin();
     }
-    void initVar() {
+    void initBegin(){
+        if(isTypeToken("CONDITION")){}
+        if(isTypeToken("CICLEFOR")){}
+        if(isTypeToken("CICLEWHILE")){}
+        if(isTypeToken("CICLEDOWHILE")){}
+        else{
+            initStatement();
+            initBegin();
+            return;}
+
+    }
+    void initStatement(){
+        while(!isTypeToken(";")){
+            if((isTypeToken("VAR"))||(isTypeToken("CONST"))) continue;
+            localList.push_back( tokenList[currentPos]);
+            currentPos++;        }
+        RunnableExpression ex (localList);
+        expressionList.push_back(&ex);
+        localList.clear();
+        currentPos++;
+    }
+    /*void initVar() {
         if (isTypeToken("VAR")) {
             currentPos++;
             while (!isTypeToken("BEGIN")) {
-                initVariables(); }}
+                initVariables(); }
+        }
         else { throw AgeException( "Don't exist VAR!"); }
     }
     void initVariables() {
@@ -64,8 +97,8 @@ void init(){
     void initAssign(){
         while(!isTypeToken("SEMICOLON")){
             if(isTypeToken("SPACE")) continue;
-            if (isTypeToken("COLON")){
-                currentPos++; initType();  }
+            if (isTypeToken("COLON"))
+            {currentPos++; initType(); }
             else{throw AgeException("assign is not present"); }
         }
     }
@@ -79,7 +112,7 @@ void init(){
             {throw AgeException("type is present");}
             else{currentPos++;}
         }
-    }
+    }*/
     bool isTypeToken(const string &typeToken) {
         return tokenList[currentPos].getType() == typeToken;
     }

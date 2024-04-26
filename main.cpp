@@ -4,7 +4,7 @@
 #include "Expression/Expression.h"
 #include "Lexer.h"
 #include "Parser.h"
-
+#include "Token.h"
 using namespace std;
 
 void forTestRegex(const string &str);
@@ -30,23 +30,32 @@ int main() {
             "\tc := a + b;\n"
             "end.\n";
     // cout<<text_program_pascal;
-    forTestRegex(" +dshgdhgads)");
-string test_text=" program qq;"
-                 "const"
-                 "Pi: real = 3.1415926;"
-                 "var"
-                 "num1, num2: integer;"
-                 "Res, d: real;"
-                 "res2: string;"
-                 "begin"
-                 "res2 := 'Hello world';"
-                 "num1:=2;"
-                 "Write('Reader ', res2);"
-                 "num1:= num1 div 2;"
-                 "Write(num1);"
-                 "end.";
+    //forTestRegex(" +dshgdhgads)");
+    string test_text=
+            "program qq;"
+            "const"
+                "Pi: real = 3.1415926;"
+            "var"
+                "num1, num2, i: integer;"
+                "Res, d: real;"
+                "res2: string;"
+            "begin"
+                "res2 := 'Hello world';"
+                "num1:=2;"
+                "Write('Reader ', res2);"
+                "if Pi=num1 then""begin"
+                        "Write('Yes');"
+                "end"
+                "else""begin"
+                      "Write('No');"
+                "end;"
+                "num1:= num1 div 2;"
+                "for i:=1 to 8 do begin"
+                    "Write(i);"
+                "end;"
+            "end.";
      Lexer lexer(test_text);
-    Parser parser(lexer);
+    //Parser parser(lexer);
     //try{ parser.parse(); }
     //catch(AgeException& e){ e.getMessage();}
 

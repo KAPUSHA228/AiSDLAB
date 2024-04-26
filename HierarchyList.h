@@ -5,12 +5,15 @@
 #ifndef HIERARCHYLIST_H
 #define HIERARCHYLIST_H
 #include <iostream>
+#include "Expression/RunnableExpression.h"
+#include "Token.h"
+#include "Lexer.h"
 using namespace std;
 struct Node {
-    int value;
+    Expression* value;
     int priority;
-    Node() { value = 0; priority = 0; }
-    Node(int a, int b) { value = a; priority = b; }
+    //Node() { value = 0; priority = 0; }
+    //Node(int a, int b) { value = a; priority = b; }
 };
 class HierarchyList {
 private:
@@ -18,8 +21,8 @@ private:
     Node* description;
 public:
     HierarchyList() {
-        nextChapter = new Node(2, 8);
-        description = new Node(3, 7);
+        //nextChapter = new Node(2, 8);
+        //description = new Node(3, 7);
     }
 
 };

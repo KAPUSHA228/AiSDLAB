@@ -49,10 +49,9 @@ public:
                 pos += res.length();
                 if (item.first != "SPACE")
                     tokenList.emplace_back(item.first, res, pos - res.length());
-                 std::cout<<"Type of lexema: " <<item.first <<
-                 "; The space spent on the lexema: " << res.length() <<
-                 "; Value of lexema: "<<res<<" ;"<<std::endl;
-
+                std::cout<<"Type of lexema: " <<item.first <<
+                "; The space spent on the lexema: " << res.length() <<
+                "; Value of lexema: "<<res<<" ;"<<std::endl;
                 return true;
             }
         }
@@ -87,8 +86,8 @@ public:
             {"TYPEBOOLEAN", "boolean"},
             {"VALUEREAL", "[0-9]+\.[0-9]+"},
             {"VALUEINTEGER", "[0-9]+"},
-            {"VALUECHAR", "'.'"},
-            {"VALUESTRING", "'.+'"},
+            {"VALUECHAR", "['][A-Za-z0-9][']"},
+            {"VALUESTRING", "['][A-Za-z0-9!?,\.: _-]+[']"},
             {"VALUEBOOLEANTrue", "True"},
             {"VALUEBOOLEANFalse", "False"},
             {"ASSIGN", ":="},
@@ -104,9 +103,8 @@ public:
             {"XOR", "xor"},
             {"COLON", ":"},
             {"COMMA", ","},
-            // {"APOSTROF", "'"},
             {"SEMICOLON", ";"},
-            {"TITLE", "program qq"},
+            {"TITLE", "program [A-Za-z0-9_]+"},
             {"OPENPARENTHESES", "[(]"},
             {"CLOSEPARENTHESES", "[)]"},
             {"OPENSQUARE", "[\[]"},
@@ -121,8 +119,10 @@ public:
             {"READ", "read"},
             {"CICLEFOR", "for"},
             {"CICLEWHILE", "while"},
-            {"DO", "do"},
-            {"VARIABLE", "[a-z0-9A-z_]+"},
+            {"CICLEDOWHILE","repeat"},
+            {"UNTIL","until"},
+            {"DO", "do\nbegin\n"},
+            {"VARIABLE", "[a-z0-9A-Z_-]+"},
             {"SPACE", "[ \t\n]"}
         };
     }
