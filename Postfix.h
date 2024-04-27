@@ -1,5 +1,5 @@
 //
-// Created by пк on 26.04.2024.
+// Created by shuri on 26.04.2024.
 //
 
 #ifndef POSTFIX_H
@@ -15,7 +15,7 @@
 #include <vector>
 #include <cctype>
 using namespace std;
-class TPostfixCalc
+class TPostfixCalc // не доделан под нужды уравнений с переменными и сравнений
 {
 private:
     //добавить полем какую то таблицу чтобы подтягивать значения переменных, ну и наверно постфикс создавать с ней

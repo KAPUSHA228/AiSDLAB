@@ -12,6 +12,7 @@
 #include "Expression/ExceptionAST.h"
 #include "Expression/Expression.h"
 #include "Expression/RunnableExpression.h"
+#include "Expression/ConditionExpression.h"
 using namespace std;
 class AgeException: public std::exception
 {
@@ -52,8 +53,9 @@ public:
     }
     void initBegin(){
         std::vector<Token> condition;
-        if((isTypeToken("CONDITION")||(isTypeToken("UNCONDITION")))){
-            while (!isTypeToken("BEGIN")){
+        if(isTypeToken("CONDITION")){
+            ConditionExpression ex(currentPos,tokenList);
+           /* while (!isTypeToken("BEGIN")){
                 if(isTypeToken("THEN")) continue;
                 condition.push_back(tokenList[currentPos]);
             }
@@ -62,7 +64,7 @@ public:
                 initBegin();
             }
             currentPos++;
-            initBegin();
+            initBegin();*/
 
         }
         if(isTypeToken("CICLEFOR")){

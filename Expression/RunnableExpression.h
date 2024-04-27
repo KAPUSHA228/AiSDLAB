@@ -40,7 +40,7 @@ public:
             //обращение к таблице, добавить в неё значение с клавиатуры
             cout<<endl;
         }
-        else{TPostfixCalc p(list);}
+        else{TPostfixCalc p(list);}//происходит выражение с присвоением
     }
 
     void run() override {

@@ -1,5 +1,5 @@
 //
-// Created by пк on 26.04.2024.
+// Created by shuri on 26.04.2024.
 //
 
 #ifndef STACK_H
