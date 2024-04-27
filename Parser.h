@@ -12,7 +12,6 @@
 #include "Expression/ExceptionAST.h"
 #include "Expression/Expression.h"
 #include "Expression/RunnableExpression.h"
-static bool switcher= false;
 using namespace std;
 class AgeException: public std::exception
 {
@@ -57,34 +56,46 @@ public:
     }
     void initBegin(){
         std::vector<Token> condition;
-        if(isTypeToken("CONDITION")){
+        if((isTypeToken("CONDITION")||(isTypeToken("UNCONDITION")))){
             while (!isTypeToken("BEGIN")){
                 if(isTypeToken("THEN")) continue;
                 condition.push_back(tokenList[currentPos]);
             }
             currentPos++;
-            while ((!isTypeToken("ENDofIF"))||(!isTypeToken("UNCONDITION"))){
+            while (!isTypeToken("ENDofIF")){
                 initBegin();
             }
+            currentPos++;
+            initBegin();
+
         }
         if(isTypeToken("CICLEFOR")){
-            while (!isTypeToken("CLOSEPARENTHESES")){}
+            while (!isTypeToken("CLOSEPARENTHESES")){
+                condition.push_back(tokenList[currentPos]);
+            } currentPos++;
+            initBegin();
 
         }
         if(isTypeToken("CICLEWHILE")){
-            while (!isTypeToken("CLOSEPARENTHESES")){}
+            while (!isTypeToken("CLOSEPARENTHESES")){
+                condition.push_back(tokenList[currentPos]);
+            } currentPos++;
+            initBegin();
 
         }
         if(isTypeToken("CICLEDOWHILE")){
-            while (!isTypeToken("CLOSEPARENTHESES")){}
-
+            while (!isTypeToken("UNTIL")){ initBegin();}
+            currentPos++;
+            //как собрать условие после until?
         }
         else{
             initRowStatement();
             initBegin();
             return;}
+        return;
 
     }
+    void initCondition(){}
     void initRowStatement(){
         while(!isTypeToken("SEMICOLON")){
             if((isTypeToken("VAR"))||(isTypeToken("CONST"))) continue;
