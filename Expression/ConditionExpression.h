@@ -16,7 +16,7 @@
 
 class ConditionExpression: public Expression{
 private:
-    std::vector<RunnableExpression> expressionList;
+    std::vector<Expression*> expressionList;
     std::vector<Token> condition;
 public:
     ConditionExpression(std::vector<Token>_condition, std::vector<Token>_list){
