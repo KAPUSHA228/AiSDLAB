@@ -18,8 +18,8 @@ using namespace std;
 class TPostfixCalc
 {
 private:
-    //добавить полем какую то таблицу чтобы подтягивать значения переменных
-    string infix;
+    //добавить полем какую то таблицу чтобы подтягивать значения переменных, ну и наверно постфикс создавать с ней
+    std::string infix;
     string postfix;
     TStack<char> operationStack;
     TStack<double> operandStack;
@@ -61,7 +61,10 @@ public:
         res = 0;
     }
     TPostfixCalc(std::vector<Token> v){
-
+        //мб как то так
+        for (int i=0; v.size()-1;i++){
+            infix+=v[i].getValue();
+        }
     }
     TPostfixCalc(const TPostfixCalc& c) {
         if (&c == this) throw std::runtime_error{"Íå ìîæåò áûòü ïðèñâîåí ýëåìåíò ñàìîìó ñåáå"};
