@@ -1,3 +1,3 @@
-D:/Games/CLion/projects/AiSDLAB/cmake-build-debug/CMakeFiles/project1.dir
-D:/Games/CLion/projects/AiSDLAB/cmake-build-debug/CMakeFiles/edit_cache.dir
-D:/Games/CLion/projects/AiSDLAB/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+D:/games/jetBrains/CLion/projects/cmake-build-debug/CMakeFiles/project1.dir
+D:/games/jetBrains/CLion/projects/cmake-build-debug/CMakeFiles/edit_cache.dir
+D:/games/jetBrains/CLion/projects/cmake-build-debug/CMakeFiles/rebuild_cache.dir

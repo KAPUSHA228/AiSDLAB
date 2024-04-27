@@ -33,8 +33,6 @@ private:
     //HierarchyList hierarchyList;
     std::vector<Token>localList; //вектор для хранения строк который пойдут цельно в выражения
     int currentPos = 0;
-    int chapter=0; // на каком разделе из возможных мы находимся (всего 5)
-
 public:
     explicit Parser(Lexer lexer) {
         this->tokenList = lexer.getTokenList();
@@ -44,35 +42,54 @@ public:
     }
     void initDeclaration(){
         if(isTypeToken("TITLE")){
-            while(!isTypeToken("SPACE"))
+            while(!isTypeToken("SEMICOLON"))
             {   currentPos++;   } //скип названия, чтобы дойти до разделов Const или Var
             currentPos++; }       //есть вариант вообще название не добавлять уже на стадии Lexer, но мб пригодится
 
         if((isTypeToken("VAR"))||(isTypeToken("CONST"))){
             currentPos++;
             while (!isTypeToken("BEGIN")){
-                initStatement();
+                initRowStatement();
             }
         }
         currentPos++;
         initBegin();
     }
     void initBegin(){
-        if(isTypeToken("CONDITION")){}
-        if(isTypeToken("CICLEFOR")){}
-        if(isTypeToken("CICLEWHILE")){}
-        if(isTypeToken("CICLEDOWHILE")){}
+        std::vector<Token> condition;
+        if(isTypeToken("CONDITION")){
+            while (!isTypeToken("BEGIN")){
+                if(isTypeToken("THEN")) continue;
+                condition.push_back(tokenList[currentPos]);
+            }
+            currentPos++;
+            while ((!isTypeToken("ENDofIF"))||(!isTypeToken("UNCONDITION"))){
+                initBegin();
+            }
+        }
+        if(isTypeToken("CICLEFOR")){
+            while (!isTypeToken("CLOSEPARENTHESES")){}
+
+        }
+        if(isTypeToken("CICLEWHILE")){
+            while (!isTypeToken("CLOSEPARENTHESES")){}
+
+        }
+        if(isTypeToken("CICLEDOWHILE")){
+            while (!isTypeToken("CLOSEPARENTHESES")){}
+
+        }
         else{
-            initStatement();
+            initRowStatement();
             initBegin();
             return;}
 
     }
-    void initStatement(){
-        while(!isTypeToken(";")){
+    void initRowStatement(){
+        while(!isTypeToken("SEMICOLON")){
             if((isTypeToken("VAR"))||(isTypeToken("CONST"))) continue;
             localList.push_back( tokenList[currentPos]);
-            currentPos++;        }
+            currentPos++; }
         RunnableExpression ex (localList);
         expressionList.push_back(&ex);
         localList.clear();

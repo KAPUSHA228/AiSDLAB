@@ -44,17 +44,17 @@ int main() {
                 "num1:=2;"
                 "Write('Reader ', res2);"
                 "if Pi=num1 then""begin"
-                        "Write('Yes');"
+                     "Write('Yes');"
                 "end"
                 "else""begin"
-                      "Write('No');"
+                     "Write('No');"
                 "end;"
                 "num1:= num1 div 2;"
                 "for i:=1 to 8 do begin"
                     "Write(i);"
                 "end;"
             "end.";
-     Lexer lexer(test_text);
+    // Lexer lexer(test_text);
     //Parser parser(lexer);
     //try{ parser.parse(); }
     //catch(AgeException& e){ e.getMessage();}

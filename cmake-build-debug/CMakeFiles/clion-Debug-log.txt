@@ -1,4 +1,4 @@
-"D:\Games\toolbox jb\CLion\bin\cmake\win\x64\bin\cmake.exe" -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - MinGW Makefiles" -S D:\Games\CLion\projects\AiSDLAB -B D:\Games\CLion\projects\AiSDLAB\cmake-build-debug
+D:\games\jetBrains\CLion\bin\cmake\win\x64\bin\cmake.exe -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - MinGW Makefiles" -S D:\games\jetBrains\CLion\projects -B D:\games\jetBrains\CLion\projects\cmake-build-debug
 CMake Deprecation Warning:
   Support for "Extra Generators" like
 
@@ -8,6 +8,6 @@ CMake Deprecation Warning:
   use the cmake-file-api(7) to view CMake-generated project build trees.
 
 
--- Configuring done (0.6s)
+-- Configuring done (0.1s)
 -- Generating done (0.0s)
--- Build files have been written to: D:/Games/CLion/projects/AiSDLAB/cmake-build-debug
+-- Build files have been written to: D:/games/jetBrains/CLion/projects/cmake-build-debug
