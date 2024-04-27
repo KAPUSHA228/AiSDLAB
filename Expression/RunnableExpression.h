@@ -4,6 +4,7 @@
 
 #ifndef RUNNABLEEXPRESSION_H
 #define RUNNABLEEXPRESSION_H
+#include <utility>
 #include <vector>
 #include "Expression.h"
 #include "../Parser.h"
@@ -17,10 +18,30 @@ class RunnableExpression : public Expression {
 private:
     std::vector<Token> list;
 public:
-    RunnableExpression(std::vector<Token> _list){
-        TPostfixCalc p(list);
+    RunnableExpression(std::vector<Token> _list)
+    {list=std::move(_list);}
+    void toSolve(){
+        int i=0;
+        if(list.front().getValue()=="Write"){//3 варианта: текст, переменную, текст с переменной
+            list[i+3].getType()=="СOMMA"?
+            cout<<list[i+2].getValue()<<list[i+4].getValue():
+            cout<<list[i+2].getValue();
+        }
+        if(list.front().getValue()=="Writeln"){
+            list[i+3].getType()=="СOMMA"?
+            cout<<list[i+2].getValue()<<list[i+4].getValue():
+            cout<<list[i+2].getValue();
+            cout<<endl;
+        }
+        if(list.front().getValue()=="Read"){
+            //обращение к таблице, добавить в неё значение с клавиатуры
+        }
+        if(list.front().getValue()=="Readln"){
+            //обращение к таблице, добавить в неё значение с клавиатуры
+            cout<<endl;
+        }
+        else{TPostfixCalc p(list);}
     }
-
 
     void run() override {
         //for (auto Expression: expressionList) {

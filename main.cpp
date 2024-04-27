@@ -54,7 +54,7 @@ int main() {
                     "Write(i);"
                 "end;"
             "end.";
-    // Lexer lexer(test_text);
+     Lexer lexer(test_text);
     //Parser parser(lexer);
     //try{ parser.parse(); }
     //catch(AgeException& e){ e.getMessage();}

@@ -18,10 +18,6 @@ class AgeException: public std::exception
 public:
     AgeException(const std::string& message): message(message){}
     std::string getMessage() const {std::cout<<message; return message;}
-    //const char * what() const throw() override {
-    //    return message.c_str();
-   // }
-
 private:
     std::string message;
 };
@@ -30,7 +26,7 @@ private:
     std::vector<Token> tokenList;
     std::vector<Expression*> expressionList;
     //HierarchyList hierarchyList;
-    std::vector<Token>localList; //вектор для хранения строк который пойдут цельно в выражения
+    std::vector<Token>localList; //вектор для хранения строки которая пойдёт цельно в выражение
     int currentPos = 0;
 public:
     explicit Parser(Lexer lexer) {
@@ -95,10 +91,12 @@ public:
         return;
 
     }
-    void initCondition(){}
-    void initRowStatement(){
+    void initCondition(){//метод чтобы строчку кода (условие или цикл) переводить в ConditionExpression
+
+    }
+    void initRowStatement(){//метод чтобы строчку кода (не условие и не цикл) переводить в RunnableExpression
         while(!isTypeToken("SEMICOLON")){
-            if((isTypeToken("VAR"))||(isTypeToken("CONST"))) continue;
+            if(isTypeToken("VAR")) continue;
             localList.push_back( tokenList[currentPos]);
             currentPos++; }
         RunnableExpression ex (localList);
