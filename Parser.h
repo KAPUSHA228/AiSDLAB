@@ -53,39 +53,9 @@ public:
     }
     void initBegin(){
         std::vector<Token> condition;
-        if(isTypeToken("CONDITION")){
+        if((isTypeToken("CONDITION"))||(isTypeToken("CYCLEFOR"))||
+        (isTypeToken("CYCLEWHILE"))||(isTypeToken("CYCLEDOWHILE"))){
             ConditionExpression ex(currentPos,tokenList);
-           /* while (!isTypeToken("BEGIN")){
-                if(isTypeToken("THEN")) continue;
-                condition.push_back(tokenList[currentPos]);
-            }
-            currentPos++;
-            while (!isTypeToken("ENDofIF")){
-                initBegin();
-            }
-            currentPos++;
-            initBegin();*/
-
-        }
-
-        if(isTypeToken("CYCLEFOR")){
-            while (!isTypeToken("CLOSEPARENTHESES")){
-                condition.push_back(tokenList[currentPos]);
-            } currentPos++;
-            initBegin();
-
-        }
-        if(isTypeToken("CYCLEWHILE")){
-            while (!isTypeToken("CLOSEPARENTHESES")){
-                condition.push_back(tokenList[currentPos]);
-            } currentPos++;
-            initBegin();
-
-        }
-        if(isTypeToken("CYCLEDOWHILE")){
-            while (!isTypeToken("UNTIL")){ initBegin();}
-            currentPos++;
-            //как собрать условие после until?
         }
         else{
             initRowStatement();
