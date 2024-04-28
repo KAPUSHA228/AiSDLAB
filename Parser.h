@@ -64,9 +64,6 @@ public:
         return;
 
     }
-    void initCondition(){//метод чтобы строчку кода (условие или цикл) переводить в ConditionExpression
-
-    }
     void initRowStatement(){//метод чтобы строчку кода (не условие и не цикл) переводить в RunnableExpression
         while(!isTypeToken("SEMICOLON")){
             if(isTypeToken("VAR")) continue;
