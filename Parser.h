@@ -55,7 +55,8 @@ public:
         std::vector<Token> condition;
         if((isTypeToken("CONDITION"))||(isTypeToken("CYCLEFOR"))||
         (isTypeToken("CYCLEWHILE"))||(isTypeToken("CYCLEDOWHILE"))){
-            ConditionExpression ex(currentPos,tokenList);
+            ConditionExpression cx(currentPos,tokenList);
+            currentPos=cx.getGlobalPos();
         }
         else{
             initRowStatement();
