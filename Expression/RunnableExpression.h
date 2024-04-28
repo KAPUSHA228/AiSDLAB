@@ -18,8 +18,24 @@ class RunnableExpression : public Expression {
 private:
     std::vector<Token> list;
 public:
+    RunnableExpression(){cout<<list.size();}
     RunnableExpression(std::vector<Token> _list)
     {list=std::move(_list);}
+    /*std::string print() override{
+        string s;
+        for(auto token:list){
+            s+=token.getValue();s+=" ";
+        }
+        s+="\n";
+        return s;
+    }*/
+    void add(Token t){list.push_back(t);}
+    void print() override{
+        for(auto token:list){
+            std::cout<<token.getValue()<<" ";
+        }
+        std::cout<<endl;
+    }
     void toSolve(){
         int i=0;
         if(list.front().getValue()=="Write"){//3 варианта: текст, переменную, текст с переменной
@@ -43,10 +59,10 @@ public:
         else{TPostfixCalc p(list);}//происходит выражение с присвоением
     }
 
-    void run() override {
+    /*void run() override {
         //for (auto Expression: expressionList) {
           //  Expression->run();
         //}
-    }
+    }*/
 };
 #endif //RUNNABLEEXPRESSION_H

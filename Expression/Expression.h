@@ -4,9 +4,10 @@
 
 #ifndef EXPRESSION_H
 #define EXPRESSION_H
-//
+
 class Expression {
 public:
-    virtual void run()=0;
+  //  virtual void run()=0;
+    virtual void print()=0;
 };
 #endif //EXPRESSION_H

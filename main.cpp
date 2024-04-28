@@ -6,8 +6,39 @@
 using namespace std;
 
 void forTestRegex(const string &str);
-
+class A{
+public:
+    virtual void print() =0;
+};
+class B:public A{
+    vector<Token>v;
+public:
+    void add(Token t){v.push_back(t);}
+    void print() override{
+        for(auto token:v){
+            std::cout<<token.getValue()<<" ";
+        }
+        std::cout<<endl;
+    }
+};
+class C{
+public:
+    vector<A*> vec;
+    void print(){
+        for(auto item: vec){
+            item->print();
+        }
+    }
+};
 int main() {
+    Token t("a","a",2);
+    Token t1("a","b",2);
+    B b;
+    b.add(t);
+    b.add(t1);
+    C c;
+    c.vec.push_back(&b);
+    c.print();
     /* PascalABC for example
      *
      *var a,b :integer;
@@ -20,8 +51,8 @@ int main() {
     //В конце программы - end.  !!!
     string text_program_pascal =
             "var a:real;\n"
-            "var b:char;\n"
-            "var c: string;\n"
+            "    b:char;\n"
+            "    c: string;\n"
             "begin\n"
             "   a := 1.2;\n"
             "   b := '19w';\n"
@@ -29,6 +60,22 @@ int main() {
             "end.\n";
     //cout<<text_program_pascal;
     //forTestRegex(" +dshgdhgads)");
+    string base= "var"
+                    "a: integer;"
+                    "b: real;"
+                 "begin"
+                    "a:=3;"
+                 "end.";
+    string test= "var" "begin"
+                 "num1:=2;"
+                 "Write('Reader ', res2);"
+                 "if Pi=num1 then begin"
+                 "Write('Yes');"
+                 "end"
+                 "else begin"
+                 "Write('No');"
+                 "end;"
+                 "end.";
     string test_text=
             "program qq;"
             "const"
@@ -52,12 +99,11 @@ int main() {
             "Write(i);"
             "end;"
             "end.";
-    Lexer lexer(test_text);
-    //Parser parser(lexer);
-    //try{ parser.parse(); }
-    //catch(AgeException& e){ e.getMessage();}
-
-
+    Lexer lexer(base);
+    Parser parser(lexer);
+    try{ parser.parse(); }
+    catch(AgeException& e){ e.getMessage();}
+    parser.print();
     return 0;
 }
 

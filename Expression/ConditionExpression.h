@@ -32,25 +32,25 @@ public:
 
             while(list[posofEndofIf].getType()!="ENDofIF"){ //пока не дойдём до конца тела текущего if
                 if((list[posofEndofIf].getType()=="CONDITION")|| //если хоть какую-то в нем вложенность находим
-                (list[posofEndofIf].getType()=="CYCLEFOR")||// хоть вложенное условие, хоть вложенный цикл, то создаём новый объект
-                (list[posofEndofIf].getType()=="CYCLEWHILE")||// не забываем про static переменную, она указывает новое место где мы окажемся
-                (list[posofEndofIf].getType()=="CYCLEDOWHILE")){ //поднявшись обратно наверх от вложенного объекта
+                   (list[posofEndofIf].getType()=="CYCLEFOR")|| // хоть вложенное условие, хоть вложенный цикл, то создаём новый объект
+                   (list[posofEndofIf].getType()=="CYCLEWHILE")|| // не забываем про static переменную, она указывает новое место где мы окажемся
+                   (list[posofEndofIf].getType()=="CYCLEDOWHILE")){ //поднявшись обратно наверх от вложенного объекта
                     ConditionExpression cx(posofEndofIf,list);
                     expressionList.push_back(&cx);}
-                while(list[posofEndofIf].getType()!="SEMICOLON"){//если вложенности нет или мы с ней уже закончили, то формируем обычные выражения
+                while(list[posofEndofIf].getType()!="SEMICOLON"){ //если вложенности нет или мы с ней уже закончили, то формируем обычные выражения
                     localList.push_back(list[posofEndofIf]);
                     posofEndofIf++;}
-                RunnableExpression ex(localList);
-                expressionList.push_back(&ex);
+                RunnableExpression rx(localList);
+                expressionList.push_back(&rx);
                 localList.clear();
                 posofEndofIf++;}
             //после ENDofIF перескакивать не надо, чтобы было разделение на отдельные объекты у if и else
         }
         if(list[posofEndofIf].getType()=="UNCONDITION"){
             posofEndofIf++;
-            TPostfixCalc p(condition);// а здесь отрицание этого метода, довольно удобно получится
-
-            while(list[posofEndofIf].getType()!="ENDofCycle"){ // те же шаги, что и при condition, но уже в цикле до ENDofCycle
+            //TPostfixCalc p(condition);// а здесь отрицание этого метода, довольно удобно получится
+            // те же шаги, что и при condition, но уже в цикле до ENDofCycle
+            while(list[posofEndofIf].getType()!="ENDofCycle"){
                 if((list[posofEndofIf].getType()=="CONDITION")||
                    (list[posofEndofIf].getType()=="CYCLEFOR")||
                    (list[posofEndofIf].getType()=="CYCLEWHILE")||
@@ -71,7 +71,8 @@ public:
                 posofEndofIf++;  }
             posofEndofIf++;
             posofEndofIf++;
-            while(list[posofEndofIf].getType()!="ENDofCycle"){ // те же шаги, что и при uncondition
+            // те же шаги, что и при uncondition
+            while(list[posofEndofIf].getType()!="ENDofCycle"){
                 if((list[posofEndofIf].getType()=="CONDITION")||
                    (list[posofEndofIf].getType()=="CYCLEFOR")||
                    (list[posofEndofIf].getType()=="CYCLEWHILE")||
@@ -128,8 +129,8 @@ public:
             }*/
         }
         if(list[posofEndofIf].getType()=="CYCLEDOWHILE"){
-
-            while(list[posofEndofIf].getType()!="ENDofCycle"){ // те же шаги, что и при uncondition
+            // те же шаги, что и при uncondition
+            while(list[posofEndofIf].getType()!="ENDofCycle"){
                 if((list[posofEndofIf].getType()=="CONDITION")||
                    (list[posofEndofIf].getType()=="CYCLEFOR")||
                    (list[posofEndofIf].getType()=="CYCLEWHILE")||
@@ -150,14 +151,33 @@ public:
             posofEndofIf++;
         }
     }
+   /* std::string print() override{
+        string s;
+        for(auto token:condition)
+        { s+=token.getValue();s+=" "; } s+="\n";
+            for(auto token2:expressionList){
+                s+="   "; s+=token2->print();  s+="\n";
+
+            }
+        return s;
+    }*/
+    void print() override{
+        for(auto token:condition)
+        { std::cout<<token.getValue()<<" "; } std::cout<<endl;
+        for(auto token2:expressionList){
+           std::cout<<"   ";token2->print(); cout<<std::endl;
+
+        }
+    }
+    void makeCondition(){}
     void toSolve(){
 
     }
-    void run() override {
+   /* void run() override {
        // for (auto Expression: expressionList) {
          //   Expression.run();
         //}
-    }
+    }*/
 };
 
 

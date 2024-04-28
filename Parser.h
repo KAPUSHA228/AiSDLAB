@@ -27,7 +27,6 @@ private:
     std::vector<Token> tokenList;
     std::vector<Expression*> expressionList;
     //HierarchyList hierarchyList;
-    std::vector<Token>localList; //вектор для хранения строки которая пойдёт цельно в выражение
     int currentPos = 0;
 public:
     explicit Parser(Lexer lexer) {
@@ -38,43 +37,53 @@ public:
     }
     void initDeclaration(){
         if(isTypeToken("TITLE")){
-            while(!isTypeToken("SEMICOLON"))
-            {   currentPos++;   } //скип названия, чтобы дойти до разделов Const или Var
-            currentPos++; }       //есть вариант вообще название не добавлять уже на стадии Lexer, но мб пригодится
+            while(!isTypeToken("SEMICOLON")){
+                currentPos++;} //скип названия, чтобы дойти до разделов Const или Var
+            currentPos++;}       //есть вариант вообще название не добавлять уже на стадии Lexer, но мб пригодится
 
         if((isTypeToken("VAR"))||(isTypeToken("CONST"))){
             currentPos++;
             while (!isTypeToken("BEGIN")){
                 initRowStatement();
             }
+            currentPos++;
         }
+        //initBegin();
+    }
+    void print(){
+        for(auto& item:expressionList){
+            //item->print();
+           cout<<"k";
+           }
+       // cout<<expressionList.size();
+    }
+    void initRowStatement(){//метод чтобы строчку кода (не условие и не цикл) переводить в RunnableExpression
+        RunnableExpression rx;
+        while(!isTypeToken("SEMICOLON")){
+            if(isTypeToken("VAR")) continue;
+            rx.add( tokenList[currentPos]);
+            currentPos++; }
+        expressionList.push_back(&rx);
         currentPos++;
-        initBegin();
+        return;
     }
     void initBegin(){
         std::vector<Token> condition;
-        if((isTypeToken("CONDITION"))||(isTypeToken("CYCLEFOR"))||
-        (isTypeToken("CYCLEWHILE"))||(isTypeToken("CYCLEDOWHILE"))){
-            ConditionExpression cx(currentPos,tokenList);
-            currentPos=cx.getGlobalPos();
-            expressionList.push_back(&cx);
+        while(!isTypeToken("ENDofPROGRAM")){
+            if((isTypeToken("CONDITION"))||(isTypeToken("CYCLEFOR"))||
+               (isTypeToken("CYCLEWHILE"))||(isTypeToken("CYCLEDOWHILE"))){
+                ConditionExpression cx(currentPos,tokenList);
+                currentPos=cx.getGlobalPos();
+                expressionList.push_back(&cx);
+            }
+            else{
+                initRowStatement();
+                initBegin();
+                return;}
         }
-        else{
-            initRowStatement();
-            initBegin();
-            return;}
+
         return;
 
-    }
-    void initRowStatement(){//метод чтобы строчку кода (не условие и не цикл) переводить в RunnableExpression
-        while(!isTypeToken("SEMICOLON")){
-            if(isTypeToken("VAR")) continue;
-            localList.push_back( tokenList[currentPos]);
-            currentPos++; }
-        RunnableExpression rx (localList);
-        expressionList.push_back(&rx);
-        localList.clear();
-        currentPos++;
     }
     /*void initVar() {
         if (isTypeToken("VAR")) {
