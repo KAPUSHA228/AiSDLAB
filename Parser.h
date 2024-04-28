@@ -57,6 +57,7 @@ public:
         (isTypeToken("CYCLEWHILE"))||(isTypeToken("CYCLEDOWHILE"))){
             ConditionExpression cx(currentPos,tokenList);
             currentPos=cx.getGlobalPos();
+            expressionList.push_back(&cx);
         }
         else{
             initRowStatement();
@@ -70,8 +71,8 @@ public:
             if(isTypeToken("VAR")) continue;
             localList.push_back( tokenList[currentPos]);
             currentPos++; }
-        RunnableExpression ex (localList);
-        expressionList.push_back(&ex);
+        RunnableExpression rx (localList);
+        expressionList.push_back(&rx);
         localList.clear();
         currentPos++;
     }
