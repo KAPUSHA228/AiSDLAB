@@ -11,12 +11,11 @@
 #include <set>
 #include "Token.h"
 #include "TokenType.h"
-#include <locale.h>
+#include <clocale>
 
 //Класс вроде как закончен, мб дополнения
 class Lexer {
 private:
-    // std::set<Token>tokenSet;
     // Вектор Токенов в коде Паскаль
     std::vector<Token> tokenList;
     std::string input_string;
@@ -36,15 +35,11 @@ public:
     }
 
     bool hasNext() {
-        // std::setlocale(LC_ALL,"Russian)");
         for (const auto &item: vector) {
             const std::string s = input_string;
             std::regex rgx("^" + item.second);
             std::smatch match;
-            // std::cout<<"^" + item.second<<std::endl;
-            //std::cout <<"In line 1 were found the following elements: ";
             if (std::regex_search(s.begin() + pos, s.end(), match, rgx)) {
-                //std::cout <<"In line 1 were found the following elements: ";
                 std::string res = static_cast<std::string>(match[0]);
                 pos += res.length();
                 if (item.first != "SPACE")
@@ -76,9 +71,11 @@ public:
         return {
             {"CONST", "const"},
             {"VAR", "var"},
+            {"THEN", "then"},
+            {"DO", "do"},
             {"BEGIN", "begin"},
-            {"ENDofCicle", "end;"},
-            {"ENDofPROGRAM", "end\."},
+            {"ENDofCycle", "end;"},
+            {"ENDofPROGRAM", "end[\.]"},
             {"ENDofIF","end"},
             {"TYPEINTEGER", "integer"},
             {"TYPEREAL", "real"},
@@ -111,18 +108,18 @@ public:
             {"OPENSQUARE", "[\[]"},
             {"CLOSESQUARE", "[\]]"},
             {"CONDITION", "if"},
-            {"THEN", "then"},
             {"UNCONDITION", "else"},
             {"MOD", "mod"},
             {"DIV", "div"},
             {"PLUS", "[+]"},
-            {"WRITE", "write"},
-            {"READ", "read"},
-            {"CICLEFOR", "for"},
-            {"CICLEWHILE", "while"},
-            {"CICLEDOWHILE","repeat"},
+            {"WRITE", "Write"},
+            {"READ", "Read"},
+            {"CYCLEFOR", "for"},
+            {"INC","to"},
+            {"DEC","downto"},
+            {"CYCLEWHILE", "while"},
+            {"CYCLEDOWHILE","repeat"},
             {"UNTIL","until"},
-            {"DO", "do\nbegin\n"},
             {"VARIABLE", "[a-z0-9A-Z_-]+"},
             {"SPACE", "[ \t\n]"}
         };

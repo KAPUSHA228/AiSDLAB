@@ -67,21 +67,22 @@ public:
             initBegin();*/
 
         }
-        if(isTypeToken("CICLEFOR")){
+
+        if(isTypeToken("CYCLEFOR")){
             while (!isTypeToken("CLOSEPARENTHESES")){
                 condition.push_back(tokenList[currentPos]);
             } currentPos++;
             initBegin();
 
         }
-        if(isTypeToken("CICLEWHILE")){
+        if(isTypeToken("CYCLEWHILE")){
             while (!isTypeToken("CLOSEPARENTHESES")){
                 condition.push_back(tokenList[currentPos]);
             } currentPos++;
             initBegin();
 
         }
-        if(isTypeToken("CICLEDOWHILE")){
+        if(isTypeToken("CYCLEDOWHILE")){
             while (!isTypeToken("UNTIL")){ initBegin();}
             currentPos++;
             //как собрать условие после until?
