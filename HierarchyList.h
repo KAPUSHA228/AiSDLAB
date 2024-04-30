@@ -13,57 +13,56 @@ template <class Priority, class Value>
 class HierarchyList {
 private:
     struct Node {
-        Node* nextChapter;
-        Node* description;
+        Node* nextDescription;
         Value value;
-        Priority priority;
-
-        Node(Value v, Priority p) {
-            nextChapter=nullptr;
-            description=nullptr;
+        Node(Value v) {
+            nextDescription=nullptr;
             value = v;
-            priority = p; }
-        Node(Node* n, Node* d, Value v, Priority p) {
-            nextChapter=n;
-            description=d;
+        }
+        Node( Node* d, Value v) {
+            nextDescription = d;
             value = v;
-            priority = p;
         }
         void toSolve(){
             if(this==nullptr)return;
-            this->description->toSolve();
+            this->nextDescription->toSolve();
             this->value.toSolve();
-            this->nextChapter->toSolve();
+            return;
         }
-
     };
-    Node* home;
+    struct Chapter{
+        Priority chapter;
+        Chapter* nextChapter;
+        Node* description;
+        Chapter(Priority p){
+            chapter=p;
+            nextChapter=nullptr;
+            description=nullptr;
+        }
+    };
+    Chapter* root;
 public:
     HierarchyList() {
-        home=nullptr;
-    }
-    HierarchyList(Value v, Priority p) {
-        home=new Node(v,p);
-    }
-    HierarchyList(Node* n, Node* d, Value v, Priority p) {
-        home=new Node(n,d,v,p);
+        root=new Chapter("Const");
+        root->nextChapter=new Chapter("Var");
+        (root->nextChapter)->nextChapter=new Chapter("Body");
     }
     void toAddNext(Value val, Priority pr) {
         Node* new_node= new Node(val,pr);
-        if(this->home==nullptr){
-            this->home=new_node;
+        if(this->root == nullptr){
+            this->root=new_node;
         }
-        Node* current=this->home;
+        Node* current;
         while(current!=nullptr) {
             if (current->priority == pr) {
-                current=current->description;
+                current=current->nextDescription;
             } else {
                 current=current->nextChapter;
             }
         }current=new_node;
     }
     void toSolve(){
-        home->toSolve();
+        root->toSolve();
     }
 };
 
