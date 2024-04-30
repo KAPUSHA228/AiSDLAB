@@ -16,4 +16,5 @@ add_executable(project1 main.cpp
         HierarchyList.h
         Expression/ConditionExpression.h
         Postfix.h
-        Stack.h)
+        Stack.h
+        SearchTreeTable.h)
