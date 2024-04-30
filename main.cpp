@@ -25,9 +25,7 @@ class C{
 private:
     vector<A*> vec;
 public:
-    void add(A* v){
-        A* v1; v1=v;
-    vec.push_back(v1);}
+    void add(A* v){vec.push_back(v);}
     void print(){
         for(auto item: vec){
             item->print();
@@ -110,11 +108,11 @@ int main() {
             "end;"
             "end.";
     //Lexer lexer(base);
-    HierarchyList <int,Expression*>l;
-    Parser parser(v);
+    //HierarchyList <string,Expression*>l;
+    /*Parser parser(v);
     try{ parser.parse(); }
     catch(AgeException& e){ e.getMessage();}
-    parser.print();
+    parser.print();*/
     return 0;
 }
 

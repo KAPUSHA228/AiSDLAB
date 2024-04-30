@@ -1,7 +1,6 @@
 //
 // Created by shuri on 23.04.2024.
 //
-
 #ifndef HIERARCHYLIST_H
 #define HIERARCHYLIST_H
 #include <iostream>
@@ -48,18 +47,16 @@ public:
         (root->nextChapter)->nextChapter=new Chapter("Body");
     }
     void toAddNext(Value val, Priority pr) {
-        Node* new_node= new Node(val,pr);
-        if(this->root == nullptr){
-            this->root=new_node;
+        Node* new_node= new Node(val);
+        Chapter* currentChapter = this->root;
+        while(currentChapter->chapter!=pr){
+            currentChapter=currentChapter->nextChapter;
         }
-        Node* current;
-        while(current!=nullptr) {
-            if (current->priority == pr) {
-                current=current->nextDescription;
-            } else {
-                current=current->nextChapter;
-            }
-        }current=new_node;
+        Node* currentNode=currentChapter->description;
+        while(currentNode!=nullptr){
+            currentNode=currentNode->nextDescription;
+        }
+        currentNode=new_node;
     }
     void toSolve(){
         root->toSolve();
