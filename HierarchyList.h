@@ -9,22 +9,62 @@
 #include "Token.h"
 #include "Lexer.h"
 using namespace std;
-struct Node {
-    Expression* value;
-    int priority;
-    //Node() { value = 0; priority = 0; }
-    //Node(int a, int b) { value = a; priority = b; }
-};
+template <class Priority, class Value>
 class HierarchyList {
 private:
-    Node* nextChapter;
-    Node* description;
+    struct Node {
+        Node* nextChapter;
+        Node* description;
+        Value value;
+        Priority priority;
+
+        Node(Value v, Priority p) {
+            nextChapter=nullptr;
+            description=nullptr;
+            value = v;
+            priority = p; }
+        Node(Node* n, Node* d, Value v, Priority p) {
+            nextChapter=n;
+            description=d;
+            value = v;
+            priority = p;
+        }
+        void toSolve(){
+            if(this==nullptr)return;
+            this->description->toSolve();
+            this->value.toSolve();
+            this->nextChapter->toSolve();
+        }
+
+    };
+    Node* home;
 public:
     HierarchyList() {
-        //nextChapter = new Node(2, 8);
-        //description = new Node(3, 7);
+        home=nullptr;
     }
-
+    HierarchyList(Value v, Priority p) {
+        home=new Node(v,p);
+    }
+    HierarchyList(Node* n, Node* d, Value v, Priority p) {
+        home=new Node(n,d,v,p);
+    }
+    void toAddNext(Value val, Priority pr) {
+        Node* new_node= new Node(val,pr);
+        if(this->home==nullptr){
+            this->home=new_node;
+        }
+        Node* current=this->home;
+        while(current!=nullptr) {
+            if (current->priority == pr) {
+                current=current->description;
+            } else {
+                current=current->nextChapter;
+            }
+        }current=new_node;
+    }
+    void toSolve(){
+        home->toSolve();
+    }
 };
 
 #endif //HIERARCHYLIST_H

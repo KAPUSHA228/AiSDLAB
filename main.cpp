@@ -13,7 +13,7 @@ public:
 class B:public A{
     vector<Token>v;
 public:
-    void add(Token t){v.push_back(t);}
+    void add(const Token& t){v.push_back(t);}
     void print() override{
         for(auto token:v){
             std::cout<<token.getValue()<<" ";
@@ -22,8 +22,12 @@ public:
     }
 };
 class C{
-public:
+private:
     vector<A*> vec;
+public:
+    void add(A* v){
+        A* v1; v1=v;
+    vec.push_back(v1);}
     void print(){
         for(auto item: vec){
             item->print();
@@ -31,13 +35,19 @@ public:
     }
 };
 int main() {
-    Token t("a","a",2);
-    Token t1("a","b",2);
+    vector <Token>v={
+            {"VAR","var",2},
+            {"VARIABLE","b",2},
+            {"SEMICOLON",";",2},
+            {"BEGIN","begin",2}
+    };
+    Token t("VAR","var",2);
+    Token t1("VARIABLE","c",2);
     B b;
     b.add(t);
     b.add(t1);
     C c;
-    c.vec.push_back(&b);
+    c.add(&b);
     c.print();
     /* PascalABC for example
      *
@@ -99,8 +109,9 @@ int main() {
             "Write(i);"
             "end;"
             "end.";
-    Lexer lexer(base);
-    Parser parser(lexer);
+    //Lexer lexer(base);
+    HierarchyList <int,Expression*>l;
+    Parser parser(v);
     try{ parser.parse(); }
     catch(AgeException& e){ e.getMessage();}
     parser.print();

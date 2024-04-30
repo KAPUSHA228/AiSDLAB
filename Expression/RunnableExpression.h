@@ -21,14 +21,6 @@ public:
     RunnableExpression(){cout<<list.size();}
     RunnableExpression(std::vector<Token> _list)
     {list=std::move(_list);}
-    /*std::string print() override{
-        string s;
-        for(auto token:list){
-            s+=token.getValue();s+=" ";
-        }
-        s+="\n";
-        return s;
-    }*/
     void add(Token t){list.push_back(t);}
     void print() override{
         for(auto token:list){

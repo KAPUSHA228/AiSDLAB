@@ -6,7 +6,7 @@
 #define TOKEN_H
 #include <string>
 #include <utility>
-
+using namespace std;
 
 class Token {
 private:
@@ -15,6 +15,12 @@ private:
     int pos;
 
 public:
+    Token(){
+        this->type=std::string();
+        this->value=std::string();
+        this->pos=int();
+
+    }
     Token(std::string type, std::string value, int pos) {
         this->type = std::move(type);
         this->value = std::move(value);
@@ -32,6 +38,10 @@ public:
     }
     int getPos() {
         return this->pos;
+    }
+    friend std::ostream& operator<<(std::ostream& ostr, const Token& v)
+    {
+       return ostr;
     }
 };
 

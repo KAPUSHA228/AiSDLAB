@@ -27,11 +27,13 @@ private:
     std::vector<Token> tokenList;
     std::vector<Expression*> expressionList;
     //HierarchyList hierarchyList;
+    std::vector<Token> localList;
     int currentPos = 0;
 public:
     explicit Parser(Lexer lexer) {
         this->tokenList = lexer.getTokenList();
     }
+    Parser(vector<Token> t){this->tokenList=t;}
     void parse() {
         initDeclaration();
     }
@@ -51,19 +53,20 @@ public:
         //initBegin();
     }
     void print(){
-        for(auto& item:expressionList){
-            //item->print();
-           cout<<"k";
+        for(auto item:expressionList){
+            item->print();
+           //cout<<"k";
            }
        // cout<<expressionList.size();
     }
     void initRowStatement(){//метод чтобы строчку кода (не условие и не цикл) переводить в RunnableExpression
-        RunnableExpression rx;
         while(!isTypeToken("SEMICOLON")){
             if(isTypeToken("VAR")) continue;
-            rx.add( tokenList[currentPos]);
+            localList.push_back( tokenList[currentPos]);
             currentPos++; }
+        RunnableExpression rx(localList);
         expressionList.push_back(&rx);
+        localList.clear();
         currentPos++;
         return;
     }
