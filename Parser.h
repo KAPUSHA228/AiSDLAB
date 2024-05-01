@@ -11,7 +11,7 @@
 #include "HierarchyList.h"
 #include "Expression/ExceptionAST.h"
 #include "Expression/Expression.h"
-#include "Expression/RunnableExpression.h"
+#include "Expression/StatementExpression.h"
 #include "Expression/ConditionExpression.h"
 using namespace std;
 class AgeException: public std::exception
@@ -26,16 +26,16 @@ class Parser {
 private:
     std::vector<Token> tokenList;
     std::vector<Expression*> expressionList;
-    //HierarchyList hierarchyList;
     std::vector<Token> localList;
     int currentPos = 0;
 public:
-    explicit Parser(Lexer lexer) {
+    Parser(Lexer lexer) {
         this->tokenList = lexer.getTokenList();
     }
     Parser(vector<Token> t){this->tokenList=t;}
     void parse() {
         initDeclaration();
+        return;
     }
     void initDeclaration(){
         if(isTypeToken("TITLE")){
@@ -50,6 +50,7 @@ public:
             }
             currentPos++;
         }
+        return;
         //initBegin();
     }
     void print(){
@@ -59,18 +60,18 @@ public:
            }
        // cout<<expressionList.size();
     }
-    void initRowStatement(){//метод чтобы строчку кода (не условие и не цикл) переводить в RunnableExpression
+    void initRowStatement(){//метод чтобы строчку кода (не условие и не цикл) переводить в StatementExpression
         while(!isTypeToken("SEMICOLON")){
             if(isTypeToken("VAR")) continue;
             localList.push_back( tokenList[currentPos]);
             currentPos++; }
-        RunnableExpression rx(localList);
+        StatementExpression rx(localList);
         expressionList.push_back(&rx);
         localList.clear();
         currentPos++;
         return;
     }
-    void initBegin(){
+    /*void initBegin(){
         std::vector<Token> condition;
         while(!isTypeToken("ENDofPROGRAM")){
             if((isTypeToken("CONDITION"))||(isTypeToken("CYCLEFOR"))||

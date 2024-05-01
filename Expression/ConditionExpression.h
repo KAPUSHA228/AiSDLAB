@@ -13,7 +13,7 @@
 #include "../Postfix.h"
 
 static int posofEndofIf=0; //только для вложенных случаев нужен
-class ConditionExpression: public Expression{
+class ConditionExpression: public Expression{/*
 private:
     std::vector<Expression*> expressionList;
     std::vector<Token> condition;
@@ -40,7 +40,7 @@ public:
                 while(list[posofEndofIf].getType()!="SEMICOLON"){ //если вложенности нет или мы с ней уже закончили, то формируем обычные выражения
                     localList.push_back(list[posofEndofIf]);
                     posofEndofIf++;}
-                RunnableExpression rx(localList);
+                StatementExpression rx(localList);
                 expressionList.push_back(&rx);
                 localList.clear();
                 posofEndofIf++;}
@@ -60,7 +60,7 @@ public:
                 while(list[posofEndofIf].getType()!="SEMICOLON"){
                     localList.push_back(list[posofEndofIf]);
                     posofEndofIf++;}
-                RunnableExpression rx(localList);
+                StatementExpression rx(localList);
                 expressionList.push_back(&rx);
                 localList.clear();
                 posofEndofIf++;}
@@ -82,10 +82,10 @@ public:
                 while(list[posofEndofIf].getType()!="SEMICOLON"){
                     localList.push_back(list[posofEndofIf]);
                     posofEndofIf++;}
-                RunnableExpression rx(localList);
+                StatementExpression rx(localList);
                 expressionList.push_back(&rx);
                 localList.clear();
-                posofEndofIf++;}
+                posofEndofIf++;}*/
 
             /*int i1,i2;
             while(list[posofEndofIf].getType()!="ASSIGN"){  posofEndofIf++;  }
@@ -105,7 +105,7 @@ public:
                     while(list[posofEndofIf].getValue()!="SEMICOLON"){
                             localList.push_back(list[posofEndofIf]);
                             posofEndofIf++;}
-                        RunnableExpression ex(localList);
+                        StatementExpression ex(localList);
                         expressionList.push_back(&ex);
                         localList.clear();
                         posofEndofIf++;
@@ -121,13 +121,13 @@ public:
                     while(list[posofEndofIf].getValue()!="SEMICOLON"){
                         localList.push_back(list[posofEndofIf]);
                         posofEndofIf++;}
-                    RunnableExpression ex(localList);
+                    StatementExpression ex(localList);
                     expressionList.push_back(&ex);
                     localList.clear();
                     posofEndofIf++;
                 }
             }*/
-        }
+       /* }
         if(list[posofEndofIf].getType()=="CYCLEDOWHILE"){
             // те же шаги, что и при uncondition
             while(list[posofEndofIf].getType()!="ENDofCycle"){
@@ -140,7 +140,7 @@ public:
                 while(list[posofEndofIf].getType()!="SEMICOLON"){
                     localList.push_back(list[posofEndofIf]);
                     posofEndofIf++;}
-                RunnableExpression rx(localList);
+                StatementExpression rx(localList);
                 expressionList.push_back(&rx);
                 localList.clear();
                 posofEndofIf++;}
@@ -150,7 +150,7 @@ public:
                 posofEndofIf++;  }
             posofEndofIf++;
         }
-    }
+    }*/
    /* std::string print() override{
         string s;
         for(auto token:condition)
@@ -161,7 +161,7 @@ public:
             }
         return s;
     }*/
-    void print() override{
+    /*void print() override{
         for(auto token:condition)
         { std::cout<<token.getValue()<<" "; } std::cout<<endl;
         for(auto token2:expressionList){
@@ -172,7 +172,7 @@ public:
     void makeCondition(){}
     void toSolve(){
 
-    }
+    }*/
    /* void run() override {
        // for (auto Expression: expressionList) {
          //   Expression.run();

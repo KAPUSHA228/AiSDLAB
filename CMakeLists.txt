@@ -10,7 +10,7 @@ add_executable(project1 main.cpp
         Token.h
         TokenType.h
         Expression/Expression.h
-        Expression/RunnableExpression.h
+        Expression/StatementExpression.h
         Parser.h
         Expression/ExceptionAST.h
         HierarchyList.h

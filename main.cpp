@@ -13,40 +13,71 @@ public:
 class B:public A{
     vector<Token>v;
 public:
+    B(){cout<<"size of b = "<<v.size()<<endl;}
+    B(std::vector<Token> _list)
+    {v=std::move(_list);}
     void add(const Token& t){v.push_back(t);}
     void print() override{
-        for(auto token:v){
-            std::cout<<token.getValue()<<" ";
+            for(auto token:v){std::cout<<token.getValue()<<" ";}
+            cout<<"size ex of b = "<<v.size()<<endl;
+       // std::cout<<endl;
+    }
+    void getValue(){
+        for(auto item:v){
+            item.getValue();
         }
-        std::cout<<endl;
     }
 };
 class C{
 private:
-    vector<A*> vec;
+    std::vector<Token>token;
+    std::vector<A*> vec;
+
 public:
+    C(Lexer lexer){this->token=lexer.getTokenList();}
+    C(A* v){vec.push_back(v); }
+    C(std::vector<Token> t){this->token=t;}
     void add(A* v){vec.push_back(v);}
+    void add(Token t){token.push_back(t);}
+    void create(vector<Token>t){B b(t); this->add(&b); }
     void print(){
         for(auto item: vec){
-            item->print();
+           cout<<"Print el of c "; (*item).print();cout<<endl;
         }
+    }
+    void parse(){
+         cout<<"size of c ex = "<<vec.size();
+         auto iter{vec.begin()};
+         while(iter!=vec.end()){cout<<"k";iter++;}
+        (*iter)->print(); //здесь элемент b
+         // у сысоева был пример с вектором целых чисел и *iter показывал
+         //целое число, а у нас тут вектор указателей на класс А, соответсвенно
+         // я думал что *iter=A*, но почему-то это равно просто B
     }
 };
 int main() {
     vector <Token>v={
             {"VAR","var",2},
             {"VARIABLE","b",2},
-            {"SEMICOLON",";",2},
+            {"SEMICOLON",":integer;",2},
             {"BEGIN","begin",2}
     };
     Token t("VAR","var",2);
     Token t1("VARIABLE","c",2);
-    B b;
-    b.add(t);
-    b.add(t1);
-    C c;
+   // B b;
+   // b.add(t);
+   // b.add(t1);
+    B b(v);
+    C c(&b);
+   // C c(v);
+   // c.print();
     c.add(&b);
+    c.create(v); //он не хоооооооооооооооочееееееееееет аааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааа
+
     c.print();
+
+   // c.parse();
+   // c.print();
     /* PascalABC for example
      *
      *var a,b :integer;
@@ -108,6 +139,7 @@ int main() {
             "end;"
             "end.";
     //Lexer lexer(base);
+
     //HierarchyList <string,Expression*>l;
     /*Parser parser(v);
     try{ parser.parse(); }

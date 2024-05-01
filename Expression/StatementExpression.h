@@ -14,12 +14,12 @@
 #include "../Token.h"
 #include "../Postfix.h"
 
-class RunnableExpression : public Expression {
+class StatementExpression : public Expression {
 private:
     std::vector<Token> list;
 public:
-    RunnableExpression(){cout<<list.size();}
-    RunnableExpression(std::vector<Token> _list)
+    StatementExpression(){cout << list.size();}
+    StatementExpression(std::vector<Token> _list)
     {list=std::move(_list);}
     void add(Token t){list.push_back(t);}
     void print() override{
