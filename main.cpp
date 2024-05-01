@@ -12,15 +12,20 @@ public:
 };
 class B:public A{
     vector<Token>v;
+
 public:
     B(){cout<<"size of b = "<<v.size()<<endl;}
     B(std::vector<Token> _list)
-    {v=std::move(_list);}
+    {v=_list;}
     void add(const Token& t){v.push_back(t);}
     void print() override{
             for(auto token:v){std::cout<<token.getValue()<<" ";}
             cout<<"size ex of b = "<<v.size()<<endl;
        // std::cout<<endl;
+    }
+    B& operator=(const B& other) {
+        this->v = other.v;
+        return *this;
     }
     void getValue(){
         for(auto item:v){
@@ -32,28 +37,43 @@ class C{
 private:
     std::vector<Token>token;
     std::vector<A*> vec;
-
+  //  B b;
 public:
     C(Lexer lexer){this->token=lexer.getTokenList();}
     C(A* v){vec.push_back(v); }
     C(std::vector<Token> t){this->token=t;}
-    void add(A* v){vec.push_back(v);}
+    void add(A* v){ A* vc=v; vec.push_back(vc);}
     void add(Token t){token.push_back(t);}
-    void create(vector<Token>t){B b(t); this->add(&b); }
-    void print(){
-        for(auto item: vec){
-           cout<<"Print el of c "; (*item).print();cout<<endl;
-        }
+    void create(vector<Token>t){B b(t); vec.push_back(&b); }
+    C& operator=(const C& other) {
+        this->token = other.token;
+        this->vec = other.vec;
+        return *this;
     }
-    void parse(){
-         cout<<"size of c ex = "<<vec.size();
+    void print(){
+        cout<<"size of c = "<<vec.size()<<endl;
+        auto iter{vec.begin()};
+        while(iter!=vec.end()){
+            cout<<"Size of el of c = ";
+            cout<<endl;
+            (*iter)->print();
+            ++iter;}
+
+
+    }
+    void parse(vector<Token>token){
+        B b(token);
+        vec.push_back(&b);
+        vec.push_back(&b);
+        cout<<"size of c ex = "<<vec.size();
          auto iter{vec.begin()};
-         while(iter!=vec.end()){cout<<"k";iter++;}
-        (*iter)->print(); //здесь элемент b
+         while(iter!=vec.end()){cout<<"k";  (*iter)->print();++iter;}
+        //здесь элемент b
          // у сысоева был пример с вектором целых чисел и *iter показывал
          //целое число, а у нас тут вектор указателей на класс А, соответсвенно
          // я думал что *iter=A*, но почему-то это равно просто B
     }
+
 };
 int main() {
     vector <Token>v={
@@ -62,22 +82,44 @@ int main() {
             {"SEMICOLON",":integer;",2},
             {"BEGIN","begin",2}
     };
+    vector <Token>v1={
+            {"VAR","var",2},
+            {"VARIABLE","b",2},
+            {"SEMICOLON",":integer;",2},
+            {"BEGIN","begin",2},
+            {"BEGIN","begin",2}
+    };
+    vector <Token>v2={
+            {"VAR","var",2},
+            {"VARIABLE","b",2},
+            {"SEMICOLON",":integer;",2},
+            {"BEGIN","begin",2},
+            {"BEGIN","begin",2},
+            {"BEGIN","begin",2}
+
+    };
     Token t("VAR","var",2);
     Token t1("VARIABLE","c",2);
-   // B b;
-   // b.add(t);
-   // b.add(t1);
+    //B b;
+   //b.add(t);
+   //b.add(t1);
     B b(v);
+    B b1(v1);
+    B b2(v2);
     C c(&b);
    // C c(v);
    // c.print();
-    c.add(&b);
-    c.create(v); //он не хоооооооооооооооочееееееееееет аааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааа
+    c.add(&b1);
+    c.add(&b2);
 
-    c.print();
+    // c.create(v); //он не хоооооооооооооооочееееееееееет аааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааа
+    //c.create(v1);
+   // c.create(v2);
 
-   // c.parse();
    // c.print();
+
+    c.parse(v);
+    c.print();
     /* PascalABC for example
      *
      *var a,b :integer;
