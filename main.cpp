@@ -4,7 +4,6 @@
 #include "Lexer.h"
 #include "Parser.h"
 using namespace std;
-
 void forTestRegex(const string &str);
 class A{
 public:
@@ -27,6 +26,9 @@ public:
         this->v = other.v;
         return *this;
     }
+    void clear(){
+        this->v.clear();
+    }
     void getValue(){
         for(auto item:v){
             item.getValue();
@@ -37,7 +39,6 @@ class C{
 private:
     std::vector<Token>token;
     std::vector<A*> vec;
-  //  B b;
 public:
     C(Lexer lexer){this->token=lexer.getTokenList();}
     C(A* v){vec.push_back(v); }
@@ -62,9 +63,9 @@ public:
 
     }
     void parse(vector<Token>token){
-        B b(token);
-        vec.push_back(&b);
-        vec.push_back(&b);
+        B* b1= new B(token);
+        vec.push_back(b1);
+        vec.push_back(b1);
         cout<<"size of c ex = "<<vec.size();
          auto iter{vec.begin()};
          while(iter!=vec.end()){cout<<"k";  (*iter)->print();++iter;}
@@ -109,17 +110,17 @@ int main() {
     C c(&b);
    // C c(v);
    // c.print();
-    c.add(&b1);
-    c.add(&b2);
+   // c.add(&b1);
+   // c.add(&b2);
 
-    // c.create(v); //он не хоооооооооооооооочееееееееееет аааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааа
-    //c.create(v1);
+   // c.create(v); //он не хоооооооооооооооочееееееееееет аааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааа
+   // c.create(v1);
    // c.create(v2);
 
    // c.print();
 
-    c.parse(v);
-    c.print();
+   // c.parse(v);
+    //c.print();
     /* PascalABC for example
      *
      *var a,b :integer;
@@ -141,12 +142,37 @@ int main() {
             "end.\n";
     //cout<<text_program_pascal;
     //forTestRegex(" +dshgdhgads)");
-    string base= "var"
+    string base= "program qq;"
+                 "var"
                     "a: integer;"
                     "b: real;"
                  "begin"
                     "a:=3;"
                  "end.";
+
+    string test_text=
+            "program qq;"
+            "const"
+            "Pi: real = 3.1415926;"
+            "var"
+            "num1, num2, i: integer;"
+            "Res, d: real;"
+            "res2: string;"
+            "begin"
+                "res2 := 'Hello world';"
+                "num1:=2;"
+                "Write('Reader ', res2);"
+                "if Pi=num1 then begin"
+                    "Write('Yes');"
+                "end"
+                "else begin"
+                    "Write('No');"
+                "end;"
+                "num1:= num1 div 2;"
+                "for i:=1 to 8 do begin"
+                    "Write(i);"
+                "end;"
+            "end.";
     string test= "var" "begin"
                  "num1:=2;"
                  "Write('Reader ', res2);"
@@ -157,36 +183,13 @@ int main() {
                  "Write('No');"
                  "end;"
                  "end.";
-    string test_text=
-            "program qq;"
-            "const"
-            "Pi: real = 3.1415926;"
-            "var"
-            "num1, num2, i: integer;"
-            "Res, d: real;"
-            "res2: string;"
-            "begin"
-            "res2 := 'Hello world';"
-            "num1:=2;"
-            "Write('Reader ', res2);"
-            "if Pi=num1 then begin"
-            "Write('Yes');"
-            "end"
-            "else begin"
-            "Write('No');"
-            "end;"
-            "num1:= num1 div 2;"
-            "for i:=1 to 8 do begin"
-            "Write(i);"
-            "end;"
-            "end.";
-    //Lexer lexer(base);
+    Lexer lexer(test);
 
     //HierarchyList <string,Expression*>l;
-    /*Parser parser(v);
+    Parser parser(lexer);
     try{ parser.parse(); }
     catch(AgeException& e){ e.getMessage();}
-    parser.print();*/
+    parser.print();
     return 0;
 }
 

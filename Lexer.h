@@ -23,6 +23,7 @@ private:
     // Вектор всех возможных типов слов в ПаскальАБС
     std::vector<std::pair<std::string, std::string> > vector;
     int pos = 0;
+    int i=0;
 
 public:
     Lexer(const std::string &input_string) {
@@ -42,11 +43,12 @@ public:
             if (std::regex_search(s.begin() + pos, s.end(), match, rgx)) {
                 std::string res = static_cast<std::string>(match[0]);
                 pos += res.length();
-                if (item.first != "SPACE")
+                if (item.first != "SPACE") {
                     tokenList.emplace_back(item.first, res, pos - res.length());
-               /* std::cout<<"Type of lexema: " <<item.first <<
-                "; The space spent on the lexema: " << res.length() <<
-                "; Value of lexema: "<<res<<" ;"<<std::endl;*/
+                    //std::cout<<"Type of lexema: " <<item.first <<
+                    // "; Pos: " << ++i <<
+                    //  "; Value of lexema: "<<res<<" ;"<<std::endl;
+                }
                 return true;
             }
         }

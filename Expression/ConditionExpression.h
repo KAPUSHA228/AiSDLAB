@@ -13,7 +13,7 @@
 #include "../Postfix.h"
 
 static int posofEndofIf=0; //только для вложенных случаев нужен
-class ConditionExpression: public Expression{/*
+class ConditionExpression: public Expression{
 private:
     std::vector<Expression*> expressionList;
     std::vector<Token> condition;
@@ -35,8 +35,8 @@ public:
                    (list[posofEndofIf].getType()=="CYCLEFOR")|| // хоть вложенное условие, хоть вложенный цикл, то создаём новый объект
                    (list[posofEndofIf].getType()=="CYCLEWHILE")|| // не забываем про static переменную, она указывает новое место где мы окажемся
                    (list[posofEndofIf].getType()=="CYCLEDOWHILE")){ //поднявшись обратно наверх от вложенного объекта
-                    ConditionExpression cx(posofEndofIf,list);
-                    expressionList.push_back(&cx);}
+                    ConditionExpression* cx = new ConditionExpression(posofEndofIf,list);
+                    expressionList.push_back(cx);}
                 while(list[posofEndofIf].getType()!="SEMICOLON"){ //если вложенности нет или мы с ней уже закончили, то формируем обычные выражения
                     localList.push_back(list[posofEndofIf]);
                     posofEndofIf++;}
@@ -55,8 +55,8 @@ public:
                    (list[posofEndofIf].getType()=="CYCLEFOR")||
                    (list[posofEndofIf].getType()=="CYCLEWHILE")||
                    (list[posofEndofIf].getType()=="CYCLEDOWHILE")){
-                    ConditionExpression cx(posofEndofIf,list);
-                    expressionList.push_back(&cx);}
+                    ConditionExpression* cx =new ConditionExpression(posofEndofIf,list);
+                    expressionList.push_back(cx);}
                 while(list[posofEndofIf].getType()!="SEMICOLON"){
                     localList.push_back(list[posofEndofIf]);
                     posofEndofIf++;}
@@ -77,15 +77,15 @@ public:
                    (list[posofEndofIf].getType()=="CYCLEFOR")||
                    (list[posofEndofIf].getType()=="CYCLEWHILE")||
                    (list[posofEndofIf].getType()=="CYCLEDOWHILE")){
-                    ConditionExpression cx(posofEndofIf,list);
-                    expressionList.push_back(&cx);}
+                    ConditionExpression* cx= new ConditionExpression(posofEndofIf,list);
+                    expressionList.push_back(cx);}
                 while(list[posofEndofIf].getType()!="SEMICOLON"){
                     localList.push_back(list[posofEndofIf]);
                     posofEndofIf++;}
                 StatementExpression rx(localList);
                 expressionList.push_back(&rx);
                 localList.clear();
-                posofEndofIf++;}*/
+                posofEndofIf++;}
 
             /*int i1,i2;
             while(list[posofEndofIf].getType()!="ASSIGN"){  posofEndofIf++;  }
@@ -127,7 +127,7 @@ public:
                     posofEndofIf++;
                 }
             }*/
-       /* }
+       }
         if(list[posofEndofIf].getType()=="CYCLEDOWHILE"){
             // те же шаги, что и при uncondition
             while(list[posofEndofIf].getType()!="ENDofCycle"){
@@ -135,8 +135,8 @@ public:
                    (list[posofEndofIf].getType()=="CYCLEFOR")||
                    (list[posofEndofIf].getType()=="CYCLEWHILE")||
                    (list[posofEndofIf].getType()=="CYCLEDOWHILE")){
-                    ConditionExpression cx(posofEndofIf,list);
-                    expressionList.push_back(&cx);}
+                    ConditionExpression* cx= new ConditionExpression(posofEndofIf,list);
+                    expressionList.push_back(cx);}
                 while(list[posofEndofIf].getType()!="SEMICOLON"){
                     localList.push_back(list[posofEndofIf]);
                     posofEndofIf++;}
@@ -150,7 +150,12 @@ public:
                 posofEndofIf++;  }
             posofEndofIf++;
         }
-    }*/
+    }
+    ConditionExpression& operator=(const ConditionExpression& other) {
+        this->condition = other.condition;
+        this->expressionList = other.expressionList;
+        return *this;
+    }
    /* std::string print() override{
         string s;
         for(auto token:condition)
@@ -161,7 +166,7 @@ public:
             }
         return s;
     }*/
-    /*void print() override{
+    void print() override{
         for(auto token:condition)
         { std::cout<<token.getValue()<<" "; } std::cout<<endl;
         for(auto token2:expressionList){
@@ -172,7 +177,7 @@ public:
     void makeCondition(){}
     void toSolve(){
 
-    }*/
+    }
    /* void run() override {
        // for (auto Expression: expressionList) {
          //   Expression.run();

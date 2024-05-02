@@ -1,7 +1,6 @@
 //
 // Created by egorm on 21.04.2024.
 //
-
 #ifndef PARSER_H
 #define PARSER_H
 #include<bits/stdc++.h>
@@ -9,7 +8,6 @@
 #include "Lexer.h"
 #include "Token.h"
 #include "HierarchyList.h"
-#include "Expression/ExceptionAST.h"
 #include "Expression/Expression.h"
 #include "Expression/StatementExpression.h"
 #include "Expression/ConditionExpression.h"
@@ -50,8 +48,9 @@ public:
             }
             currentPos++;
         }
+       // cout<<"It's all by initDeclaration, look forward for initBegin"<<endl;
+        initBegin();
         return;
-        //initBegin();
     }
     void print(){
         for(auto item:expressionList){
@@ -62,30 +61,34 @@ public:
     }
     void initRowStatement(){//метод чтобы строчку кода (не условие и не цикл) переводить в StatementExpression
         while(!isTypeToken("SEMICOLON")){
-            if(isTypeToken("VAR")) continue;
+            if(isTypeToken("VAR")) currentPos++;
             localList.push_back( tokenList[currentPos]);
             currentPos++; }
-        StatementExpression rx(localList);
-        expressionList.push_back(&rx);
+        StatementExpression* rx=new StatementExpression(localList);
+        expressionList.push_back(rx);
         localList.clear();
         currentPos++;
         return;
     }
-    /*void initBegin(){
+    void initBegin(){
         std::vector<Token> condition;
-        while(!isTypeToken("ENDofPROGRAM")){
-            if((isTypeToken("CONDITION"))||(isTypeToken("CYCLEFOR"))||
-               (isTypeToken("CYCLEWHILE"))||(isTypeToken("CYCLEDOWHILE"))){
-                ConditionExpression cx(currentPos,tokenList);
-                currentPos=cx.getGlobalPos();
-                expressionList.push_back(&cx);
+        while(!isTypeToken("ENDofPROGRAM"))
+        {
+            if((isTypeToken("CONDITION")))//||(isTypeToken("CYCLEFOR"))||
+               //(isTypeToken("CYCLEWHILE"))||(isTypeToken("CYCLEDOWHILE")))
+            {
+                ConditionExpression* cx= new ConditionExpression(currentPos,tokenList);
+                currentPos=cx->getGlobalPos();
+                expressionList.push_back(cx);
+                while(!isTypeToken("ENDofCycle")){
+                    currentPos++;}currentPos++;
             }
-            else{
+            else
+            {
                 initRowStatement();
-                initBegin();
-                return;}
+            }
         }
-
+        //cout<<"It's all by initBegin"<<endl;
         return;
 
     }

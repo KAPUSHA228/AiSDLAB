@@ -13,7 +13,7 @@
 #include "../Lexer.h"
 #include "../Token.h"
 #include "../Postfix.h"
-
+static int i=1;
 class StatementExpression : public Expression {
 private:
     std::vector<Token> list;
@@ -23,10 +23,13 @@ public:
     {list=std::move(_list);}
     void add(Token t){list.push_back(t);}
     void print() override{
+        std::cout<<"StateExpression "<<i<<" = ";
         for(auto token:list){
-            std::cout<<token.getValue()<<" ";
+          std::cout<<token.getValue()<<" ";
         }
+        i++;
         std::cout<<endl;
+
     }
     void toSolve(){
         int i=0;
