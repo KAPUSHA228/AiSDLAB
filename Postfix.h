@@ -4,16 +4,12 @@
 
 #ifndef POSTFIX_H
 #define POSTFIX_H
-
-
 #include <string>
 #include <cmath>
 #include <stdexcept>
 #include <iostream>
 #include "Stack.h"
-#include "Token.h"
-#include <vector>
-#include <cctype>
+#include "Expression/StatementExpression.h"
 using namespace std;
 class TPostfixCalc // не доделан под нужды уравнений с переменными и сравнений
 {
@@ -24,7 +20,6 @@ private:
     TStack<char> operationStack;
     TStack<double> operandStack;
     double res;
-
 protected:
     int Priority(char c) {
         switch (c)
@@ -42,7 +37,6 @@ protected:
         }
     }
 public:
-
     TPostfixCalc() {
         postfix = "";
         infix = "";
@@ -60,6 +54,18 @@ public:
         res = 0;
     }
     TPostfixCalc(std::vector<Token> v){
+        //мб как то так
+        for (int i=0; v.size()-1;i++){
+            infix+=v[i].getValue();
+        }
+    }
+    TPostfixCalc(ConditionExpression v){
+        //мб как то так
+        for (int i=0; v.size()-1;i++){
+            infix+=v[i].getValue();
+        }
+    }
+    TPostfixCalc(StatementExpression v){
         //мб как то так
         for (int i=0; v.size()-1;i++){
             infix+=v[i].getValue();

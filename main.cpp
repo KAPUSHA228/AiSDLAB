@@ -157,9 +157,16 @@ int main() {
                     "Write('No');"
                 "end;"
                 "num1:= num1 div 2;"
-                "for i:=1 to 8 do begin"
+                "for i:=1 downto 8 do begin"
                     "Write(i);"
                 "end;"
+                "while a>b do begin"
+                    "Write(i);"
+                "end;"
+                "repeat begin"
+                    "Write(i);"
+                "end;"
+                "until a<b;"
             "end.";
     string test= "var" "begin"
                  "num1:=2;"
@@ -176,10 +183,10 @@ int main() {
     Lexer lexer(test_text);
 
     //HierarchyList <string,Expression*>l;
-    Parser parser(lexer);
+   /* Parser parser(lexer);
     try{ parser.parse(); }
     catch(AgeException& e){ e.getMessage();}
-    parser.print();
+    parser.print();*/
     return 0;
 }
 

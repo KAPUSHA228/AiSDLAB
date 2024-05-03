@@ -45,9 +45,9 @@ public:
                 pos += res.length();
                 if (item.first != "SPACE") {
                     tokenList.emplace_back(item.first, res, pos - res.length());
-                    //std::cout<<"Type of lexema: " <<item.first <<
-                    // "; Pos: " << ++i <<
-                    //  "; Value of lexema: "<<res<<" ;"<<std::endl;
+                    std::cout<<"Type of lexema: " <<item.first <<
+                     "; Pos: " << ++i <<
+                      "; Value of lexema: "<<res<<" ;"<<std::endl;
                 }
                 return true;
             }
@@ -73,6 +73,8 @@ public:
         return {
             {"CONST", "const"},
             {"VAR", "var"},
+            {"INC","to"},
+            {"DEC","downto"},
             {"THEN", "then"},
             {"DO", "do"},
             {"BEGIN", "begin"},
@@ -117,8 +119,6 @@ public:
             {"WRITE", "Write"},
             {"READ", "Read"},
             {"CYCLEFOR", "for"},
-            {"INC","to"},
-            {"DEC","downto"},
             {"CYCLEWHILE", "while"},
             {"CYCLEDOWHILE","repeat"},
             {"UNTIL","until"},

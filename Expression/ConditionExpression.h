@@ -155,6 +155,8 @@ public:
             }*/
        }
         if(list[posofEndofIf].getType()=="CYCLEDOWHILE"){
+            posofEndofIf++;
+            posofEndofIf++;
             // те же шаги, что и при uncondition
             while(list[posofEndofIf].getType()!="ENDofCycle"){
                 if((list[posofEndofIf].getType()=="CONDITION")||

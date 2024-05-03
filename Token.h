@@ -6,6 +6,7 @@
 #define TOKEN_H
 #include <string>
 #include <utility>
+
 using namespace std;
 
 class Token {

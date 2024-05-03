@@ -63,6 +63,7 @@ public:
             if(isTypeToken("VAR")) currentPos++;
             localList.push_back( tokenList[currentPos]);
             currentPos++; }
+        Sta
         StatementExpression* rx=new StatementExpression(localList);
         expressionList.push_back(rx);
         localList.clear();
