@@ -69,73 +69,31 @@ public:
         currentPos++;
         return;
     }
-    void initBegin(){
+    void initBegin() {
         std::vector<Token> condition;
-        while(!isTypeToken("ENDofPROGRAM"))
-        {
-            if(isTypeToken("CONDITION"))//||(isTypeToken("UNCONDITION")))//||(isTypeToken("CYCLEFOR"))||
-               //(isTypeToken("CYCLEWHILE"))||(isTypeToken("CYCLEDOWHILE")))
+        while (!isTypeToken("ENDofPROGRAM")) {
+            if (isTypeToken("CONDITION"))
             {
-                ConditionExpression* cx= new ConditionExpression(currentPos,tokenList);
-                currentPos=cx->getGlobalPos();
+                ConditionExpression *cx = new ConditionExpression(currentPos, tokenList);
+                currentPos = cx->getGlobalPos();
                 expressionList.push_back(cx);
-                while(!isTypeToken("ENDofIF"))
-                {                    currentPos++;}
+                while (!isTypeToken("ENDofIF")) { currentPos++; }
                 currentPos++;
             }
-            if(isTypeToken("UNCONDITION"))//||(isTypeToken("CYCLEFOR"))||
-                //(isTypeToken("CYCLEWHILE"))||(isTypeToken("CYCLEDOWHILE")))
+            if ((isTypeToken("UNCONDITION"))||(isTypeToken("CYCLEFOR"))||
+                (isTypeToken("CYCLEWHILE"))||(isTypeToken("CYCLEDOWHILE")))
             {
-                ConditionExpression* cx= new ConditionExpression(currentPos,tokenList);
-                currentPos=cx->getGlobalPos();
+                ConditionExpression *cx = new ConditionExpression(currentPos, tokenList);
+                currentPos = cx->getGlobalPos();
                 expressionList.push_back(cx);
-                while(!isTypeToken("ENDofCycle"))
-                {currentPos++;}
+                while (!isTypeToken("ENDofCycle")) { currentPos++; }
                 currentPos++;
-            }
-            else
-            {
+            } else {
                 initRowStatement();
             }
         }
         return;
-
     }
-    /*void initVar() {
-        if (isTypeToken("VAR")) {
-            currentPos++;
-            while (!isTypeToken("BEGIN")) {
-                initVariables(); }
-        }
-        else { throw AgeException( "Don't exist VAR!"); }
-    }
-    void initVariables() {
-        while(!isTypeToken("SEMICOLON")) {
-            if(isTypeToken("SPACE")) continue;
-            if(!isTypeToken("VARIABLE")) {
-                throw AgeException("Var is expected!");}
-            else { currentPos++; initAssign();}
-        }
-    }
-    void initAssign(){
-        while(!isTypeToken("SEMICOLON")){
-            if(isTypeToken("SPACE")) continue;
-            if (isTypeToken("COLON"))
-            {currentPos++; initType(); }
-            else{throw AgeException("assign is not present"); }
-        }
-    }
-    void initType(){
-        while(!isTypeToken("SEMICOLON")){
-            if(isTypeToken("SPACE")) continue;
-            if((isTypeToken("TYPEINTEGER"))||
-            (isTypeToken("TYPEREAL"))||
-            (isTypeToken("TYPECHAR"))||
-            (isTypeToken("TYPESTRING")))
-            {throw AgeException("type is present");}
-            else{currentPos++;}
-        }
-    }*/
     bool isTypeToken(const string &typeToken) {
         return tokenList[currentPos].getType() == typeToken;
     }

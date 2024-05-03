@@ -165,10 +165,12 @@ int main() {
                  "num1:=2;"
                  "Write('Reader ', res2);"
                  "if Pi=num1 then begin"
-                 "Write('Yes');"
+                    "if Pi=num1 then begin"
+                        "Write('Yes');"
+                    "end"
                  "end"
                  "else begin"
-                 "Write('No');"
+                     "Write('No');"
                  "end;"
                  "end.";
     Lexer lexer(test);

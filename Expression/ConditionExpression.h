@@ -35,6 +35,7 @@ public:
                    (list[posofEndofIf].getType()=="CYCLEWHILE")|| // не забываем про static переменную, она указывает новое место где мы окажемся
                    (list[posofEndofIf].getType()=="CYCLEDOWHILE")){ //поднявшись обратно наверх от вложенного объекта
                         ConditionExpression* cx = new ConditionExpression(posofEndofIf,list);
+                        posofEndofIf=cx->getGlobalPos();
                         expressionList.push_back(cx);}
                 while(list[posofEndofIf].getType()!="SEMICOLON"){ //если вложенности нет или мы с ней уже закончили, то формируем обычные выражения
                     localList.push_back(list[posofEndofIf]);
@@ -55,6 +56,7 @@ public:
                    (list[posofEndofIf].getType()=="CYCLEWHILE")||
                    (list[posofEndofIf].getType()=="CYCLEDOWHILE")){
                     ConditionExpression* cx =new ConditionExpression(posofEndofIf,list);
+                    posofEndofIf=cx->getGlobalPos();
                     expressionList.push_back(cx);}
                 while(list[posofEndofIf].getType()!="SEMICOLON"){
                     localList.push_back(list[posofEndofIf]);
@@ -77,12 +79,13 @@ public:
                    (list[posofEndofIf].getType()=="CYCLEWHILE")||
                    (list[posofEndofIf].getType()=="CYCLEDOWHILE")){
                     ConditionExpression* cx= new ConditionExpression(posofEndofIf,list);
+                    posofEndofIf=cx->getGlobalPos();
                     expressionList.push_back(cx);}
                 while(list[posofEndofIf].getType()!="SEMICOLON"){
                     localList.push_back(list[posofEndofIf]);
                     posofEndofIf++;}
-                StatementExpression rx(localList);
-                expressionList.push_back(&rx);
+                StatementExpression* rx=new StatementExpression(localList);
+                expressionList.push_back(rx);
                 localList.clear();
                 posofEndofIf++;}
 
@@ -135,12 +138,13 @@ public:
                    (list[posofEndofIf].getType()=="CYCLEWHILE")||
                    (list[posofEndofIf].getType()=="CYCLEDOWHILE")){
                     ConditionExpression* cx= new ConditionExpression(posofEndofIf,list);
+                    posofEndofIf=cx->getGlobalPos();
                     expressionList.push_back(cx);}
                 while(list[posofEndofIf].getType()!="SEMICOLON"){
                     localList.push_back(list[posofEndofIf]);
                     posofEndofIf++;}
-                StatementExpression rx(localList);
-                expressionList.push_back(&rx);
+                StatementExpression* rx=new StatementExpression(localList);
+                expressionList.push_back(rx);
                 localList.clear();
                 posofEndofIf++;}
             posofEndofIf++;
@@ -155,16 +159,6 @@ public:
         this->expressionList = other.expressionList;
         return *this;
     }
-   /* std::string print() override{
-        string s;
-        for(auto token:condition)
-        { s+=token.getValue();s+=" "; } s+="\n";
-            for(auto token2:expressionList){
-                s+="   "; s+=token2->print();  s+="\n";
-
-            }
-        return s;
-    }*/
     void print() override{
        std::cout<<"ConditionExpression "<<++y<<" = ";
        if(!condition.empty()){
@@ -180,14 +174,7 @@ public:
        }
     }
     void makeCondition(){}
-    void toSolve(){
-
-    }
-   /* void run() override {
-       // for (auto Expression: expressionList) {
-         //   Expression.run();
-        //}
-    }*/
+    void toSolve(){}
 };
 
 

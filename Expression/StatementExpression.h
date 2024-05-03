@@ -53,11 +53,5 @@ public:
         }
         else{TPostfixCalc p(list);}//происходит выражение с присвоением
     }
-
-    /*void run() override {
-        //for (auto Expression: expressionList) {
-          //  Expression->run();
-        //}
-    }*/
 };
 #endif //RUNNABLEEXPRESSION_H
