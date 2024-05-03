@@ -120,7 +120,7 @@ int main() {
    // c.print();
 
    // c.parse(v);
-    //c.print();
+    //c.print();*/
     string text_program_pascal =
             "var a:real;\n"
             "    b:char;\n"
@@ -160,7 +160,7 @@ int main() {
                 "for i:=1 to 8 do begin"
                     "Write(i);"
                 "end;"
-            "end.";*/
+            "end.";
     string test= "var" "begin"
                  "num1:=2;"
                  "Write('Reader ', res2);"
@@ -173,7 +173,7 @@ int main() {
                      "Write('No');"
                  "end;"
                  "end.";
-    Lexer lexer(test);
+    Lexer lexer(test_text);
 
     //HierarchyList <string,Expression*>l;
     Parser parser(lexer);

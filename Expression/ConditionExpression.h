@@ -101,14 +101,18 @@ public:
                     ConditionExpression* cx= new ConditionExpression(posofEndofIf,list);
                     posofEndofIf=cx->getGlobalPos();
                     expressionList.push_back(cx);}
-                while(list[posofEndofIf].getType()!="SEMICOLON"){
-                    localList.push_back(list[posofEndofIf]);
-                    posofEndofIf++;}
-                StatementExpression* rx=new StatementExpression(localList);
-                expressionList.push_back(rx);
-                localList.clear();
-                posofEndofIf++;}
-
+               else{
+                   while(list[posofEndofIf].getType()!="SEMICOLON"){
+                       localList.push_back(list[posofEndofIf]);
+                       posofEndofIf++;}
+                   StatementExpression* rx=new StatementExpression(localList);
+                   expressionList.push_back(rx);
+                   localList.clear();
+                   posofEndofIf++;
+               }
+            }
+            posofEndofIf++;
+            return;
             /*int i1,i2;
             while(list[posofEndofIf].getType()!="ASSIGN"){  posofEndofIf++;  }
             i1=std::stoi(list[posofEndofIf+1].getValue());
@@ -160,18 +164,24 @@ public:
                     ConditionExpression* cx= new ConditionExpression(posofEndofIf,list);
                     posofEndofIf=cx->getGlobalPos();
                     expressionList.push_back(cx);}
-                while(list[posofEndofIf].getType()!="SEMICOLON"){
-                    localList.push_back(list[posofEndofIf]);
-                    posofEndofIf++;}
-                StatementExpression* rx=new StatementExpression(localList);
-                expressionList.push_back(rx);
-                localList.clear();
-                posofEndofIf++;}
+               else{
+                   while(list[posofEndofIf].getType()!="SEMICOLON"){
+                       localList.push_back(list[posofEndofIf]);
+                       posofEndofIf++;}
+                   StatementExpression* rx=new StatementExpression(localList);
+                   expressionList.push_back(rx);
+                   localList.clear();
+                   posofEndofIf++;
+               }
+            }
             posofEndofIf++;
-            while(list[posofEndofIf].getType()!="SEMICOLON"){
+            while(list[posofEndofIf].getType()!="SEMICOLON")
+            {
                 condition.push_back(list[posofEndofIf]);
-                posofEndofIf++;  }
+                posofEndofIf++;
+            }
             posofEndofIf++;
+            return;
         }
     }
     ConditionExpression& operator=(const ConditionExpression& other) {
