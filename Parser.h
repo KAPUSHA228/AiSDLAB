@@ -48,7 +48,6 @@ public:
             }
             currentPos++;
         }
-       // cout<<"It's all by initDeclaration, look forward for initBegin"<<endl;
         initBegin();
         return;
     }
@@ -74,21 +73,31 @@ public:
         std::vector<Token> condition;
         while(!isTypeToken("ENDofPROGRAM"))
         {
-            if((isTypeToken("CONDITION")))//||(isTypeToken("CYCLEFOR"))||
+            if(isTypeToken("CONDITION"))//||(isTypeToken("UNCONDITION")))//||(isTypeToken("CYCLEFOR"))||
                //(isTypeToken("CYCLEWHILE"))||(isTypeToken("CYCLEDOWHILE")))
             {
                 ConditionExpression* cx= new ConditionExpression(currentPos,tokenList);
                 currentPos=cx->getGlobalPos();
                 expressionList.push_back(cx);
-                while(!isTypeToken("ENDofCycle")){
-                    currentPos++;}currentPos++;
+                while(!isTypeToken("ENDofIF"))
+                {                    currentPos++;}
+                currentPos++;
+            }
+            if(isTypeToken("UNCONDITION"))//||(isTypeToken("CYCLEFOR"))||
+                //(isTypeToken("CYCLEWHILE"))||(isTypeToken("CYCLEDOWHILE")))
+            {
+                ConditionExpression* cx= new ConditionExpression(currentPos,tokenList);
+                currentPos=cx->getGlobalPos();
+                expressionList.push_back(cx);
+                while(!isTypeToken("ENDofCycle"))
+                {currentPos++;}
+                currentPos++;
             }
             else
             {
                 initRowStatement();
             }
         }
-        //cout<<"It's all by initBegin"<<endl;
         return;
 
     }

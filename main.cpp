@@ -77,7 +77,7 @@ public:
 
 };
 int main() {
-    vector <Token>v={
+   /* vector <Token>v={
             {"VAR","var",2},
             {"VARIABLE","b",2},
             {"SEMICOLON",":integer;",2},
@@ -121,16 +121,6 @@ int main() {
 
    // c.parse(v);
     //c.print();
-    /* PascalABC for example
-     *
-     *var a,b :integer;
-     *begin
-     *a := 12;
-     *b := 13;
-     *end.
-     */
-
-    //В конце программы - end.  !!!
     string text_program_pascal =
             "var a:real;\n"
             "    b:char;\n"
@@ -140,8 +130,6 @@ int main() {
             "   b := '19w';\n"
             "\tc := a + b;\n"
             "end.\n";
-    //cout<<text_program_pascal;
-    //forTestRegex(" +dshgdhgads)");
     string base= "program qq;"
                  "var"
                     "a: integer;"
@@ -172,7 +160,7 @@ int main() {
                 "for i:=1 to 8 do begin"
                     "Write(i);"
                 "end;"
-            "end.";
+            "end.";*/
     string test= "var" "begin"
                  "num1:=2;"
                  "Write('Reader ', res2);"

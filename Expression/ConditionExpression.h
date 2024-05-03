@@ -11,7 +11,7 @@
 #include "../Lexer.h"
 #include "../Token.h"
 #include "../Postfix.h"
-
+static int y=0;
 static int posofEndofIf=0; //только для вложенных случаев нужен
 class ConditionExpression: public Expression{
 private:
@@ -29,19 +29,18 @@ public:
             }
             //TPostfixCalc p(condition);//мб сделать какой-то метод именно для проверки условий goto 50
             posofEndofIf++;
-
             while(list[posofEndofIf].getType()!="ENDofIF"){ //пока не дойдём до конца тела текущего if
                 if((list[posofEndofIf].getType()=="CONDITION")|| //если хоть какую-то в нем вложенность находим
                    (list[posofEndofIf].getType()=="CYCLEFOR")|| // хоть вложенное условие, хоть вложенный цикл, то создаём новый объект
                    (list[posofEndofIf].getType()=="CYCLEWHILE")|| // не забываем про static переменную, она указывает новое место где мы окажемся
                    (list[posofEndofIf].getType()=="CYCLEDOWHILE")){ //поднявшись обратно наверх от вложенного объекта
-                    ConditionExpression* cx = new ConditionExpression(posofEndofIf,list);
-                    expressionList.push_back(cx);}
+                        ConditionExpression* cx = new ConditionExpression(posofEndofIf,list);
+                        expressionList.push_back(cx);}
                 while(list[posofEndofIf].getType()!="SEMICOLON"){ //если вложенности нет или мы с ней уже закончили, то формируем обычные выражения
                     localList.push_back(list[posofEndofIf]);
                     posofEndofIf++;}
-                StatementExpression rx(localList);
-                expressionList.push_back(&rx);
+                StatementExpression* rx= new StatementExpression(localList);
+                expressionList.push_back(rx);
                 localList.clear();
                 posofEndofIf++;}
             //после ENDofIF перескакивать не надо, чтобы было разделение на отдельные объекты у if и else
@@ -60,8 +59,8 @@ public:
                 while(list[posofEndofIf].getType()!="SEMICOLON"){
                     localList.push_back(list[posofEndofIf]);
                     posofEndofIf++;}
-                StatementExpression rx(localList);
-                expressionList.push_back(&rx);
+                StatementExpression* rx= new StatementExpression(localList);
+                expressionList.push_back(rx);
                 localList.clear();
                 posofEndofIf++;}
         }
@@ -167,12 +166,18 @@ public:
         return s;
     }*/
     void print() override{
-        for(auto token:condition)
-        { std::cout<<token.getValue()<<" "; } std::cout<<endl;
-        for(auto token2:expressionList){
-           std::cout<<"   ";token2->print(); cout<<std::endl;
-
-        }
+       std::cout<<"ConditionExpression "<<++y<<" = ";
+       if(!condition.empty()){
+           for(auto token:condition)
+           { std::cout<<token.getValue()<<" "; } std::cout<<endl;}
+       else{std::cout<<"this is else"<<endl;}
+       if(!expressionList.empty())
+       {
+           for(auto token2:expressionList)
+           {
+               std::cout<<"   ";token2->print(); cout<<std::endl;
+           }
+       }
     }
     void makeCondition(){}
     void toSolve(){
