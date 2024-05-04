@@ -89,11 +89,15 @@ public:
                 ConditionExpression *cx = new ConditionExpression(currentPos, tokenList);
                 currentPos = cx->getGlobalPos();
                 expressionList.push_back(cx);
+                hierarchyList.toAddNext(expressionList.front(),"Body");
+                expressionList.clear();
 
             }
             else
             {
                 initRowStatement();
+                hierarchyList.toAddNext(expressionList.front(),"Body");
+                expressionList.clear();
             }
         }
         return;
