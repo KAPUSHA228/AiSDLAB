@@ -21,6 +21,10 @@ public:
     StatementExpression(){cout << list.size();}
     StatementExpression(std::vector<Token> _list)
     {list=std::move(_list);}
+    StatementExpression(StatementExpression& ex){
+        this->list=ex.list;
+    }
+    vector<Token>getList(){return list;}
     void add(Token t){list.push_back(t);}
     void print() override{
         std::cout<<"StateExpression "<<i<<" = ";

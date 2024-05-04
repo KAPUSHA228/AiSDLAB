@@ -1,6 +1,6 @@
 #include <iostream>
 #include <regex>
-#include<string>
+#include <string>
 #include "Lexer.h"
 #include "Parser.h"
 using namespace std;
@@ -183,10 +183,10 @@ int main() {
     Lexer lexer(test_text);
 
     //HierarchyList <string,Expression*>l;
-   /* Parser parser(lexer);
+    Parser parser(lexer);
     try{ parser.parse(); }
     catch(AgeException& e){ e.getMessage();}
-    parser.print();*/
+    parser.print();
     return 0;
 }
 

@@ -30,11 +30,23 @@ protected:
             data.value = value;
             this->parent = nullptr;
         }
+        Node(Key key) noexcept {
+            left = nullptr;
+            right = nullptr;
+            data.key = key;
+            this->parent = nullptr;
+        }
         Node(Node* l, Node* r, Key key, Value value) noexcept {
             left = l;
             right = r;
             data.key = key;
             data.value = value;
+            l->parent = r->parent = this;
+        }
+        Node(Node* l, Node* r, Key key) noexcept {
+            left = l;
+            right = r;
+            data.key = key;
             l->parent = r->parent = this;
         }
         void operator=(const Node& other) noexcept {

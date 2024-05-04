@@ -11,6 +11,7 @@
 #include "Expression/Expression.h"
 #include "Expression/StatementExpression.h"
 #include "Expression/ConditionExpression.h"
+#include "SearchTreeTable.h"
 using namespace std;
 class AgeException: public std::exception
 {
@@ -22,6 +23,7 @@ private:
 };
 class Parser {
 private:
+    SearchTreeTable<string, string>t;
     std::vector<Token> tokenList;
     std::vector<Expression*> expressionList;
     std::vector<Token> localList;
@@ -63,7 +65,6 @@ public:
             if(isTypeToken("VAR")) currentPos++;
             localList.push_back( tokenList[currentPos]);
             currentPos++; }
-        Sta
         StatementExpression* rx=new StatementExpression(localList);
         expressionList.push_back(rx);
         localList.clear();

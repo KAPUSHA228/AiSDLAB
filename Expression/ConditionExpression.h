@@ -21,6 +21,12 @@ private:
 public:
     static int getGlobalPos(){return posofEndofIf;}
     ConditionExpression(int pos, vector<Token>list){ doCondition(pos,list);}
+    ConditionExpression(ConditionExpression& ex){
+        this->condition=ex.condition;
+        this->expressionList=ex.expressionList;
+    }
+    vector<Token> getList(){return condition;}
+    vector<Expression*> getBody(){return expressionList;}
     void doCondition(int pos, vector<Token>list){
         posofEndofIf=pos;
         if(list[posofEndofIf].getType()=="CONDITION")

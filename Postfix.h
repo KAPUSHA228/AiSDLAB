@@ -9,12 +9,13 @@
 #include <stdexcept>
 #include <iostream>
 #include "Stack.h"
+#include "Expression/Expression.h"
 #include "Expression/StatementExpression.h"
+#include "SearchTreeTable.h"
 using namespace std;
 class TPostfixCalc // не доделан под нужды уравнений с переменными и сравнений
 {
 private:
-    //добавить полем какую то таблицу, чтобы подтягивать значения переменных, ну и наверно постфикс создавать с ней
     std::string infix;
     string postfix;
     TStack<char> operationStack;
@@ -55,22 +56,24 @@ public:
     }
     TPostfixCalc(std::vector<Token> v){
         //мб как то так
-        for (int i=0; v.size()-1;i++){
+        for (int i=0; i<v.size()-1;i++){
             infix+=v[i].getValue();
         }
     }
-    TPostfixCalc(ConditionExpression v){
+    TPostfixCalc(std::vector<Token> cond, std::vector<Expression*> v){
+
+    }
+    /*TPostfixCalc(ConditionExpression v){
         //мб как то так
         for (int i=0; v.size()-1;i++){
             infix+=v[i].getValue();
         }
-    }
-    TPostfixCalc(StatementExpression v){
+    }TPostfixCalc(StatementExpression v){
         //мб как то так
         for (int i=0; v.size()-1;i++){
             infix+=v[i].getValue();
         }
-    }
+    }*/
     TPostfixCalc(const TPostfixCalc& c) {
         if (&c == this) throw std::runtime_error{"Íå ìîæåò áûòü ïðèñâîåí ýëåìåíò ñàìîìó ñåáå"};
         postfix = c.postfix;
@@ -193,7 +196,7 @@ public:
         string exp;
         cout << "Ââåäèòå âàøå âûðàæåíèå:";
         istr >> exp;
-        c.ChangeEquation(exp);
+        c.ChangeEquation(exp); return istr;
     }
     friend ostream& operator<<(ostream& ostr, const TPostfixCalc& c)
     {
