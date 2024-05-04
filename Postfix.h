@@ -56,9 +56,10 @@ public:
     }
     TPostfixCalc(std::vector<Token> v){
         //мб как то так
-        for (int i=0; i<v.size()-1;i++){
+        for (int i=2; i<v.size()-1;i++){
             infix+=v[i].getValue();
         }
+
     }
     TPostfixCalc(std::vector<Token> cond, std::vector<Expression*> v){
 
@@ -82,7 +83,6 @@ public:
         operandStack = c.operandStack;
         res = c.res;
     }
-
 
     ~TPostfixCalc() {}
 
@@ -124,7 +124,7 @@ public:
             }
         }
     }
-    void CalcPostfix() {
+    void CalcPostfix(SearchTreeTable<string,double>&table) {
         for (size_t i = 0; i < postfix.size(); i++)
         {
             if (postfix[i] == '+' || postfix[i] == '-' || postfix[i] == '*' || postfix[i] == '/') {
@@ -166,9 +166,9 @@ public:
         //можно этот метод сделать возвращающим res чтобы сразу куда-то присваивать или вытаскивать поле res
     }
 
-    void Build() {
+    void Build(SearchTreeTable<string,double>&table) {
         ToPostfix();
-        CalcPostfix();
+        CalcPostfix(table);
     }
 
     TPostfixCalc& operator=(const TPostfixCalc& c) {

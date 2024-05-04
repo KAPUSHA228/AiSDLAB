@@ -153,6 +153,7 @@ public:
     }
 
     int Insert(Key _key, Value _val);
+    int Insert(Key key);
     int Delete(Key _key) ;
     Value* Find(Key _key) ;
 
@@ -248,7 +249,10 @@ int SearchTreeTable<Key, Value>::Insert(Key _key, Value _val)
         return 0; // Óñïåøíàÿ âñòàâêà íîâîãî óçëà
     }
 }
-
+template<class Key, class Value>
+int SearchTreeTable<Key, Value>::Insert(Key _key){
+    return 0;
+}
 template<class Key, class Value>
 Value* SearchTreeTable<Key, Value>::Find(Key _key)
 {

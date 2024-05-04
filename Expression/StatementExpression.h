@@ -27,13 +27,11 @@ public:
     vector<Token>getList(){return list;}
     void add(Token t){list.push_back(t);}
     void print() override{
-        std::cout<<"StateExpression "<<i<<" = ";
+        std::cout<<"StateExpression "<<i++<<" = ";
         for(auto token:list){
           std::cout<<token.getValue()<<" ";
         }
-        i++;
         std::cout<<endl;
-
     }
     void toSolve(){
         int i=0;
@@ -49,9 +47,13 @@ public:
             cout<<endl;
         }
         if(list.front().getValue()=="Read"){
+            double k;
+            cin>>k;
             //обращение к таблице, добавить в неё значение с клавиатуры
         }
         if(list.front().getValue()=="Readln"){
+            double k;
+            cin>>k;
             //обращение к таблице, добавить в неё значение с клавиатуры
             cout<<endl;
         }

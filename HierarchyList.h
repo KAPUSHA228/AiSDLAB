@@ -22,6 +22,10 @@ private:
             nextDescription = d;
             value = v;
         }
+        void toAddNext(){
+
+        }
+
         void toSolve(){
             if(this==nullptr)return;
             this->nextDescription->toSolve();
@@ -38,6 +42,7 @@ private:
             nextChapter=nullptr;
             description=nullptr;
         }
+        void toAddNext(){}
     };
     Chapter* root;
 public:
@@ -47,16 +52,29 @@ public:
         (root->nextChapter)->nextChapter=new Chapter("Body");
     }
     void toAddNext(Value val, Priority pr) {
-        Node* new_node= new Node(val);
-        Chapter* currentChapter = this->root;
-        while(currentChapter->chapter!=pr){
-            currentChapter=currentChapter->nextChapter;
+        Node* new_node = new Node(val);
+        Chapter* currentChapter = root;
+        while (currentChapter != nullptr && currentChapter->chapter != pr) {
+            currentChapter = currentChapter->nextChapter;
         }
-        Node* currentNode=currentChapter->description;
-        while(currentNode!=nullptr){
-            currentNode=currentNode->nextDescription;
+
+        // Проверяем, что глава найдена
+        if (currentChapter != nullptr) {
+            // Если у главы нет описания, устанавливаем новый узел как первое описание
+            if (currentChapter->description == nullptr) {
+                currentChapter->description = new_node;
+            } else {
+                // Иначе находим последний узел описания и добавляем новый узел
+                Node* currentNode = currentChapter->description;
+                while (currentNode->nextDescription != nullptr) {
+                    currentNode = currentNode->nextDescription;
+                }
+                currentNode->nextDescription = new_node;
+            }
+        } else {
+            // Обработка случая, когда глава не найдена
+            //никогда не будет действовать
         }
-        currentNode=new_node;
     }
     void toSolve(){
         root->toSolve();

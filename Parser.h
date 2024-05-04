@@ -3,7 +3,7 @@
 //
 #ifndef PARSER_H
 #define PARSER_H
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 #include "stdexcept"
 #include "Lexer.h"
 #include "Token.h"
@@ -23,7 +23,8 @@ private:
 };
 class Parser {
 private:
-    SearchTreeTable<string, string>t;
+    HierarchyList<string,Expression*>hierarchyList;
+    SearchTreeTable<string, double>table;
     std::vector<Token> tokenList;
     std::vector<Expression*> expressionList;
     std::vector<Token> localList;
@@ -43,10 +44,19 @@ public:
                 currentPos++;} //скип названия, чтобы дойти до разделов Const или Var
             currentPos++;}       //есть вариант вообще название не добавлять уже на стадии Lexer, но мб пригодится
 
-        if((isTypeToken("VAR"))||(isTypeToken("CONST"))){
+        if(isTypeToken("CONST")){
+            currentPos++;
+            while (!isTypeToken("VAR")){
+                initRowStatement();
+                hierarchyList.toAddNext(expressionList.front(),"Const");
+            }
+        }
+        if(isTypeToken("VAR")){
             currentPos++;
             while (!isTypeToken("BEGIN")){
                 initRowStatement();
+               hierarchyList.toAddNext(expressionList.front(),"Var");
+
             }
             currentPos++;
         }
@@ -62,7 +72,6 @@ public:
     }
     void initRowStatement(){//метод чтобы строчку кода (не условие и не цикл) переводить в StatementExpression
         while(!isTypeToken("SEMICOLON")){
-            if(isTypeToken("VAR")) currentPos++;
             localList.push_back( tokenList[currentPos]);
             currentPos++; }
         StatementExpression* rx=new StatementExpression(localList);
