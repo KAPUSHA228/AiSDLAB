@@ -49,13 +49,15 @@ public:
             while (!isTypeToken("VAR")){
                 initRowStatement();
                 hierarchyList.toAddNext(expressionList.front(),"Const");
+                expressionList.clear();
             }
         }
         if(isTypeToken("VAR")){
             currentPos++;
             while (!isTypeToken("BEGIN")){
                 initRowStatement();
-               hierarchyList.toAddNext(expressionList.front(),"Var");
+                hierarchyList.toAddNext(expressionList.front(),"Var");
+                expressionList.clear();
 
             }
             currentPos++;
@@ -66,9 +68,7 @@ public:
     void print(){
         for(auto item:expressionList){
             item->print();
-           //cout<<"k";
            }
-       // cout<<expressionList.size();
     }
     void initRowStatement(){//метод чтобы строчку кода (не условие и не цикл) переводить в StatementExpression
         while(!isTypeToken("SEMICOLON")){

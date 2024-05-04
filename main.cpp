@@ -181,8 +181,6 @@ int main() {
                  "end;"
                  "end.";
     Lexer lexer(test_text);
-
-    //HierarchyList <string,Expression*>l;
     Parser parser(lexer);
     try{ parser.parse(); }
     catch(AgeException& e){ e.getMessage();}
