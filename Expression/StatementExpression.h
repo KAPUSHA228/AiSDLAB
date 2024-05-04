@@ -13,6 +13,7 @@
 #include "../Lexer.h"
 #include "../Token.h"
 #include "../Postfix.h"
+
 static int i=1;
 class StatementExpression : public Expression {
 private:
@@ -57,7 +58,7 @@ public:
             //обращение к таблице, добавить в неё значение с клавиатуры
             cout<<endl;
         }
-        else{TPostfixCalc p(list);}//происходит выражение с присвоением
+       // else{TPostfixCalc p(list);}//происходит выражение с присвоением
     }
 };
 #endif //RUNNABLEEXPRESSION_H

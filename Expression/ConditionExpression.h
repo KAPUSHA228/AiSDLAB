@@ -10,7 +10,6 @@
 #include "stdexcept"
 #include "../Lexer.h"
 #include "../Token.h"
-#include "../Postfix.h"
 static int y=0;
 static int posofEndofIf=0; //только для вложенных случаев нужен
 class ConditionExpression: public Expression{

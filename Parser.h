@@ -11,7 +11,6 @@
 #include "Expression/Expression.h"
 #include "Expression/StatementExpression.h"
 #include "Expression/ConditionExpression.h"
-#include "SearchTreeTable.h"
 using namespace std;
 class AgeException: public std::exception
 {
@@ -24,7 +23,6 @@ private:
 class Parser {
 private:
     HierarchyList<string,Expression*>hierarchyList;
-    SearchTreeTable<string, double>table;
     std::vector<Token> tokenList;
     std::vector<Expression*> expressionList;
     std::vector<Token> localList;

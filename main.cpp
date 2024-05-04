@@ -21,11 +21,11 @@ int main() {
     string test_text=
             "program qq;"
             "const"
-            "Pi: real = 3.1415926;"
+                "Pi: real = 3.1415926;"
             "var"
-            "num1, num2, i: integer;"
-            "Res, d: real;"
-            "res2: string;"
+                "num1, num2, i: integer;"
+                "Res, d: real;"
+                "res2: string;"
             "begin"
                 "res2 := 'Hello world';"
                 "num1:=2;"
@@ -52,6 +52,6 @@ int main() {
     Parser parser(lexer);
     try{ parser.parse(); }
     catch(AgeException& e){ e.getMessage();}
-    parser.print();
+   // parser.print();
     return 0;
 }

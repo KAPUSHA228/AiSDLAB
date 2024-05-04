@@ -9,9 +9,10 @@
 #include <stdexcept>
 #include <iostream>
 #include "Stack.h"
+#include "SearchTreeTable.h"
 #include "Expression/Expression.h"
 #include "Expression/StatementExpression.h"
-#include "SearchTreeTable.h"
+#include "Expression/ConditionExpression.h"
 using namespace std;
 class TPostfixCalc // не доделан под нужды уравнений с переменными и сравнений
 {
@@ -64,17 +65,17 @@ public:
     TPostfixCalc(std::vector<Token> cond, std::vector<Expression*> v){
 
     }
-    /*TPostfixCalc(ConditionExpression v){
+    TPostfixCalc(ConditionExpression v){
         //мб как то так
-        for (int i=0; v.size()-1;i++){
-            infix+=v[i].getValue();
+        for (int i=0; v.getList().size()-1;i++){
+            infix+=v.getList()[i].getValue();
         }
     }TPostfixCalc(StatementExpression v){
         //мб как то так
-        for (int i=0; v.size()-1;i++){
-            infix+=v[i].getValue();
+        for (int i=0; v.getList().size()-1;i++){
+            infix+=v.getList()[i].getValue();
         }
-    }*/
+    }
     TPostfixCalc(const TPostfixCalc& c) {
         if (&c == this) throw std::runtime_error{"Íå ìîæåò áûòü ïðèñâîåí ýëåìåíò ñàìîìó ñåáå"};
         postfix = c.postfix;

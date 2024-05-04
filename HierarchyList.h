@@ -4,9 +4,10 @@
 #ifndef HIERARCHYLIST_H
 #define HIERARCHYLIST_H
 #include <iostream>
-#include "Expression/StatementExpression.h"
+#include "Postfix.h"
 #include "Token.h"
 #include "Lexer.h"
+#include "SearchTreeTable.h"
 using namespace std;
 template <class Priority, class Value>
 class HierarchyList {
@@ -22,15 +23,12 @@ private:
             nextDescription = d;
             value = v;
         }
-        void toAddNext(){
-
-        }
-
         void toSolve(){
             if(this==nullptr)return;
-            this->nextDescription->toSolve();
+
             this->value.toSolve();
-            return;
+            this->nextDescription->toSolve();
+
         }
     };
     struct Chapter{
@@ -42,9 +40,15 @@ private:
             nextChapter=nullptr;
             description=nullptr;
         }
-        void toAddNext(){}
+        void toSolve(){
+            if (this==nullptr) return;
+            this->description->toSolve();
+            this->nextChapter->toSolve();
+        }
     };
     Chapter* root;
+    TPostfixCalc calc;
+    SearchTreeTable<string, double>table;
 public:
     HierarchyList() {
         root=new Chapter("Const");

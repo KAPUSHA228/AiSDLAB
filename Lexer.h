@@ -8,10 +8,7 @@
 #include <regex>
 #include<vector>
 #include<string>
-#include <set>
 #include "Token.h"
-#include "TokenType.h"
-#include <clocale>
 
 //Класс вроде как закончен, мб дополнения
 class Lexer {
@@ -32,7 +29,6 @@ public:
         vector = getLitTokenType();
         while (hasNext()) {
         }
-        // printTokenList();
     }
 
     bool hasNext() {
@@ -57,12 +53,6 @@ public:
     std::vector<Token> getTokenList() {
         return this->tokenList;
     }
-
-    /*friend std::ostream& operator<<(std::ostream& ostr, const Lexer& v)
-    {
-        ostr << ;
-        return ostr;
-    }*/
     void printTokenList() {
         for (auto item: tokenList) {
             std::cout << "Token(type=" << item.getType() << ",value=" << item.getValue() << ")" << std::endl;
