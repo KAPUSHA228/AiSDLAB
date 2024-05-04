@@ -70,7 +70,8 @@ public:
         for (int i=0; v.getList().size()-1;i++){
             infix+=v.getList()[i].getValue();
         }
-    }TPostfixCalc(StatementExpression v){
+    }
+    TPostfixCalc(StatementExpression v){
         //мб как то так
         for (int i=0; v.getList().size()-1;i++){
             infix+=v.getList()[i].getValue();

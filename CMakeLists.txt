@@ -6,7 +6,6 @@ set(CMAKE_CXX_STANDARD 20)
 add_executable(project1 main.cpp
         Lexer.h
         Token.h
-        TokenType.h
         Expression/Expression.h
         Expression/StatementExpression.h
         Parser.h

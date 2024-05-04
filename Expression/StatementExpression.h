@@ -12,8 +12,6 @@
 #include "stdexcept"
 #include "../Lexer.h"
 #include "../Token.h"
-#include "../Postfix.h"
-
 static int i=1;
 class StatementExpression : public Expression {
 private:
@@ -35,30 +33,14 @@ public:
         std::cout<<endl;
     }
     void toSolve(){
-        int i=0;
-        if(list.front().getValue()=="Write"){//3 варианта: текст, переменную, текст с переменной
-            list[i+3].getType()=="СOMMA"?
-            cout<<list[i+2].getValue()<<list[i+4].getValue():
-            cout<<list[i+2].getValue();
+
+    }
+    string toString()override{
+        string res;
+        for (auto item:list){
+            res+=item.getValue();
         }
-        if(list.front().getValue()=="Writeln"){
-            list[i+3].getType()=="СOMMA"?
-            cout<<list[i+2].getValue()<<list[i+4].getValue():
-            cout<<list[i+2].getValue();
-            cout<<endl;
-        }
-        if(list.front().getValue()=="Read"){
-            double k;
-            cin>>k;
-            //обращение к таблице, добавить в неё значение с клавиатуры
-        }
-        if(list.front().getValue()=="Readln"){
-            double k;
-            cin>>k;
-            //обращение к таблице, добавить в неё значение с клавиатуры
-            cout<<endl;
-        }
-       // else{TPostfixCalc p(list);}//происходит выражение с присвоением
+        return res;
     }
 };
 #endif //RUNNABLEEXPRESSION_H

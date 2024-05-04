@@ -52,6 +52,5 @@ int main() {
     Parser parser(lexer);
     try{ parser.parse(); }
     catch(AgeException& e){ e.getMessage();}
-   // parser.print();
     return 0;
 }

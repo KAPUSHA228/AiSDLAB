@@ -1,5 +1,5 @@
 //
-// Created by пк on 30.04.2024.
+// Created by shuri on 30.04.2024.
 //
 
 #ifndef SEARCHTREETABLE_H

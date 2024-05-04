@@ -212,6 +212,16 @@ public:
     }
     void makeCondition(){}
     void toSolve(){}
+    string toString() override{
+        string res;
+        for (auto item:condition){
+            res+=item.getValue();
+        }
+        for (auto item:expressionList){
+            res+=item->toString();
+        }
+        return res;
+    }
 };
 
 
