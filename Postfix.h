@@ -168,13 +168,8 @@ public:
         operandStack = TStack<double>(s.length());
     }*/
     vector<Token> GetInf() { return infix; }
-    void GetPost() { for(auto item:postfix){
-        cout<<" "<<item.getValue();
-    }
-    }
-    double GetRes(){
-        return res;
-    }
+    vector<Token> GetPost() { return postfix; }
+    double GetRes(){  return res; }
     void ToPostfix() {
         string el;
         postfix = vector<Token>();
@@ -217,15 +212,20 @@ public:
                 el = operationStack.Pop();
 
                 while (el != "(") {
-                    if(el[0]=='-'){ Token t={"MINUS",el,0};
+                    if(el[0]=='-'){
+                        Token t={"MINUS",el,0};
                         postfix.push_back(t);}
-                    if(el[0]=='+'){ Token t={"PLUS",el,0};
+                    if(el[0]=='+'){
+                        Token t={"PLUS",el,0};
                         postfix.push_back(t);}
-                    if(el[0]=='*'){ Token t={"MULTI",el,0};
+                    if(el[0]=='*'){
+                        Token t={"MULTI",el,0};
                         postfix.push_back(t);}
-                    if(el[0]=='d'){ Token t={"DIV",el,0};
+                    if(el[0]=='d'){
+                        Token t={"DIV",el,0};
                         postfix.push_back(t);}
-                    if(el[0]=='m'){ Token t={"MOD",el,0};
+                    if(el[0]=='m'){
+                        Token t={"MOD",el,0};
                         postfix.push_back(t);}
                     el = operationStack.Pop();
                 }
@@ -392,17 +392,24 @@ public:
         cout << "Ââåäèòå âàøå âûðàæåíèå:";
         istr >> exp;
         c.ChangeEquation(exp); return istr;
-    }
+    }*/
     friend ostream& operator<<(ostream& ostr, const TPostfixCalc& c)
     {
-        ostr << "Íà÷àëüíîå âûðàæåíèå: " << c.infix << endl;
+        ostr << "Infix: ";
+        for(auto item:c.infix)
+        {ostr<< " "<<item.getValue();}
+        ostr<< endl;
         if (c.postfix.size() == 0) { ostr
-                    << "Âûðàæåíèå ïóñòîå èëè íå ïîäëåæèò âûñ÷èòûâàíèþ" << endl; }
-        else { ostr << "Ðåçóëüòàò: " << c.postfix << endl; }
-        ostr << "Êîíå÷íîå ðåøåíèå: " << c.res << endl;
+                    << "Postfix = 0 " << endl; }
+        else { ostr << "Postfix: ";
+        for(auto item:c.postfix)
+            {ostr<<" "<<item.getValue();}
+        }
+        ostr << endl;
+        ostr << "Res: " << c.res << endl;
 
         return ostr;
-    }*/
+    }
 };
 
 

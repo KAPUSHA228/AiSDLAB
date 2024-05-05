@@ -56,9 +56,9 @@ int main() {
     Lexer lexer(s);
     vector<Token>list=lexer.getTokenList();
     TPostfixCalc c(list);
-    c.ToPostfix();
-    c.GetPost();
-    c.CalcPostfix();
-    cout<<endl<<c.GetRes();
+    c.Build();
+    //c.ToPostfix();
+    //c.CalcPostfix();
+    cout<<c;
     return 0;
 }
