@@ -12,7 +12,7 @@
 #include "stdexcept"
 #include "../Lexer.h"
 #include "../Token.h"
-static int i=1;
+static int i=0;
 class StatementExpression : public Expression {
 private:
     std::vector<Token> list;
@@ -20,13 +20,13 @@ public:
     StatementExpression(){cout << list.size();}
     StatementExpression(std::vector<Token> _list)
     {list=std::move(_list);}
-    StatementExpression(StatementExpression& ex){
+    StatementExpression(const StatementExpression& ex){
         this->list=ex.list;
     }
-    vector<Token>getList(){return list;}
+    vector<Token>getList()override{return list;}
     void add(Token t){list.push_back(t);}
     void print() override{
-        std::cout<<"StateExpression "<<i++<<" = ";
+        std::cout<<"StateExpression "<<++i<<" = ";
         for(auto token:list){
           std::cout<<token.getValue()<<" ";
         }

@@ -20,12 +20,17 @@ private:
 public:
     static int getGlobalPos(){return posofEndofIf;}
     ConditionExpression(int pos, vector<Token>list){ doCondition(pos,list);}
-    ConditionExpression(ConditionExpression& ex){
+    ConditionExpression( const ConditionExpression& ex){
         this->condition=ex.condition;
         this->expressionList=ex.expressionList;
     }
-    vector<Token> getList(){return condition;}
+    vector<Token> getCondition(){return condition;}
     vector<Expression*> getBody(){return expressionList;}
+    vector<Token>getList()override{
+        for(auto item:expressionList){
+            item->getList();
+        }
+    }
     void doCondition(int pos, vector<Token>list){
         posofEndofIf=pos;
         if(list[posofEndofIf].getType()=="CONDITION")
@@ -118,46 +123,7 @@ public:
             }
             posofEndofIf++;
             return;
-            /*int i1,i2;
-            while(list[posofEndofIf].getType()!="ASSIGN"){  posofEndofIf++;  }
-            i1=std::stoi(list[posofEndofIf+1].getValue());
-            i2=std::stoi(list[posofEndofIf+3].getValue());
-            posofEndofIf=posofEndofIf+6;
-            if( list[posofEndofIf+2].getType()=="INC"){//или можно сделать if(i1<i2){} else{}, не знаю что быстрее,
-                //но наверно второе потому что обратиться к локальной переменной всяко быстрее
-                //чем лезть по индексу в вектор и у него брать поле
-                for (i1;i1<i2;i1++){ //не усралось расшифровка цикла сейчас, надо потом
-                    //либо добавить i2-i1 одинаковых строчек, либо париться с циклом потом, а сейчас сделать как с if
-                    int  c=posofEndofIf;
-                    if((list[c].getType()=="CONDITION")||(list[c].getType()=="CYCLEFOR")||
-                       (list[c].getType()=="CYCLEWHILE")||(list[c].getType()=="CYCLEDOWHILE")){
-                        ConditionExpression cx(c,list);
-                    expressionList.push_back(&cx);}
-                    while(list[posofEndofIf].getValue()!="SEMICOLON"){
-                            localList.push_back(list[posofEndofIf]);
-                            posofEndofIf++;}
-                        StatementExpression ex(localList);
-                        expressionList.push_back(&ex);
-                        localList.clear();
-                        posofEndofIf++;
-                }
-            }
-            else{
-                for (i1;i1>i2;i2--){
-                    if((list[posofEndofIf].getType()=="CONDITION")||
-                       (list[posofEndofIf].getType()=="CYCLEFOR")||
-                       (list[posofEndofIf].getType()=="CYCLEWHILE")||
-                       (list[posofEndofIf].getType()=="CYCLEDOWHILE")){
-                        ConditionExpression ex(posofEndofIf,list);}
-                    while(list[posofEndofIf].getValue()!="SEMICOLON"){
-                        localList.push_back(list[posofEndofIf]);
-                        posofEndofIf++;}
-                    StatementExpression ex(localList);
-                    expressionList.push_back(&ex);
-                    localList.clear();
-                    posofEndofIf++;
-                }
-            }*/
+
        }
         if(list[posofEndofIf].getType()=="CYCLEDOWHILE"){
             posofEndofIf++;

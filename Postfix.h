@@ -38,12 +38,23 @@ protected:
             default: throw - 1;
         }
     }
+    int PriorityCondition(char c) {
+        switch (c)
+        {
+            case '<':
+            case '>':
+            case '=':
+                return 3;
+                //как расписать or, xor, and, not, <=,>=, <>
+            default: throw - 1;
+        }
+    }
 public:
     TPostfixCalc() {
         postfix = "";
         infix = "";
-        operationStack = TStack<char>(0);
-        operandStack = TStack<double>(0);
+        operationStack = TStack<char>();
+        operandStack = TStack<double>();
         res = 0;
     }
 
@@ -57,7 +68,7 @@ public:
     }
     TPostfixCalc(std::vector<Token> v){
         //мб как то так
-        for (int i=2; i<v.size()-1;i++){
+        for (int i=0; i<v.size()-1;i++){
             infix+=v[i].getValue();
         }
 
@@ -67,8 +78,15 @@ public:
     }
     TPostfixCalc(ConditionExpression v){
         //мб как то так
-        for (int i=0; v.getList().size()-1;i++){
-            infix+=v.getList()[i].getValue();
+        for (int i=0; v.getCondition().size()-1;i++){
+            infix+=v.getCondition()[i].getValue();
+        }
+        if(CalcPostfix()){
+            infix="";
+            for(auto item: v.getBody()){
+                for (int i=0;;i++){}
+                ToPostfix();
+            }
         }
     }
     TPostfixCalc(StatementExpression v){
@@ -77,6 +95,70 @@ public:
             infix+=v.getList()[i].getValue();
         }
     }
+    /*int i=0;
+        if(list.front().getValue()=="Write"){//3 варианта: текст, переменную, текст с переменной
+            list[i+3].getType()=="СOMMA"?
+            cout<<list[i+2].getValue()<<list[i+4].getValue():
+            cout<<list[i+2].getValue();
+        }
+        if(list.front().getValue()=="Writeln"){
+            list[i+3].getType()=="СOMMA"?
+            cout<<list[i+2].getValue()<<list[i+4].getValue():
+            cout<<list[i+2].getValue();
+            cout<<endl;
+        }
+        if(list.front().getValue()=="Read"){
+            double k;
+            cin>>k;
+            //обращение к таблице, добавить в неё значение с клавиатуры
+        }
+        if(list.front().getValue()=="Readln"){
+            double k;
+            cin>>k;
+            //обращение к таблице, добавить в неё значение с клавиатуры
+            cout<<endl;
+        }
+       // else{TPostfixCalc p(list);}//происходит выражение с присвоением*/
+/*int i1,i2;
+            while(list[posofEndofIf].getType()!="ASSIGN"){  posofEndofIf++;  }
+            i1=std::stoi(list[posofEndofIf+1].getValue());
+            i2=std::stoi(list[posofEndofIf+3].getValue());
+            posofEndofIf=posofEndofIf+6;
+            if( list[posofEndofIf+2].getType()=="INC"){//или можно сделать if(i1<i2){} else{}, не знаю что быстрее,
+                //но наверно второе потому что обратиться к локальной переменной всяко быстрее
+                //чем лезть по индексу в вектор и у него брать поле
+                for (i1;i1<i2;i1++){ //не усралось расшифровка цикла сейчас, надо потом
+                    //либо добавить i2-i1 одинаковых строчек, либо париться с циклом потом, а сейчас сделать как с if
+                    int  c=posofEndofIf;
+                    if((list[c].getType()=="CONDITION")||(list[c].getType()=="CYCLEFOR")||
+                       (list[c].getType()=="CYCLEWHILE")||(list[c].getType()=="CYCLEDOWHILE")){
+                        ConditionExpression cx(c,list);
+                    expressionList.push_back(&cx);}
+                    while(list[posofEndofIf].getValue()!="SEMICOLON"){
+                            localList.push_back(list[posofEndofIf]);
+                            posofEndofIf++;}
+                        StatementExpression ex(localList);
+                        expressionList.push_back(&ex);
+                        localList.clear();
+                        posofEndofIf++;
+                }
+            }
+            else{
+                for (i1;i1>i2;i2--){
+                    if((list[posofEndofIf].getType()=="CONDITION")||
+                       (list[posofEndofIf].getType()=="CYCLEFOR")||
+                       (list[posofEndofIf].getType()=="CYCLEWHILE")||
+                       (list[posofEndofIf].getType()=="CYCLEDOWHILE")){
+                        ConditionExpression ex(posofEndofIf,list);}
+                    while(list[posofEndofIf].getValue()!="SEMICOLON"){
+                        localList.push_back(list[posofEndofIf]);
+                        posofEndofIf++;}
+                    StatementExpression ex(localList);
+                    expressionList.push_back(&ex);
+                    localList.clear();
+                    posofEndofIf++;
+                }
+            }*/
     TPostfixCalc(const TPostfixCalc& c) {
         if (&c == this) throw std::runtime_error{"Íå ìîæåò áûòü ïðèñâîåí ýëåìåíò ñàìîìó ñåáå"};
         postfix = c.postfix;
@@ -97,6 +179,9 @@ public:
     string GetInf() { return infix; }
     string GetPost() { return postfix; }
     double GetRes() { return res; }
+    bool CalcPostfix(){
+
+    }
     void ToPostfix() {
         char el = '!';
         postfix = "";
