@@ -51,7 +51,7 @@ public:
         operandStack = TStack<double>();
         res = 0;
     }
-
+/*
    TPostfixCalc(string eq) {
         if (eq.length() <= 0) throw std::runtime_error{"dlina nasrano"};
         Lexer lexer(eq);
@@ -73,13 +73,17 @@ public:
 
     TPostfixCalc(StatementExpression v){
         infix=v.getList();
+        postfix = vector<Token>();
+        operationStack=TStack<string>(v.getList().size());
+        operandStack = TStack<double>(v.getList().size());
+        res = 0;
     }
     TPostfixCalc(ConditionExpression v){
         auto body = v.getBody();
         auto con=body.first;
         auto exp=body.second;
         if(con[0].getValue()!="for") ToPostfixCondition(con);
-    }
+    }*/
     /*int i=0;
         if(list.front().getValue()=="Write"){//3 варианта: текст, переменную, текст с переменной
             list[i+3].getType()=="СOMMA"?
@@ -160,19 +164,22 @@ public:
         postfix = vector<Token>();
         operationStack = TStack<string>(eq.length());
         operandStack = TStack<double>(eq.length());
+        res=0;
     }
     void ChangeEquation(vector<Token>v) {
         infix = v;
         postfix = vector<Token>();
         operationStack = TStack<string>(v.size());
         operandStack = TStack<double>(v.size());
+        res=0;
     }
    void ChangeEquation(StatementExpression s) {
         infix = s.getList();
         postfix = vector<Token>();
         operationStack = TStack<string>(s.getList().size());
         operandStack = TStack<double>(s.getList().size());
-    }
+        res=0;
+   }
     /*void ChangeEquation(ConditionExpression s) {
         infix = s;
         operationStack = TStack<char>(s.length());
@@ -304,42 +311,32 @@ public:
 
     }
     void CalcPostfix(SearchTreeTable<string,double>&table) {
-    /*    for (size_t i = 0; i < postfix.size(); i++)
+        for (size_t i = 0; i < postfix.size(); i++)
         {
-            if (postfix[i] == '+' || postfix[i] == '-' || postfix[i] == '*' || postfix[i] == '/') {
+            if (postfix[i].getValue() == "+" || postfix[i].getValue() == "-" || postfix[i].getValue() == "*" || postfix[i].getValue() == "mod"|| postfix[i].getValue() == "div") {
                 double d1, d2;
-                switch (postfix[i]) {
-                    case '+':
-                        d1 = operandStack.Pop();
-                        d2 = operandStack.Pop();
-                        operandStack.Push(d1 + d2);
-                        break;
-                    case '-':
-                        d2 = operandStack.Pop();
-                        d1 = operandStack.Pop();
-                        operandStack.Push(d1 - d2);
-                        break;
-                    case '*':
-                        d1 = operandStack.Pop();
-                        d2 = operandStack.Pop();
-                        operandStack.Push(d1 * d2);
-                        break;
-                    case '/':
-                        d1 = operandStack.Pop();
-                        d2 = operandStack.Pop();
-                        operandStack.Push(d1 / d2);
-                        break;
-                    default: throw "ââåäè ÷î íèòü òî";
-                }
+                d1 = operandStack.Pop();
+                d2 = operandStack.Pop();
+                if(postfix[i].getValue() == "+"){
+                    operandStack.Push(d2 + d1);}
+                if(postfix[i].getValue() == "-") {
+                    operandStack.Push(d2 - d1);}
+                if(postfix[i].getValue() == "*") {
+                    operandStack.Push(d2 * d1);}
+                if(postfix[i].getValue() == "div") {
+                    operandStack.Push(d2 / d1);}
+                if(postfix[i].getValue() == "mod") {
+                    operandStack.Push(fmod(d2,d1));}
+                //else throw std::runtime_error("v calculator nasrano");
+
             }
-            if (postfix[i] <= '9' && postfix[i] >= '0') {
-                size_t count;
-                double t = std::stod(&postfix[i], &count);
-                operandStack.Push(t);
-                i += count - 1;
+            if (postfix[i].getType()== "VALUEINTEGER"|| postfix[i].getType() == "VALUEREAL") {
+
+                double ans=std::stod(postfix[i].getValue());
+                operandStack.Push(ans);
             }
         }
-        res = operandStack.TopView();*/
+        res = operandStack.TopView();
     }
     void CalcPostfix() {
         for (size_t i = 0; i < postfix.size(); i++)

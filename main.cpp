@@ -52,10 +52,11 @@ int main() {
     Parser parser(lexer);
     try{ parser.parse(); }
     catch(AgeException& e){ e.getMessage();}*/
-    string s="8 mod 4 - 2";
+    string s="8 mod 4 + 2";
     Lexer lexer(s);
     vector<Token>list=lexer.getTokenList();
-    TPostfixCalc c(list);
+    TPostfixCalc c;
+    c.ChangeEquation(list);
     c.Build();
     //c.ToPostfix();
     //c.CalcPostfix();
