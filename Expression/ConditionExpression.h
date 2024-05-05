@@ -25,11 +25,9 @@ public:
         this->expressionList=ex.expressionList;
     }
     vector<Token> getCondition(){return condition;}
-    vector<Expression*> getBody(){return expressionList;}
-    vector<Token>getList()override{
-        for(auto item:expressionList){
-            item->getList();
-        }
+    std::pair<vector<Token>, vector<Expression*>> getBody() {
+        std::pair<vector<Token>, vector<Expression*>> condAndList(condition, expressionList);
+        return condAndList;
     }
     void doCondition(int pos, vector<Token>list){
         posofEndofIf=pos;
@@ -68,6 +66,7 @@ public:
             //после ENDofIF перескакивать не надо, чтобы было разделение на отдельные объекты у if и else
         }
         if(list[posofEndofIf].getType()=="UNCONDITION"){
+            condition.push_back(list[posofEndofIf]);
             while(list[posofEndofIf].getType()!="BEGIN")
             { posofEndofIf++;} posofEndofIf++;
             //TPostfixCalc p(condition);// а здесь отрицание этого метода, довольно удобно получится
@@ -176,8 +175,6 @@ public:
            }
        }
     }
-    void makeCondition(){}
-    void toSolve(){}
     string toString() override{
         string res;
         for (auto item:condition){

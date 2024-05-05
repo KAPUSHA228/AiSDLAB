@@ -52,5 +52,11 @@ int main() {
     Parser parser(lexer);
     try{ parser.parse(); }
     catch(AgeException& e){ e.getMessage();}
+    string s="2+22*2";
+    TPostfixCalc c(s);
+    c.Build();
+    cout<<c.GetPost()<<endl;
+    cout<<c.GetRes();
+
     return 0;
 }

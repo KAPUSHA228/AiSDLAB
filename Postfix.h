@@ -38,16 +38,14 @@ protected:
             default: throw - 1;
         }
     }
-    int PriorityCondition(char c) {
-        switch (c)
-        {
-            case '<':
-            case '>':
-            case '=':
-                return 3;
-                //как расписать or, xor, and, not, <=,>=, <>
-            default: throw - 1;
-        }
+    int PriorityCond(string s){
+        if((s=="(")||(s==")")){return 1;}
+        if(s=="not"){return 4;}
+        if(s=="and"){return 3;}
+        if((s=="or")||(s=="xor")){return 2;}
+        if((s==">")||(s=="<")||
+        (s==">=")||(s=="<=")||
+        (s=="<>")||(s=="=")){return 5;}
     }
 public:
     TPostfixCalc() {
@@ -67,33 +65,22 @@ public:
         res = 0;
     }
     TPostfixCalc(std::vector<Token> v){
-        //мб как то так
         for (int i=0; i<v.size()-1;i++){
             infix+=v[i].getValue();
         }
 
     }
-    TPostfixCalc(std::vector<Token> cond, std::vector<Expression*> v){
 
-    }
-    TPostfixCalc(ConditionExpression v){
-        //мб как то так
-        for (int i=0; v.getCondition().size()-1;i++){
-            infix+=v.getCondition()[i].getValue();
-        }
-        if(CalcPostfix()){
-            infix="";
-            for(auto item: v.getBody()){
-                for (int i=0;;i++){}
-                ToPostfix();
-            }
-        }
-    }
     TPostfixCalc(StatementExpression v){
-        //мб как то так
-        for (int i=0; v.getList().size()-1;i++){
+        for (int i=0; i<v.getList().size();i++){
             infix+=v.getList()[i].getValue();
         }
+    }
+    TPostfixCalc(ConditionExpression v){
+        auto body = v.getBody();
+        auto con=body.first;
+        auto exp=body.second;
+        if(con[0].getValue()!="for") ToPostfixCondition(con);
     }
     /*int i=0;
         if(list.front().getValue()=="Write"){//3 варианта: текст, переменную, текст с переменной
@@ -175,15 +162,21 @@ public:
         operationStack = TStack<char>(s.length());
         operandStack = TStack<double>(s.length());
     }
-
+   /*void ChangeEquation(StatementExpression s) {
+        infix = s;
+        operationStack = TStack<char>(s.length());
+        operandStack = TStack<double>(s.length());
+    }
+    void ChangeEquation(ConditionExpression s) {
+        infix = s;
+        operationStack = TStack<char>(s.length());
+        operandStack = TStack<double>(s.length());
+    }*/
     string GetInf() { return infix; }
     string GetPost() { return postfix; }
     double GetRes() { return res; }
-    bool CalcPostfix(){
-
-    }
     void ToPostfix() {
-        char el = '!';
+        char el;
         postfix = "";
         string s = "(" + infix + ")";
         for (size_t i = 0; i < s.size(); i++)
@@ -210,6 +203,62 @@ public:
                 }
             }
         }
+    }
+    void ToPostfixCondition(vector<Token>condition){
+       /* string type= condition[0].getValue();
+        vector<Token> copy=condition;
+        auto iter=copy.begin();
+        copy.erase(iter);
+        for(auto item:copy){
+            infix+=item.getValue();
+        }
+        infix="(" + infix + ")";
+        string el;
+        postfix = "";
+
+        for (size_t i = 0; i < copy.size(); i++)
+        {
+            if ((copy[i].getType() == "VALUEINTEGER")||(copy[i].getType() == "VALUEREAL")
+            {postfix += copy[i].getValue();}
+            if (copy[i].getValue() == '(') operationStack.Push(s[i]);
+            if (copy[i].getValue() == ')') {
+                el = operationStack.Pop();
+
+                while (el != "(") {
+                    postfix += el;
+                    el = operationStack.Pop();
+                }
+            }
+            if (s[i] == '/' || s[i] == '*' || s[i] == '+' || s[i] == '-') {
+                postfix += " ";
+                el = operationStack.Pop();
+                while (Priority(s[i]) <= Priority(el)) {
+                    postfix += el;
+                    postfix += " ";
+                    el = operationStack.Pop();
+                }
+                operationStack.Push(el);
+                operationStack.Push(s[i]);
+            }
+        }*/
+    }
+    bool CalcCondition(string type,vector<Token>condition){
+        int i=0;
+        if(condition[0].getValue()=="if"){
+           while((condition[i].getValue()!="and")&&(condition[i].getValue()!="or"))
+           {
+               i++;
+           }
+           if(condition[i].getValue()=="or"){ }
+           if(condition[i].getValue()=="and"){}
+           else{}
+
+       }
+       //if(typeOfCond=="else"){}
+       if(condition[0].getValue()=="for"){}
+       if(condition[0].getValue()=="while"){}
+       if(condition[0].getValue()=="until"){}
+
     }
     void CalcPostfix(SearchTreeTable<string,double>&table) {
         for (size_t i = 0; i < postfix.size(); i++)
@@ -246,18 +295,55 @@ public:
                 operandStack.Push(t);
                 i += count - 1;
             }
-            if (!isdigit(postfix[i])){}//дописать обращение к таблице за значением переменной, ключом будет название переменной
-            //в принципе это можно организовать ещё на стадии toPostfix() чтобы в этот метод зайти уже с только числами
         }
         res = operandStack.TopView();
-        //можно этот метод сделать возвращающим res чтобы сразу куда-то присваивать или вытаскивать поле res
     }
-
+    void CalcPostfix() {
+        for (size_t i = 0; i < postfix.size(); i++)
+        {
+            if (postfix[i] == '+' || postfix[i] == '-' || postfix[i] == '*' || postfix[i] == '/') {
+                double d1, d2;
+                switch (postfix[i]) {
+                    case '+':
+                        d1 = operandStack.Pop();
+                        d2 = operandStack.Pop();
+                        operandStack.Push(d1 + d2);
+                        break;
+                    case '-':
+                        d2 = operandStack.Pop();
+                        d1 = operandStack.Pop();
+                        operandStack.Push(d1 - d2);
+                        break;
+                    case '*':
+                        d1 = operandStack.Pop();
+                        d2 = operandStack.Pop();
+                        operandStack.Push(d1 * d2);
+                        break;
+                    case '/':
+                        d1 = operandStack.Pop();
+                        d2 = operandStack.Pop();
+                        operandStack.Push(d1 / d2);
+                        break;
+                    default: throw "ââåäè ÷î íèòü òî";
+                }
+            }
+            if (postfix[i] <= '9' && postfix[i] >= '0') {
+                size_t count;
+                double t = std::stod(&postfix[i], &count);
+                operandStack.Push(t);
+                i += count - 1;
+            }
+        }
+        res = operandStack.TopView();
+    }
     void Build(SearchTreeTable<string,double>&table) {
         ToPostfix();
         CalcPostfix(table);
     }
-
+    void Build() {
+        ToPostfix();
+        CalcPostfix();
+    }
     TPostfixCalc& operator=(const TPostfixCalc& c) {
         if (&c == this) return *this;
         postfix = c.postfix;

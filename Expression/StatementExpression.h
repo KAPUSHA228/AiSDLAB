@@ -23,7 +23,7 @@ public:
     StatementExpression(const StatementExpression& ex){
         this->list=ex.list;
     }
-    vector<Token>getList()override{return list;}
+    vector<Token>getList(){return list;}
     void add(Token t){list.push_back(t);}
     void print() override{
         std::cout<<"StateExpression "<<++i<<" = ";
@@ -31,9 +31,6 @@ public:
           std::cout<<token.getValue()<<" ";
         }
         std::cout<<endl;
-    }
-    void toSolve(){
-
     }
     string toString()override{
         string res;

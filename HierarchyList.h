@@ -14,6 +14,7 @@ class HierarchyList {
 private:
     struct Node {
         Node* nextDescription;
+        TPostfixCalc* calc;
         Value value;
         Node(Value v) {
             nextDescription=nullptr;
@@ -26,7 +27,6 @@ private:
         void toSolve(){
             if(this==nullptr)return;
 
-            this->value.toSolve();
             this->nextDescription->toSolve();
 
         }

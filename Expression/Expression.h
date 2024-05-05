@@ -9,6 +9,5 @@ class Expression {
 public:
     virtual void print()=0;
     virtual string toString()=0;
-    virtual vector<Token>getList()=0;
 };
 #endif //EXPRESSION_H
