@@ -52,17 +52,20 @@ public:
         res = 0;
     }
 
-   /* TPostfixCalc(string eq) {
-        if (eq.length() <= 0) throw std::runtime_error{"ïóñòàÿ ñòðîêà"};
-        postfix = "";
-        infix = eq;
+   TPostfixCalc(string eq) {
+        if (eq.length() <= 0) throw std::runtime_error{"dlina nasrano"};
+        Lexer lexer(eq);
+        vector<Token>list=lexer.getTokenList();
+        postfix = vector<Token>();
+        infix = list;
         operationStack = TStack<string>(eq.length());
         operandStack = TStack<double>(eq.length());
         res = 0;
-    }*/
+    }
     TPostfixCalc(std::vector<Token> v){
        if (v.empty()) throw std::runtime_error{"nasrano"};
        infix=v;
+       postfix = vector<Token>();
        operationStack=TStack<string>(v.size());
        operandStack = TStack<double>(v.size());
        res = 0;
@@ -151,18 +154,26 @@ public:
     }
 
     ~TPostfixCalc() {}
-
+    void ChangeEquation(string eq){
+        Lexer lexer(eq);
+        infix=lexer.getTokenList();
+        postfix = vector<Token>();
+        operationStack = TStack<string>(eq.length());
+        operandStack = TStack<double>(eq.length());
+    }
     void ChangeEquation(vector<Token>v) {
         infix = v;
+        postfix = vector<Token>();
         operationStack = TStack<string>(v.size());
         operandStack = TStack<double>(v.size());
     }
-   /*void ChangeEquation(StatementExpression s) {
-        infix = s;
-        operationStack = TStack<char>(s.length());
-        operandStack = TStack<double>(s.length());
+   void ChangeEquation(StatementExpression s) {
+        infix = s.getList();
+        postfix = vector<Token>();
+        operationStack = TStack<string>(s.getList().size());
+        operandStack = TStack<double>(s.getList().size());
     }
-    void ChangeEquation(ConditionExpression s) {
+    /*void ChangeEquation(ConditionExpression s) {
         infix = s;
         operationStack = TStack<char>(s.length());
         operandStack = TStack<double>(s.length());
@@ -181,9 +192,9 @@ public:
         }
         Token t1={"CLOSEPARENTHESES",")",0};
         s.push_back(t1);
-        for(auto item:s){
+        /*for(auto item:s){
             cout<<" "<<item.getValue();
-        } cout<<endl;
+        } cout<<endl;*/
         for (size_t i = 0; i < s.size(); i++)
         {
             if ((s[i].getType()=="VALUEINTEGER")||(s[i].getType()=="VALUEREAL")) postfix.push_back(s[i]);
@@ -385,30 +396,31 @@ public:
             return true;
         return false;
     }
-
-    friend istream& operator>>(istream& istr, TPostfixCalc& c)
+*/
+    friend istream& operator>>(istream& in, TPostfixCalc& c)
     {
         string exp;
-        cout << "Ââåäèòå âàøå âûðàæåíèå:";
-        istr >> exp;
-        c.ChangeEquation(exp); return istr;
-    }*/
-    friend ostream& operator<<(ostream& ostr, const TPostfixCalc& c)
+        cout << "Ââåäèòå âàøå âûðàæåíèå:"; //што
+        in >> exp;
+        c.ChangeEquation(exp);
+        return in;
+    }
+    friend ostream& operator<<(ostream& out, const TPostfixCalc& c)
     {
-        ostr << "Infix: ";
+        out << "Infix: ";
         for(auto item:c.infix)
-        {ostr<< " "<<item.getValue();}
-        ostr<< endl;
-        if (c.postfix.size() == 0) { ostr
+        {out << " " << item.getValue();}
+        out << endl;
+        if (c.postfix.size() == 0) { out
                     << "Postfix = 0 " << endl; }
-        else { ostr << "Postfix: ";
+        else { out << "Postfix: ";
         for(auto item:c.postfix)
-            {ostr<<" "<<item.getValue();}
+            {out << " " << item.getValue();}
         }
-        ostr << endl;
-        ostr << "Res: " << c.res << endl;
+        out << endl;
+        out << "Res: " << c.res << endl;
 
-        return ostr;
+        return out;
     }
 };
 
