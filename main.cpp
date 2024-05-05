@@ -48,15 +48,18 @@ int main() {
                 "end;"
                 "until a<b;"
             "end.";
-    Lexer lexer(test_text);
+    /*Lexer lexer(test_text);
     Parser parser(lexer);
     try{ parser.parse(); }
-    catch(AgeException& e){ e.getMessage();}
-    string s="2+22*2";
-    TPostfixCalc c(s);
-    c.Build();
-    cout<<c.GetPost()<<endl;
-    cout<<c.GetRes();
+    catch(AgeException& e){ e.getMessage();}*/
+    string s="2 + 282 * 32 div 2";
+    Lexer lexer(s);
+    vector<Token>list=lexer.getTokenList();
+    TPostfixCalc c(list);
+    c.ToPostfix();
+    c.GetPost();
+    c.CalcPostfix();
+    cout<<endl<<c.GetRes();
 
     return 0;
 }

@@ -17,26 +17,20 @@ using namespace std;
 class TPostfixCalc // не доделан под нужды уравнений с переменными и сравнений
 {
 private:
-    std::string infix;
-    string postfix;
-    TStack<char> operationStack;
+    vector<Token> infix;
+    vector<Token> postfix;
+    TStack<string> operationStack;
     TStack<double> operandStack;
     double res;
 protected:
-    int Priority(char c) {
-        switch (c)
-        {
-            case '(':
-            case ')':
-                return 1;
-            case '+':
-            case '-':
-                return 2;
-            case '*':
-            case '/':
-                return 3;
-            default: throw - 1;
-        }
+    int Priority(string s) {
+        if((s=="(")||(s==")"))
+            {return 1;}
+        if((s=="+")||(s=="-"))
+            {return 2;}
+        if((s=="*")||(s=="div")||(s=="mod"))
+            {return 3;}
+        return -1;
     }
     int PriorityCond(string s){
         if((s=="(")||(s==")")){return 1;}
@@ -46,35 +40,36 @@ protected:
         if((s==">")||(s=="<")||
         (s==">=")||(s=="<=")||
         (s=="<>")||(s=="=")){return 5;}
+        return -1;
+
     }
 public:
     TPostfixCalc() {
-        postfix = "";
-        infix = "";
-        operationStack = TStack<char>();
+        postfix = vector<Token>();
+        infix = vector<Token>();
+        operationStack = TStack<string>();
         operandStack = TStack<double>();
         res = 0;
     }
 
-    TPostfixCalc(string eq) {
+   /* TPostfixCalc(string eq) {
         if (eq.length() <= 0) throw std::runtime_error{"ïóñòàÿ ñòðîêà"};
         postfix = "";
         infix = eq;
-        operationStack = TStack<char>(eq.length());
+        operationStack = TStack<string>(eq.length());
         operandStack = TStack<double>(eq.length());
         res = 0;
-    }
+    }*/
     TPostfixCalc(std::vector<Token> v){
-        for (int i=0; i<v.size()-1;i++){
-            infix+=v[i].getValue();
-        }
-
+       if (v.empty()) throw std::runtime_error{"nasrano"};
+       infix=v;
+       operationStack=TStack<string>(v.size());
+       operandStack = TStack<double>(v.size());
+       res = 0;
     }
 
     TPostfixCalc(StatementExpression v){
-        for (int i=0; i<v.getList().size();i++){
-            infix+=v.getList()[i].getValue();
-        }
+        infix=v.getList();
     }
     TPostfixCalc(ConditionExpression v){
         auto body = v.getBody();
@@ -147,7 +142,7 @@ public:
                 }
             }*/
     TPostfixCalc(const TPostfixCalc& c) {
-        if (&c == this) throw std::runtime_error{"Íå ìîæåò áûòü ïðèñâîåí ýëåìåíò ñàìîìó ñåáå"};
+        if (&c == this) throw std::runtime_error{"odinakovo nasrano"};
         postfix = c.postfix;
         infix = c.infix;
         operationStack = c.operationStack;
@@ -157,10 +152,10 @@ public:
 
     ~TPostfixCalc() {}
 
-    void ChangeEquation(string s) {
-        infix = s;
-        operationStack = TStack<char>(s.length());
-        operandStack = TStack<double>(s.length());
+    void ChangeEquation(vector<Token>v) {
+        infix = v;
+        operationStack = TStack<string>(v.size());
+        operandStack = TStack<double>(v.size());
     }
    /*void ChangeEquation(StatementExpression s) {
         infix = s;
@@ -172,35 +167,71 @@ public:
         operationStack = TStack<char>(s.length());
         operandStack = TStack<double>(s.length());
     }*/
-    string GetInf() { return infix; }
-    string GetPost() { return postfix; }
-    double GetRes() { return res; }
+    vector<Token> GetInf() { return infix; }
+    void GetPost() { for(auto item:postfix){
+        cout<<" "<<item.getValue();
+    }
+    }
+    double GetRes(){
+        return res;
+    }
     void ToPostfix() {
-        char el;
-        postfix = "";
-        string s = "(" + infix + ")";
+        string el;
+        postfix = vector<Token>();
+        vector<Token> s = vector<Token>();
+        Token t={"OPENPARENTHESES","(",0};
+        s.push_back(t);
+        for(auto item:infix){
+            s.push_back(item);
+        }
+        Token t1={"CLOSEPARENTHESES",")",0};
+        s.push_back(t1);
+        for(auto item:s){
+            cout<<" "<<item.getValue();
+        } cout<<endl;
         for (size_t i = 0; i < s.size(); i++)
         {
-            if (s[i] <= '9' && s[i] >= '0') postfix += s[i];
-            if (s[i] == '/' || s[i] == '*' || s[i] == '+' || s[i] == '-') {
-                postfix += " ";
+            if ((s[i].getType()=="VALUEINTEGER")||(s[i].getType()=="VALUEREAL")) postfix.push_back(s[i]);
+            if (s[i].getType() == "DIV" || s[i].getType() == "MOD" || s[i].getType() == "PLUS" ||
+                s[i].getType() == "MINUS"||s[i].getType() == "MULTI") {
                 el = operationStack.Pop();
-                while (Priority(s[i]) <= Priority(el)) {
-                    postfix += el;
-                    postfix += " ";
+                while (Priority(s[i].getValue()) <= Priority(el)) {
+                    if(el[0]=='-'){ Token t={"MINUS",el,0};
+                        postfix.push_back(t);}
+                    if(el[0]=='+'){ Token t={"PLUS",el,0};
+                        postfix.push_back(t);}
+                    if(el[0]=='*'){ Token t={"MULTI",el,0};
+                        postfix.push_back(t);}
+                    if(el[0]=='d'){ Token t={"DIV",el,0};
+                        postfix.push_back(t);}
+                    if(el[0]=='m'){ Token t={"MOD",el,0};
+                        postfix.push_back(t);}
                     el = operationStack.Pop();
+
                 }
                 operationStack.Push(el);
-                operationStack.Push(s[i]);
+                operationStack.Push(s[i].getValue());
             }
-            if (s[i] == '(') operationStack.Push(s[i]);
-            if (s[i] == ')') {
+            if (s[i].getValue() == "(") operationStack.Push(s[i].getValue());
+            if (s[i].getValue() == ")") {
                 el = operationStack.Pop();
 
-                while (el != '(') {
-                    postfix += el;
+                while (el != "(") {
+                    if(el[0]=='-'){ Token t={"MINUS",el,0};
+                        postfix.push_back(t);}
+                    if(el[0]=='+'){ Token t={"PLUS",el,0};
+                        postfix.push_back(t);}
+                    if(el[0]=='*'){ Token t={"MULTI",el,0};
+                        postfix.push_back(t);}
+                    if(el[0]=='d'){ Token t={"DIV",el,0};
+                        postfix.push_back(t);}
+                    if(el[0]=='m'){ Token t={"MOD",el,0};
+                        postfix.push_back(t);}
                     el = operationStack.Pop();
                 }
+            }
+            else{
+                continue;
             }
         }
     }
@@ -258,10 +289,11 @@ public:
        if(condition[0].getValue()=="for"){}
        if(condition[0].getValue()=="while"){}
        if(condition[0].getValue()=="until"){}
+       return true;
 
     }
     void CalcPostfix(SearchTreeTable<string,double>&table) {
-        for (size_t i = 0; i < postfix.size(); i++)
+    /*    for (size_t i = 0; i < postfix.size(); i++)
         {
             if (postfix[i] == '+' || postfix[i] == '-' || postfix[i] == '*' || postfix[i] == '/') {
                 double d1, d2;
@@ -296,42 +328,32 @@ public:
                 i += count - 1;
             }
         }
-        res = operandStack.TopView();
+        res = operandStack.TopView();*/
     }
     void CalcPostfix() {
         for (size_t i = 0; i < postfix.size(); i++)
         {
-            if (postfix[i] == '+' || postfix[i] == '-' || postfix[i] == '*' || postfix[i] == '/') {
+            if (postfix[i].getValue() == "+" || postfix[i].getValue() == "-" || postfix[i].getValue() == "*" || postfix[i].getValue() == "mod"|| postfix[i].getValue() == "div") {
                 double d1, d2;
-                switch (postfix[i]) {
-                    case '+':
-                        d1 = operandStack.Pop();
-                        d2 = operandStack.Pop();
-                        operandStack.Push(d1 + d2);
-                        break;
-                    case '-':
-                        d2 = operandStack.Pop();
-                        d1 = operandStack.Pop();
-                        operandStack.Push(d1 - d2);
-                        break;
-                    case '*':
-                        d1 = operandStack.Pop();
-                        d2 = operandStack.Pop();
-                        operandStack.Push(d1 * d2);
-                        break;
-                    case '/':
-                        d1 = operandStack.Pop();
-                        d2 = operandStack.Pop();
-                        operandStack.Push(d1 / d2);
-                        break;
-                    default: throw "ââåäè ÷î íèòü òî";
-                }
+                d1 = operandStack.Pop();
+                d2 = operandStack.Pop();
+                if(postfix[i].getValue() == "+"){
+                    operandStack.Push(d1 + d2);}
+                if(postfix[i].getValue() == "-") {
+                    operandStack.Push(d1 - d2);                }
+                if(postfix[i].getValue() == "*") {
+                    operandStack.Push(d1 * d2);                }
+                if(postfix[i].getValue() == "div") {
+                    operandStack.Push(d1 / d2);                }
+                if(postfix[i].getValue() == "mod") {
+                    operandStack.Push(fmod(d1,d2));                }
+                //else throw "v cal nasrano";
+
             }
-            if (postfix[i] <= '9' && postfix[i] >= '0') {
-                size_t count;
-                double t = std::stod(&postfix[i], &count);
-                operandStack.Push(t);
-                i += count - 1;
+            if (postfix[i].getType()== "VALUEINTEGER"|| postfix[i].getType() == "VALUEREAL") {
+
+               double ans=std::stod(postfix[i].getValue());
+               operandStack.Push(ans);
             }
         }
         res = operandStack.TopView();
@@ -352,7 +374,7 @@ public:
         operandStack = c.operandStack;
         return *this;
     }
-
+/*
     bool operator==(const TPostfixCalc& c) {
         if (infix != c.infix || postfix != c.postfix || operandStack != c.operandStack || operationStack != c.operationStack)
             return false;
@@ -380,7 +402,7 @@ public:
         ostr << "Êîíå÷íîå ðåøåíèå: " << c.res << endl;
 
         return ostr;
-    }
+    }*/
 };
 
 
