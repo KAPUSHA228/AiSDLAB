@@ -338,16 +338,16 @@ public:
                 d1 = operandStack.Pop();
                 d2 = operandStack.Pop();
                 if(postfix[i].getValue() == "+"){
-                    operandStack.Push(d1 + d2);}
+                    operandStack.Push(d2 + d1);}
                 if(postfix[i].getValue() == "-") {
-                    operandStack.Push(d1 - d2);                }
+                    operandStack.Push(d2 - d1);}
                 if(postfix[i].getValue() == "*") {
-                    operandStack.Push(d1 * d2);                }
+                    operandStack.Push(d2 * d1);}
                 if(postfix[i].getValue() == "div") {
-                    operandStack.Push(d1 / d2);                }
+                    operandStack.Push(d2 / d1);}
                 if(postfix[i].getValue() == "mod") {
-                    operandStack.Push(fmod(d1,d2));                }
-                //else throw "v cal nasrano";
+                    operandStack.Push(fmod(d2,d1));}
+                //else throw std::runtime_error("v calculator nasrano");
 
             }
             if (postfix[i].getType()== "VALUEINTEGER"|| postfix[i].getType() == "VALUEREAL") {

@@ -52,7 +52,7 @@ int main() {
     Parser parser(lexer);
     try{ parser.parse(); }
     catch(AgeException& e){ e.getMessage();}*/
-    string s="2 + 282 * 32 div 2";
+    string s="8 mod 4";
     Lexer lexer(s);
     vector<Token>list=lexer.getTokenList();
     TPostfixCalc c(list);
@@ -60,6 +60,5 @@ int main() {
     c.GetPost();
     c.CalcPostfix();
     cout<<endl<<c.GetRes();
-
     return 0;
 }
