@@ -41,7 +41,7 @@ public:
                 pos += res.length();
                 if (item.first != "SPACE") {
                     tokenList.emplace_back(item.first, res, pos - res.length());
-                    /*std::cout<<"Type of lexema: " <<item.first <<
+                   /* std::cout<<"Type of lexema: " <<item.first <<
                      "; Pos: " << ++i <<
                       "; Value of lexema: "<<res<<" ;"<<std::endl;*/
                 }

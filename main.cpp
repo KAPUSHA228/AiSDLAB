@@ -38,7 +38,7 @@ int main() {
                 "else begin"
                     "Write('No');"
                 "end;"
-                "num1:= num1 div 2;"
+                "num1:= 4 div 2;"
                 "for i:=1 downto 8 do begin"
                     "Write(i);"
                 "end;"
@@ -54,18 +54,21 @@ int main() {
     Parser parser(lexer);
     try{ parser.parse(); }
     catch(AgeException& e){ e.getMessage();}*/
+    string s3="a := 5 + 2";
+    Lexer lexer3(s3);
+    StatementExpression sx(lexer3.getTokenList());
     string s2="if ( 2 <> 8 ) and ( 4 < 2 ) then begin"
                 "Write('Yes');"
               "end";
-    Lexer lexer2(s2);
+    //Lexer lexer2(s2);
+    //ConditionExpression cx(0,lexer2.getTokenList());
     string s="(8 + 3) * (9 + 4)";
-    ConditionExpression cx(0,lexer2.getTokenList());
     Lexer lexer(s);
     vector<Token>list=lexer.getTokenList();
     TPostfixCalc c;
-    c.ChangeEquation(cx);
-    c.ToPostfixCondition(cx.getCondition());
-    c.CalcCondition("if");
+    c.ChangeEquation(sx);
+    //c.ToPostfixCondition(cx.getCondition());
+   // c.CalcCondition("if");
     //c.Build();
     //c.ToPostfix();
     //c.CalcPostfix();

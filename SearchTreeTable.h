@@ -53,6 +53,22 @@ protected:
             data.type=type;
             l->parent = r->parent = this;
         }
+        void print()  {
+            if (this == nullptr) return;
+            this->left->print();
+            if (this->parent == nullptr)
+                cout << "Parent: null, ";
+            else
+                cout << "Parent: " << this->parent->data.key << ", ";
+            cout << "Key:" << this->data.key  <<" , Value: " << this->data.value <<", Left potomok: ";
+            if (this->left == nullptr)
+                cout << "null " << ", ";
+            else { cout << this->left->data.key << " ,"; }
+            if (this->right == nullptr)
+                cout << "Right potomok: null " << " )" << endl;
+            else { cout << "Right potomok: " << this->right->data.key << " )" << endl; }
+            this->right->print();
+        }
         Node& operator=(const Node& other) noexcept {
             parent = other.parent;
             left = other.left;
@@ -102,7 +118,9 @@ public:
         }
     }
     void Change(Key key,Value val){
-        findNode(key,root)->data.value=val;
+        Node* node=findNode(key,root);
+        if(node== nullptr){ Insert(key,val,"VALUEINTEGER");}
+        else{node->data.value=val;}
     }
     Node* deleteNode(Node* currentNode, Key _key)noexcept
     {

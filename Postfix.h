@@ -109,29 +109,34 @@ public:
            (infix[3].getType() == "COMMA") ?
            cout << infix[2].getValue() << " " << *(table.FindValue(infix[4].getValue()))
            : cout << infix[2].getValue();
+           return;
         }
         if(infix[0].getValue()=="Writeln"){
            (infix[3].getType() == "COMMA") ?
            cout << infix[2].getValue() << " " << *(table.FindValue(infix[4].getValue()))
            : cout << infix[2].getValue();
            cout<<endl;
+            return;
         }
         if(infix[0].getValue()=="Read"){
            string value;
            cin >> value;
            table.Change(infix[2].getValue(),value);
+            return;
         }
         if(infix[0].getValue()=="Readln"){
            string value;
            cin >> value;
            table.Change(infix[2].getValue(),value);
            cout<<endl;
+            return;
         }
         else{ //отсекли консоль, теперь объяления и выражения
             int i=0;
-            while((infix[i].getValue()!=":")||(i==infix.size()-1)){i++;} // токен ":" присутствует только в объявлениях
+            while((infix[i].getValue()!=":")&&(i!=infix.size()-1)){i++;} // токен ":" присутствует только в объявлениях
             if(i==(infix.size()-1)){Build(table);} //соответственно если дошли до конца то ":" не нашли и просто билдим
             else{ toDeclarate(infix);}
+            return;
         }
     }
     void toDeclarate(vector<Token> s){
@@ -161,7 +166,7 @@ public:
     {
         type= infix[0].getValue();
         auto iter=infix.begin();
-        infix.erase(iter++);
+        infix.erase(iter);
         infix.erase(iter);
         string el;
         postfix = vector<Token>();
@@ -178,7 +183,7 @@ public:
         } cout<<endl;*/
         for (size_t i = 0; i < s.size(); i++)
         {
-            if (s[i].getType()== "VARIABLE"){
+            /*if (s[i].getType()== "VARIABLE"){
                 string str =*table.FindValue(s[i].getValue());
                 string str2 =table.findNode(s[i].getValue(),table.root)->data.type;
                 if(str2=="VALUEINTEGER"||str2=="VALUEREAL"){
@@ -187,7 +192,7 @@ public:
                 else{
                     //ачё делать с char и string? стеки под них не переделаешь, у нас всегда double
                 }
-            }
+            }*/
             if ((s[i].getType()=="VALUEINTEGER")||(s[i].getType()=="VALUEREAL")){
                 postfix.push_back(s[i]);}
             if (s[i].getType() == "DIV" || s[i].getType() == "MOD" || s[i].getType() == "PLUS" ||
@@ -212,7 +217,8 @@ public:
                 operationStack.Push(el);
                 operationStack.Push(s[i].getValue());
             }
-            if (s[i].getValue() == "(") operationStack.Push(s[i].getValue());
+            if (s[i].getValue() == "(")
+                operationStack.Push(s[i].getValue());
             if (s[i].getValue() == ")") {
                 el = operationStack.Pop();
                 while (el != "(") {
@@ -389,7 +395,7 @@ public:
            while (CalcCondition("if")){
 
            }
-           //или сразу сделать dowhile????????????/
+           //или сразу сделать dowhile????????????
        }
        return true;
     }
@@ -521,6 +527,7 @@ public:
         }
         res = operandStack.TopView();
         table.Change(type,to_string(res));
+        table.root->print();
     }
     void CalcPostfix() {
         for (size_t i = 0; i < postfix.size(); i++)
@@ -547,7 +554,7 @@ public:
                double ans=std::stod(postfix[i].getValue());
                operandStack.Push(ans);
             }
-            if (postfix[i].getType()== "VARIABLE"){}//придумать шнягу для переменных
+            //if (postfix[i].getType()== "VARIABLE"){}//придумать шнягу для переменных
         }
         res = operandStack.TopView();
     }
