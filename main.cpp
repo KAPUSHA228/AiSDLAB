@@ -52,12 +52,18 @@ int main() {
     Parser parser(lexer);
     try{ parser.parse(); }
     catch(AgeException& e){ e.getMessage();}*/
-    string s="8 mod 4 + 2";
-    Lexer lexer(s);
-    vector<Token>list=lexer.getTokenList();
+    string s2="if (P1=num1) and (P2=num2) then begin"
+                "Write('Yes');"
+              "end";
+    Lexer lexer2(s2);
+    string s="(8 + 3) * (9 + 4)";
+    ConditionExpression cx(0,lexer2.getTokenList());
+    //Lexer lexer(s);
+    //vector<Token>list=lexer.getTokenList();
     TPostfixCalc c;
-    c.ChangeEquation(list);
-    c.Build();
+    c.ChangeEquation(cx);
+    c.ToPostfixCondition(cx.getCondition());
+    //c.Build();
     //c.ToPostfix();
     //c.CalcPostfix();
     cout<<c;

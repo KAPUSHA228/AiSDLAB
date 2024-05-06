@@ -14,6 +14,15 @@
 #include "Expression/StatementExpression.h"
 #include "Expression/ConditionExpression.h"
 using namespace std;
+static const std::map<std::string, int> priorityMap {
+        {"(", 1},
+        {")", 1},
+        {"+", 2},
+        {"-", 2},
+        {"*", 3},
+        {"div", 3},
+        {"mod", 3}
+};
 class TPostfixCalc // не доделан под нужды уравнений с переменными и сравнений
 {
 private:
@@ -50,6 +59,7 @@ public:
         operationStack = TStack<string>();
         operandStack = TStack<double>();
         res = 0;
+
     }
 /*
    TPostfixCalc(string eq) {
@@ -157,7 +167,7 @@ public:
         res = c.res;
     }
 
-    ~TPostfixCalc() {}
+    ~TPostfixCalc() = default;
     void ChangeEquation(string eq){
         Lexer lexer(eq);
         infix=lexer.getTokenList();
@@ -180,11 +190,13 @@ public:
         operandStack = TStack<double>(s.getList().size());
         res=0;
    }
-    /*void ChangeEquation(ConditionExpression s) {
-        infix = s;
-        operationStack = TStack<char>(s.length());
-        operandStack = TStack<double>(s.length());
-    }*/
+    void ChangeEquation(ConditionExpression s) {
+        infix = s.getCondition();
+        postfix = vector<Token>();
+        operationStack = TStack<string>(s.getCondition().size());
+        operandStack = TStack<double>(s.getCondition().size());
+        res=0;
+    }
     vector<Token> GetInf() { return infix; }
     vector<Token> GetPost() { return postfix; }
     double GetRes(){  return res; }
@@ -254,43 +266,90 @@ public:
         }
     }
     void ToPostfixCondition(vector<Token>condition){
-       /* string type= condition[0].getValue();
-        vector<Token> copy=condition;
-        auto iter=copy.begin();
-        copy.erase(iter);
-        for(auto item:copy){
-            infix+=item.getValue();
-        }
-        infix="(" + infix + ")";
+        string type= condition[0].getValue();
+        infix = condition;
+        auto iter=infix.begin();
+        infix.erase(iter);
+        iter=infix.end();
+        infix.erase(iter);
         string el;
-        postfix = "";
-
-        for (size_t i = 0; i < copy.size(); i++)
+        postfix = vector<Token>();
+        vector<Token> s = vector<Token>();
+        Token t={"OPENPARENTHESES","(",0};
+        s.push_back(t);
+        for(auto item:infix){
+            s.push_back(item);
+        }
+        Token t1={"CLOSEPARENTHESES",")",0};
+        s.push_back(t1);
+        for (size_t i = 0; i < s.size(); i++)
         {
-            if ((copy[i].getType() == "VALUEINTEGER")||(copy[i].getType() == "VALUEREAL")
-            {postfix += copy[i].getValue();}
-            if (copy[i].getValue() == '(') operationStack.Push(s[i]);
-            if (copy[i].getValue() == ')') {
+            if ((s[i].getType()=="VALUEINTEGER")||(s[i].getType()=="VALUEREAL")||(s[i].getType()=="VARIABLE")){
+                postfix.push_back(s[i]);}
+            if (s[i].getType() == "NOT" || s[i].getType() == "AND" || s[i].getType() == "OR" ||
+                s[i].getType() == "XOR"||s[i].getType() == "JG"||s[i].getType() == "JL" ||
+                s[i].getType() == "JGE" ||s[i].getType() == "JLE" ||s[i].getType() == "JNE"||s[i].getType() == "JE") {
+                el = operationStack.Pop();
+                while (PriorityCond(s[i].getValue()) <= Priority(el)) {
+                    if(el[0]=='n'){ Token t={"NOT",el,0};
+                        postfix.push_back(t);}
+                    if(el[0]=='a'){ Token t={"AND",el,0};
+                        postfix.push_back(t);}
+                    if(el[0]=='x'){ Token t={"XOR",el,0};
+                        postfix.push_back(t);}
+                    if(el[0]=='o'){ Token t={"OR",el,0};
+                        postfix.push_back(t);}
+                    if(el=="="){ Token t={"JE",el,0};
+                        postfix.push_back(t);}
+                    if(el=="<="){ Token t={"JLE",el,0};
+                        postfix.push_back(t);}
+                    if(el==">="){ Token t={"JGE",el,0};
+                        postfix.push_back(t);}
+                    if(el=="<>"){ Token t={"JNE",el,0};
+                        postfix.push_back(t);}
+                    if(el=="<"){ Token t={"JL",el,0};
+                        postfix.push_back(t);}
+                    if(el==">"){ Token t={"JG",el,0};
+                        postfix.push_back(t);}
+                    el = operationStack.Pop();
+
+                }
+                operationStack.Push(el);
+                operationStack.Push(s[i].getValue());
+            }
+            if (s[i].getValue() == "(")            {
+                operationStack.Push(s[i].getValue());}
+            if (s[i].getValue() == ")") {
                 el = operationStack.Pop();
 
                 while (el != "(") {
-                    postfix += el;
+                    if(el[0]=='n'){ Token t={"NOT",el,0};
+                        postfix.push_back(t);}
+                    if(el[0]=='a'){ Token t={"AND",el,0};
+                        postfix.push_back(t);}
+                    if(el[0]=='x'){ Token t={"XOR",el,0};
+                        postfix.push_back(t);}
+                    if(el[0]=='o'){ Token t={"OR",el,0};
+                        postfix.push_back(t);}
+                    if(el=="="){ Token t={"JE",el,0};
+                        postfix.push_back(t);}
+                    if(el=="<="){ Token t={"JLE",el,0};
+                        postfix.push_back(t);}
+                    if(el==">="){ Token t={"JGE",el,0};
+                        postfix.push_back(t);}
+                    if(el=="<>"){ Token t={"JNE",el,0};
+                        postfix.push_back(t);}
+                    if(el=="<"){ Token t={"JL",el,0};
+                        postfix.push_back(t);}
+                    if(el==">"){ Token t={"JG",el,0};
+                        postfix.push_back(t);}
                     el = operationStack.Pop();
                 }
             }
-            if (s[i] == '/' || s[i] == '*' || s[i] == '+' || s[i] == '-') {
-                postfix += " ";
-                el = operationStack.Pop();
-                while (Priority(s[i]) <= Priority(el)) {
-                    postfix += el;
-                    postfix += " ";
-                    el = operationStack.Pop();
-                }
-                operationStack.Push(el);
-                operationStack.Push(s[i]);
-            }
-        }*/
+            else{continue;}
+        }
     }
+
     bool CalcCondition(string type,vector<Token>condition){
         int i=0;
         if(condition[0].getValue()=="if"){

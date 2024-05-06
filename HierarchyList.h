@@ -26,7 +26,7 @@ private:
         }
         void toSolve(){
             if(this==nullptr)return;
-
+            calc->ChangeEquation(value);
             this->nextDescription->toSolve();
 
         }
