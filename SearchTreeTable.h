@@ -15,6 +15,7 @@ protected:
     struct Row {
         Key key;
         Value value;
+        string type;
     };
     struct Node
     {
@@ -22,37 +23,42 @@ protected:
         Node* left;
         Node* right;
         Node* parent;
-        Node(Key key, Value value) noexcept {
+        Node(Key key, Value value, string type) noexcept {
             left = nullptr;
             right = nullptr;
             data.key = key;
             data.value = value;
             this->parent = nullptr;
+            data.type=type;
         }
-        Node(Key key) noexcept {
+        Node(Key key, string type) noexcept {
             left = nullptr;
             right = nullptr;
             data.key = key;
+            data.type=type;
             this->parent = nullptr;
         }
-        Node(Node* l, Node* r, Key key, Value value) noexcept {
+        Node(Node* l, Node* r, Key key, Value value, string type) noexcept {
             left = l;
             right = r;
             data.key = key;
             data.value = value;
+            data.type=type;
             l->parent = r->parent = this;
         }
-        Node(Node* l, Node* r, Key key) noexcept {
+        Node(Node* l, Node* r, Key key, string type) noexcept {
             left = l;
             right = r;
             data.key = key;
+            data.type=type;
             l->parent = r->parent = this;
         }
-        void operator=(const Node& other) noexcept {
+        Node& operator=(const Node& other) noexcept {
             parent = other.parent;
             left = other.left;
             right = other.right;
             data.key = other.data.key;
+            data.type=other.data.type;
             data.value = other.data.value;
         }
     };
@@ -66,13 +72,13 @@ public:
         root = nullptr;
         //root->parent = nullptr;
     }
-    SearchTreeTable(int key, string value)noexcept
+    SearchTreeTable(int key, string value, string type)noexcept
     {
-        root = new Node(key, value);
+        root = new Node(key, value, type);
     }
-    SearchTreeTable(SearchTreeTable p1, SearchTreeTable p2, int key, string value)noexcept
+    SearchTreeTable(SearchTreeTable p1, SearchTreeTable p2, int key, string value,string type)noexcept
     {
-        root = new Node(p1.root, p2.root, key, value);
+        root = new Node(p1.root, p2.root, key, value, type);
         root->parent = nullptr;
     }
     string toString()noexcept {
@@ -96,11 +102,7 @@ public:
         }
     }
     void Change(Key key,Value val){
-        if(Find(key)!=nullptr) {
-            Node* node =  findNode(key,root);
-            node->data.value=val;
-        }
-        else{Insert(key,val);}
+        findNode(key,root)->data.value=val;
     }
     Node* deleteNode(Node* currentNode, Key _key)noexcept
     {
@@ -158,11 +160,11 @@ public:
         return current;
     }
 
-    int Insert(Key _key, Value _val);
-    int Insert(Key key);
+    int Insert(Key _key, Value _val, string type);
+    int Insert(Key key, string type);
     int Delete(Key _key) ;
-    Value* Find(Key _key) ;
-
+    Key* FindKey(Key _key) ;
+    Value* FindValue(Key _key);
     void Reset(void) ;
     int GoNext(void) ;
     bool IsTabEnded(void) const ;
@@ -207,7 +209,7 @@ void SearchTreeTable<Key, Value>::Reset(void)
 template<class Key, class Value>
 int SearchTreeTable<Key, Value>::Delete(Key _key)
 {
-    if ((this->Find(_key) == nullptr) || (root == nullptr)) {
+    if ((this->FindKey(_key) == nullptr) || (root == nullptr)) {
         // Óçåë ñ òàêèì êëþ÷îì íå ñóùåñòâóåò, óäàëåíèå íå òðåáóåòñÿ
         return 1;
     }
@@ -218,15 +220,15 @@ int SearchTreeTable<Key, Value>::Delete(Key _key)
 }
 
 template<class Key, class Value>
-int SearchTreeTable<Key, Value>::Insert(Key _key, Value _val)
+int SearchTreeTable<Key, Value>::Insert(Key _key, Value _val, string type)
 {
-    if (this->Find(_key) != nullptr) {
+    if (this->FindKey(_key) != nullptr) {
         // Óçåë ñ òàêèì êëþ÷îì óæå ñóùåñòâóåò, âñòàâêà íå òðåáóåòñÿ
         return 0;
     }
     else {
         // Ñîçäàåì íîâûé óçåë
-        Node* new_node = new Node(_key, _val);
+        Node* new_node = new Node(_key, _val, type);
         if (root == nullptr) {
             root = new_node; // Åñëè äåðåâî ïóñòîå, íîâûé óçåë ñòàíîâèòñÿ êîðíåì
             root->parent = nullptr;
@@ -256,14 +258,14 @@ int SearchTreeTable<Key, Value>::Insert(Key _key, Value _val)
     }
 }
 template<class Key, class Value>
-int SearchTreeTable<Key, Value>::Insert(Key _key){
-    if (this->Find(_key) != nullptr) {
+int SearchTreeTable<Key, Value>::Insert(Key _key, string type){
+    if (this->FindKey(_key) != nullptr) {
         // Óçåë ñ òàêèì êëþ÷îì óæå ñóùåñòâóåò, âñòàâêà íå òðåáóåòñÿ
         return 0;
     }
     else {
         // Ñîçäàåì íîâûé óçåë
-        Node* new_node = new Node(_key, string());
+        Node* new_node = new Node(_key, string(), type);
         if (root == nullptr) {
             root = new_node; // Åñëè äåðåâî ïóñòîå, íîâûé óçåë ñòàíîâèòñÿ êîðíåì
             root->parent = nullptr;
@@ -292,13 +294,19 @@ int SearchTreeTable<Key, Value>::Insert(Key _key){
         return 0; // Óñïåøíàÿ âñòàâêà íîâîãî óçëà
     }}
 template<class Key, class Value>
-Value* SearchTreeTable<Key, Value>::Find(Key _key)
+Key* SearchTreeTable<Key, Value>::FindKey(Key _key)
+{
+    Node* node = findNode(_key, root);
+    if (node == nullptr) { return nullptr; }
+    return &node->data.key;
+}
+template<class Key, class Value>
+Value* SearchTreeTable<Key, Value>::FindValue(Key _key)
 {
     Node* node = findNode(_key, root);
     if (node == nullptr) { return nullptr; }
     return &node->data.value;
 }
-
 template<class Key, class Value>
 void SearchTreeTable<Key, Value>::print(Node* node)
 {

@@ -15,7 +15,7 @@
 #include "Expression/ConditionExpression.h"
 using namespace std;
 static SearchTreeTable<string, string>table;
-class TPostfixCalc // не доделан под нужды уравнений с переменными и сравнений
+class TPostfixCalc // не доделан под нужды уравнений с переменными, объявлений и сравнений
 {
 private:
     string type;
@@ -80,7 +80,7 @@ public:
     }
     ~TPostfixCalc() = default;
 
-    static void setData(string key){ table.Insert(key);}
+    static void setData(string key,string type){ table.Insert(key,type);}
     static SearchTreeTable<string,string> getTable(){return table;}
 
     void ChangeEquation(string eq){
@@ -107,41 +107,42 @@ public:
         res=0;
         if(infix[0].getValue()=="Write"){
            (infix[3].getType() == "COMMA") ?
-           cout << infix[2].getValue() << " " << *(table.Find(infix[4].getValue()))
+           cout << infix[2].getValue() << " " << *(table.FindValue(infix[4].getValue()))
            : cout << infix[2].getValue();
         }
         if(infix[0].getValue()=="Writeln"){
            (infix[3].getType() == "COMMA") ?
-           cout << infix[2].getValue() << " " << *(table.Find(infix[4].getValue()))
+           cout << infix[2].getValue() << " " << *(table.FindValue(infix[4].getValue()))
            : cout << infix[2].getValue();
            cout<<endl;
         }
         if(infix[0].getValue()=="Read"){
            string value;
            cin >> value;
-           table.Insert(infix[2].getValue(),value);
+           table.Change(infix[2].getValue(),value);
         }
         if(infix[0].getValue()=="Readln"){
            string value;
            cin >> value;
-           table.Insert(infix[2].getValue(),value);
+           table.Change(infix[2].getValue(),value);
            cout<<endl;
         }
         else{ //отсекли консоль, теперь объяления и выражения
-            auto iter=infix.begin();
             int i=0;
-            while(infix[i].getValue()!=":"){i++;} // токен ":" присутствует только в объявлениях
+            while((infix[i].getValue()!=":")||(i==infix.size()-1)){i++;} // токен ":" присутствует только в объявлениях
             if(i==(infix.size()-1)){Build(table);} //соответственно если дошли до конца то ":" не нашли и просто билдим
             else{ toDeclarate(infix);}
         }
     }
     void toDeclarate(vector<Token> s){
-        string str=s[s.size()-1].getValue();
+        string str=s.back().getValue();
         int i=0;
         while(i<s.size()-2){
-            if(str=="INTEGER"){ int var;}
-            if(str=="REAL"){ double var;}
-
+            if(s[i].getType()=="VARIABLE"){
+                table.Insert(s[i].getValue(),str);
+                i++;
+            }
+            else{i++;}
 
         }
     }
@@ -157,71 +158,84 @@ public:
     vector<Token> GetPost() { return postfix; }
     double GetRes(){  return res; }
     void ToPostfix() //робит
-     {
-
-            string el;
-            postfix = vector<Token>();
-            vector<Token> s = vector<Token>();
-            Token t={"OPENPARENTHESES","(",0};
-            s.push_back(t);
-            for(auto item:infix){
-                s.push_back(item);
+    {
+        type= infix[0].getValue();
+        auto iter=infix.begin();
+        infix.erase(iter++);
+        infix.erase(iter);
+        string el;
+        postfix = vector<Token>();
+        vector<Token> s = vector<Token>();
+        Token t={"OPENPARENTHESES","(",0};
+        s.push_back(t);
+        for(auto item:infix){
+            s.push_back(item);
+        }
+        Token t1={"CLOSEPARENTHESES",")",0};
+        s.push_back(t1);
+        /*for(auto item:s){
+        cout<<" "<<item.getValue();
+        } cout<<endl;*/
+        for (size_t i = 0; i < s.size(); i++)
+        {
+            if (s[i].getType()== "VARIABLE"){
+                string str =*table.FindValue(s[i].getValue());
+                string str2 =table.findNode(s[i].getValue(),table.root)->data.type;
+                if(str2=="VALUEINTEGER"||str2=="VALUEREAL"){
+                    postfix.push_back(s[i]);
+                }
+                else{
+                    //ачё делать с char и string? стеки под них не переделаешь, у нас всегда double
+                }
             }
-            Token t1={"CLOSEPARENTHESES",")",0};
-            s.push_back(t1);
-            /*for(auto item:s){
-                cout<<" "<<item.getValue();
-            } cout<<endl;*/
-            for (size_t i = 0; i < s.size(); i++)
-            {
-                if ((s[i].getType()=="VALUEINTEGER")||(s[i].getType()=="VALUEREAL")) postfix.push_back(s[i]);
-                if (s[i].getType() == "DIV" || s[i].getType() == "MOD" || s[i].getType() == "PLUS" ||
+            if ((s[i].getType()=="VALUEINTEGER")||(s[i].getType()=="VALUEREAL")){
+                postfix.push_back(s[i]);}
+            if (s[i].getType() == "DIV" || s[i].getType() == "MOD" || s[i].getType() == "PLUS" ||
                 s[i].getType() == "MINUS"||s[i].getType() == "MULTI") {
-                    if(operationStack.IsEmpty()){
-                        operationStack.Push(s[i].getValue());
-                        continue;}
-                    el = operationStack.Pop();
-                    while (Priority(s[i].getValue()) <= Priority(el)) {
-                        if(el[0]=='-'){ Token t={"MINUS",el,0};
-                            postfix.push_back(t);}
-                        if(el[0]=='+'){ Token t={"PLUS",el,0};
-                            postfix.push_back(t);}
-                        if(el[0]=='*'){ Token t={"MULTI",el,0};
-                            postfix.push_back(t);}
-                        if(el[0]=='d'){ Token t={"DIV",el,0};
-                            postfix.push_back(t);}
-                        if(el[0]=='m'){ Token t={"MOD",el,0};
-                            postfix.push_back(t);}
-                        el = operationStack.Pop();
-                    }
-                    operationStack.Push(el);
+                if(operationStack.IsEmpty()){
                     operationStack.Push(s[i].getValue());
-                }
-                if (s[i].getValue() == "(") operationStack.Push(s[i].getValue());
-                if (s[i].getValue() == ")") {
+                    continue;}
+                el = operationStack.Pop();
+                while (Priority(s[i].getValue()) <= Priority(el)) {
+                    if(el[0]=='-'){ Token t={"MINUS",el,0};
+                        postfix.push_back(t);}
+                    if(el[0]=='+'){ Token t={"PLUS",el,0};
+                        postfix.push_back(t);}
+                    if(el[0]=='*'){ Token t={"MULTI",el,0};
+                        postfix.push_back(t);}
+                    if(el[0]=='d'){ Token t={"DIV",el,0};
+                        postfix.push_back(t);}
+                    if(el[0]=='m'){ Token t={"MOD",el,0};
+                        postfix.push_back(t);}
                     el = operationStack.Pop();
-                    while (el != "(") {
-                        if(el[0]=='-'){
-                            Token t={"MINUS",el,0};
-                            postfix.push_back(t);}
-                        if(el[0]=='+'){
-                            Token t={"PLUS",el,0};
-                            postfix.push_back(t);}
-                        if(el[0]=='*'){
-                            Token t={"MULTI",el,0};
-                            postfix.push_back(t);}
-                        if(el[0]=='d'){
-                            Token t={"DIV",el,0};
-                            postfix.push_back(t);}
-                        if(el[0]=='m'){
-                            Token t={"MOD",el,0};
-                            postfix.push_back(t);}
-                        el = operationStack.Pop();
-                    }
                 }
-                else{continue;}
+                operationStack.Push(el);
+                operationStack.Push(s[i].getValue());
             }
-
+            if (s[i].getValue() == "(") operationStack.Push(s[i].getValue());
+            if (s[i].getValue() == ")") {
+                el = operationStack.Pop();
+                while (el != "(") {
+                    if(el[0]=='-'){
+                        Token t={"MINUS",el,0};
+                        postfix.push_back(t);}
+                    if(el[0]=='+'){
+                        Token t={"PLUS",el,0};
+                        postfix.push_back(t);}
+                    if(el[0]=='*'){
+                        Token t={"MULTI",el,0};
+                        postfix.push_back(t);}
+                    if(el[0]=='d'){
+                        Token t={"DIV",el,0};
+                        postfix.push_back(t);}
+                    if(el[0]=='m'){
+                        Token t={"MOD",el,0};
+                        postfix.push_back(t);}
+                    el = operationStack.Pop();
+                }
+            }
+            else{continue;}
+            }
     }
     void ToPostfixCondition(vector<Token>condition)//робит
     {
@@ -351,13 +365,15 @@ public:
                         d2>d1?operandStack.Push(1):operandStack.Push(0);}
                     if(postfix[i].getValue() == "="){
                         d2==d1?operandStack.Push(1):operandStack.Push(0);}
-                    //else throw std::runtime_error("v calculator nasrano");
 
                 }
                 if (postfix[i].getType()== "VALUEINTEGER"|| postfix[i].getType() == "VALUEREAL") {
 
                     double ans=std::stod(postfix[i].getValue());
                     operandStack.Push(ans);
+                }
+                if (postfix[i].getType()== "VARIABLE"){
+
                 }
             }
             res = operandStack.TopView();
@@ -496,16 +512,15 @@ public:
                     operandStack.Push(d2 / d1);}
                 if(postfix[i].getValue() == "mod") {
                     operandStack.Push(fmod(d2,d1));}
-                //else throw std::runtime_error("v calculator nasrano");
-
             }
             if (postfix[i].getType()== "VALUEINTEGER"|| postfix[i].getType() == "VALUEREAL") {
-
                 double ans=std::stod(postfix[i].getValue());
                 operandStack.Push(ans);
             }
+            if (postfix[i].getType()== "VARIABLE"){}
         }
         res = operandStack.TopView();
+        table.Change(type,to_string(res));
     }
     void CalcPostfix() {
         for (size_t i = 0; i < postfix.size(); i++)
