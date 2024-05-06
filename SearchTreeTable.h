@@ -95,6 +95,13 @@ public:
             return node; // Âîçâðàùàåì óçåë, åñëè êëþ÷ ñîâïàäàåò
         }
     }
+    void Change(Key key,Value val){
+        if(Find(key)!=nullptr) {
+            Node* node =  findNode(key,root);
+            node->data.value=val;
+        }
+        else{Insert(key,val);}
+    }
     Node* deleteNode(Node* currentNode, Key _key)noexcept
     {
         if (currentNode == nullptr) return nullptr;
@@ -250,8 +257,40 @@ int SearchTreeTable<Key, Value>::Insert(Key _key, Value _val)
 }
 template<class Key, class Value>
 int SearchTreeTable<Key, Value>::Insert(Key _key){
-    return 0;
-}
+    if (this->Find(_key) != nullptr) {
+        // Óçåë ñ òàêèì êëþ÷îì óæå ñóùåñòâóåò, âñòàâêà íå òðåáóåòñÿ
+        return 0;
+    }
+    else {
+        // Ñîçäàåì íîâûé óçåë
+        Node* new_node = new Node(_key, int());
+        if (root == nullptr) {
+            root = new_node; // Åñëè äåðåâî ïóñòîå, íîâûé óçåë ñòàíîâèòñÿ êîðíåì
+            root->parent = nullptr;
+            return 0; // Óñïåøíàÿ âñòàâêà íîâîãî óçëà
+        }
+        Node* current = root;
+        Node* parent = nullptr;
+        // Íàõîäèì ìåñòî äëÿ âñòàâêè íîâîé âåðøèíû
+        while (current != nullptr) {
+            parent = current;
+            if (_key < current->data.key) {
+                current = current->left;
+            }
+            else {
+                current = current->right;
+            }
+        }
+        // Âñòàâëÿåì íîâóþ âåðøèíó è óñòàíàâëèâàåì ññûëêó íà ðîäèòåëÿ
+        if (_key < parent->data.key) {
+            parent->left = new_node;
+        }
+        else {
+            parent->right = new_node;
+        }
+        new_node->parent = parent;
+        return 0; // Óñïåøíàÿ âñòàâêà íîâîãî óçëà
+    }}
 template<class Key, class Value>
 Value* SearchTreeTable<Key, Value>::Find(Key _key)
 {
