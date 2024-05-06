@@ -23,6 +23,7 @@ static const std::map<std::string, int> priorityMap {
         {"div", 3},
         {"mod", 3}
 };
+static SearchTreeTable<string, double>table;
 class TPostfixCalc // не доделан под нужды уравнений с переменными и сравнений
 {
 private:
@@ -41,6 +42,24 @@ protected:
             {return 3;}
         return -1;
     }
+    int PrioritySearch(const string& s) {
+        std::unordered_map<std::string, int> priorityMap = {
+                {"(", 1},
+                {")", 1},
+                {"+", 2},
+                {"-", 2},
+                {"*", 3},
+                {"div", 3},
+                {"mod", 3}
+        };
+
+        // Проверяем, есть ли оператор в hashmap и возвращаем соответствующий приоритет
+        if (priorityMap.find(s) != priorityMap.end()) {
+            return priorityMap[s];
+        }
+
+        return -1; // Если оператор не найден, возвращаем -1
+    }
     int PriorityCond(string s){
         if((s=="(")||(s==")")){return 1;}
         if(s=="not"){return 4;}
@@ -50,7 +69,6 @@ protected:
         (s==">=")||(s=="<=")||
         (s=="<>")||(s=="=")){return 5;}
         return -1;
-
     }
 public:
     TPostfixCalc() {
@@ -94,7 +112,7 @@ public:
         auto exp=body.second;
         if(con[0].getValue()!="for") ToPostfixCondition(con);
     }*/
-    /*int i=0;
+/*int i=0;
         if(list.front().getValue()=="Write"){//3 варианта: текст, переменную, текст с переменной
             list[i+3].getType()=="СOMMA"?
             cout<<list[i+2].getValue()<<list[i+4].getValue():
@@ -168,6 +186,8 @@ public:
     }
 
     ~TPostfixCalc() = default;
+    static void setTable(SearchTreeTable<string,double> t){ table=t;}
+    static SearchTreeTable<string,double> getTable(){return table;}
     void ChangeEquation(string eq){
         Lexer lexer(eq);
         infix=lexer.getTokenList();
@@ -189,6 +209,7 @@ public:
         operationStack = TStack<string>(s.getList().size());
         operandStack = TStack<double>(s.getList().size());
         res=0;
+        Build(table);
    }
     void ChangeEquation(ConditionExpression s) {
         infix = s.getCondition();
@@ -201,7 +222,27 @@ public:
     vector<Token> GetPost() { return postfix; }
     double GetRes(){  return res; }
     void ToPostfix() {
-        string el;
+        if(infix[0].getValue()=="Write"){
+            (infix[3].getType() == "COMMA") ?
+            cout << infix[2].getValue() << " " << infix[4].getValue() : cout << infix[2].getValue();
+        }
+        if(infix[0].getValue()=="Writeln"){
+            (infix[3].getType() == "COMMA") ?
+            cout << infix[2].getValue() << " " << infix[4].getValue() : cout << infix[2].getValue();
+            cout<<endl;
+        }
+        if(infix[0].getValue()=="Read"){
+            double value;
+            cin >> value;
+        }
+        if(infix[0].getValue()=="Readln"){
+            double value;
+            cin >> value;
+
+            cout<<endl;
+        }
+        else{
+            string el;
         postfix = vector<Token>();
         vector<Token> s = vector<Token>();
         Token t={"OPENPARENTHESES","(",0};
@@ -265,6 +306,7 @@ public:
             else{
                 continue;
             }
+        }
         }
     }
     void ToPostfixCondition(vector<Token>condition){
@@ -355,7 +397,6 @@ public:
             else{continue;}
         }
     }
-
     bool CalcCondition(string type){
         int i=0;
         if(type=="if"){
@@ -409,13 +450,20 @@ public:
         }
        //if(typeOfCond=="else"){}
        if(type=="for"){}
-       if(type=="while"){}
-       if(type=="until"){}
+       if(type=="while"){ while (CalcCondition("if")){
+
+       }}
+       if(type=="until"){//сначала выполнить одну итерацию цикл, а потом уже
+           while (CalcCondition("if")){
+
+           }
+           //или сразу сделать dowhile????????????/
+       }
        return true;
 
 
     }
-    void CalcPostfix(SearchTreeTable<string,double>&table) {
+    void CalcPostfix(SearchTreeTable<string,double>tab) {
         for (size_t i = 0; i < postfix.size(); i++)
         {
             if (postfix[i].getValue() == "+" || postfix[i].getValue() == "-" || postfix[i].getValue() == "*" ||
@@ -473,9 +521,9 @@ public:
         }
         res = operandStack.TopView();
     }
-    void Build(SearchTreeTable<string,double>&table) {
+    void Build(SearchTreeTable<string,double>tab) {
         ToPostfix();
-        CalcPostfix(table);
+        CalcPostfix(tab);
     }
     void Build() {
         ToPostfix();

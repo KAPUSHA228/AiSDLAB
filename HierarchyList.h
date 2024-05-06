@@ -14,7 +14,6 @@ class HierarchyList {
 private:
     struct Node {
         Node* nextDescription;
-        TPostfixCalc* calc;
         Value value;
         Node(Value v) {
             nextDescription=nullptr;
@@ -26,9 +25,8 @@ private:
         }
         void toSolve(){
             if(this==nullptr)return;
-            calc->ChangeEquation(value);
+            calc.ChangeEquation(value);
             this->nextDescription->toSolve();
-
         }
     };
     struct Chapter{
@@ -47,8 +45,7 @@ private:
         }
     };
     Chapter* root;
-    TPostfixCalc calc;
-    SearchTreeTable<string, double>table;
+    static TPostfixCalc calc;
 public:
     HierarchyList() {
         root=new Chapter("Const");

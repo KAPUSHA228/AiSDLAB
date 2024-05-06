@@ -56,7 +56,6 @@ public:
                 initRowStatement();
                 hierarchyList.toAddNext(expressionList.front(),"Var");
                 expressionList.clear();
-
             }
             currentPos++;
         }
@@ -64,9 +63,7 @@ public:
         return;
     }
     void print(){
-        for(auto item:expressionList){
-            item->print();
-           }
+        for(auto item:expressionList){    item->print();      }
     }
     void initRowStatement(){//метод чтобы строчку кода (не условие и не цикл) переводить в StatementExpression
         while(!isTypeToken("SEMICOLON")){

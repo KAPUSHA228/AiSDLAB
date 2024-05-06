@@ -54,7 +54,7 @@ int main() {
     Parser parser(lexer);
     try{ parser.parse(); }
     catch(AgeException& e){ e.getMessage();}*/
-    string s2="if ( 2 <> 8 ) and ( 4 > 2 ) then begin"
+    string s2="if ( 2 <> 8 ) and ( 4 < 2 ) then begin"
                 "Write('Yes');"
               "end";
     Lexer lexer2(s2);
