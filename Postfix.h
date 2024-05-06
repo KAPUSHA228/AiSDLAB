@@ -14,10 +14,11 @@
 #include "Expression/StatementExpression.h"
 #include "Expression/ConditionExpression.h"
 using namespace std;
-static SearchTreeTable<string, double>table;
+static SearchTreeTable<string, string>table;
 class TPostfixCalc // не доделан под нужды уравнений с переменными и сравнений
 {
 private:
+    string type;
     vector<Token> infix;
     vector<Token> postfix;
     TStack<string> operationStack;
@@ -48,7 +49,7 @@ protected:
         if (priorityMap.find(s) != priorityMap.end()) {
             return priorityMap[s];
         }
-        return -1; // Если оператор не найден, возвращаем -1
+        return -1;
     }
     static int PriorityCond(string s){
         if((s=="(")||(s==")")){return 1;}
@@ -80,7 +81,7 @@ public:
     ~TPostfixCalc() = default;
 
     static void setData(string key){ table.Insert(key);}
-    static SearchTreeTable<string,double> getTable(){return table;}
+    static SearchTreeTable<string,string> getTable(){return table;}
 
     void ChangeEquation(string eq){
         Lexer lexer(eq);
@@ -99,6 +100,7 @@ public:
     }
    void ChangeEquation(StatementExpression s) {
         infix = s.getList();
+        type=infix[0].getValue();
         postfix = vector<Token>();
         operationStack = TStack<string>(s.getList().size());
         operandStack = TStack<double>(s.getList().size());
@@ -115,17 +117,33 @@ public:
            cout<<endl;
         }
         if(infix[0].getValue()=="Read"){
-           double value;
+           string value;
            cin >> value;
            table.Insert(infix[2].getValue(),value);
         }
         if(infix[0].getValue()=="Readln"){
-           double value;
+           string value;
            cin >> value;
            table.Insert(infix[2].getValue(),value);
            cout<<endl;
         }
-        else{ Build(table);}
+        else{ //отсекли консоль, теперь объяления и выражения
+            auto iter=infix.begin();
+            int i=0;
+            while(infix[i].getValue()!=":"){i++;} // токен ":" присутствует только в объявлениях
+            if(i==(infix.size()-1)){Build(table);} //соответственно если дошли до конца то ":" не нашли и просто билдим
+            else{ toDeclarate(infix);}
+        }
+    }
+    void toDeclarate(vector<Token> s){
+        string str=s[s.size()-1].getValue();
+        int i=0;
+        while(i<s.size()-2){
+            if(str=="INTEGER"){ int var;}
+            if(str=="REAL"){ double var;}
+
+
+        }
     }
     void ChangeEquation(ConditionExpression s) {
         infix = s.getCondition();
@@ -138,7 +156,8 @@ public:
     vector<Token> GetInf() { return infix; }
     vector<Token> GetPost() { return postfix; }
     double GetRes(){  return res; }
-    void ToPostfix() {
+    void ToPostfix() //робит
+     {
 
             string el;
             postfix = vector<Token>();
@@ -204,8 +223,9 @@ public:
             }
 
     }
-    void ToPostfixCondition(vector<Token>condition){
-        string type= condition[0].getValue();
+    void ToPostfixCondition(vector<Token>condition)//робит
+    {
+        type= condition[0].getValue();
         infix = condition;
         auto iter=infix.begin();
         infix.erase(iter);
@@ -292,9 +312,10 @@ public:
             else{continue;}
         }
     }
-    bool CalcCondition(string type){
+    bool CalcCondition(string Ttype)//удивительно, но робит
+    {
         int i=0;
-        if(type=="if"){
+        if(Ttype=="if"){
             for (size_t i = 0; i < postfix.size(); i++)
             {
                 if( postfix[i].getValue() == "not") {
@@ -344,11 +365,11 @@ public:
             else return false;
         }
        //if(typeOfCond=="else"){}
-       if(type=="for"){}
-       if(type=="while"){ while (CalcCondition("if")){
+       if(Ttype=="for"){}
+       if(Ttype=="while"){ while (CalcCondition("if")){
 
        }}
-       if(type=="until"){//сначала выполнить одну итерацию цикл, а потом уже
+       if(Ttype=="until"){//сначала выполнить одну итерацию цикл, а потом уже
            while (CalcCondition("if")){
 
            }
@@ -356,6 +377,8 @@ public:
        }
        return true;
     }
+
+
     /*
    TPostfixCalc(string eq) {
         if (eq.length() <= 0) throw std::runtime_error{"dlina nasrano"};
@@ -453,7 +476,9 @@ public:
                     posofEndofIf++;
                 }
             }*/
-    void CalcPostfix(SearchTreeTable<string,double>tab) {
+
+
+    void CalcPostfix(SearchTreeTable<string,string>tab) {
         for (size_t i = 0; i < postfix.size(); i++)
         {
             if (postfix[i].getValue() == "+" || postfix[i].getValue() == "-" || postfix[i].getValue() == "*" ||
@@ -511,7 +536,7 @@ public:
         }
         res = operandStack.TopView();
     }
-    void Build(SearchTreeTable<string,double>tab) {
+    void Build(SearchTreeTable<string,string>tab) {
         ToPostfix();
         CalcPostfix(tab);
     }
