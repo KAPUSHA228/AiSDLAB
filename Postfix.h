@@ -219,6 +219,8 @@ public:
             if ((s[i].getType()=="VALUEINTEGER")||(s[i].getType()=="VALUEREAL")) postfix.push_back(s[i]);
             if (s[i].getType() == "DIV" || s[i].getType() == "MOD" || s[i].getType() == "PLUS" ||
                 s[i].getType() == "MINUS"||s[i].getType() == "MULTI") {
+                if(operationStack.IsEmpty()){operationStack.Push(s[i].getValue());
+                    continue;}
                 el = operationStack.Pop();
                 while (Priority(s[i].getValue()) <= Priority(el)) {
                     if(el[0]=='-'){ Token t={"MINUS",el,0};
@@ -286,9 +288,13 @@ public:
         {
             if ((s[i].getType()=="VALUEINTEGER")||(s[i].getType()=="VALUEREAL")||(s[i].getType()=="VARIABLE")){
                 postfix.push_back(s[i]);}
-            if (s[i].getType() == "NOT" || s[i].getType() == "AND" || s[i].getType() == "OR" ||
-                s[i].getType() == "XOR"||s[i].getType() == "JG"||s[i].getType() == "JL" ||
-                s[i].getType() == "JGE" ||s[i].getType() == "JLE" ||s[i].getType() == "JNE"||s[i].getType() == "JE") {
+            if (s[i].getType() == "NOT" || s[i].getType() == "AND" ||
+            s[i].getType() == "OR" ||s[i].getType() == "XOR"||
+            s[i].getType() == "JG"||s[i].getType() == "JL" ||
+            s[i].getType() == "JGE" ||s[i].getType() == "JLE"||
+            s[i].getType() == "JNE"||s[i].getType() == "JE") {
+                if(operationStack.IsEmpty()){operationStack.Push(s[i].getValue());
+                    continue;}
                 el = operationStack.Pop();
                 while (PriorityCond(s[i].getValue()) <= Priority(el)) {
                     if(el[0]=='n'){ Token t={"NOT",el,0};
@@ -350,29 +356,70 @@ public:
         }
     }
 
-    bool CalcCondition(string type,vector<Token>condition){
+    bool CalcCondition(string type){
         int i=0;
-        if(condition[0].getValue()=="if"){
-           while((condition[i].getValue()!="and")&&(condition[i].getValue()!="or"))
-           {
-               i++;
-           }
-           if(condition[i].getValue()=="or"){ }
-           if(condition[i].getValue()=="and"){}
-           else{}
+        if(type=="if"){
+            for (size_t i = 0; i < postfix.size(); i++)
+            {
+                if( postfix[i].getValue() == "not") {
+                    double d1;
+                    d1=operandStack.Pop();
+                    d1==1?operandStack.Push(0):operandStack.Push(1);
+                }
+                if(postfix[i].getValue() == "and" || postfix[i].getValue() == "or" || postfix[i].getValue() == "xor"){
+                    double d1, d2;
+                    d1 = operandStack.Pop();
+                    d2 = operandStack.Pop();
+                    if(postfix[i].getValue() == "and"){
+                        ((d1==1)&&(d2==1))?operandStack.Push(1):operandStack.Push(0);}
+                    if(postfix[i].getValue() == "or"){
+                        ((d1==1)||(d2==1))?operandStack.Push(1):operandStack.Push(0);}
+                    if(postfix[i].getValue() == "xor"){
+                        ((d1==1)^(d2==1))?operandStack.Push(1):operandStack.Push(0);}
+                }
+                if (postfix[i].getValue() == "<" || postfix[i].getValue() == "<>" || postfix[i].getValue() == "<="||
+                postfix[i].getValue() == ">"|| postfix[i].getValue() == ">=" || postfix[i].getValue() == "=") {
+                    double d1, d2;
+                    d1 = operandStack.Pop();
+                    d2 = operandStack.Pop();
+                    if(postfix[i].getValue() == "<>"){
+                        d2!=d1?operandStack.Push(1):operandStack.Push(0);}
+                    if(postfix[i].getValue() == "<="){
+                        d2<=d1?operandStack.Push(1):operandStack.Push(0);}
+                    if(postfix[i].getValue() == "<"){
+                        d2<d1?operandStack.Push(1):operandStack.Push(0);}
+                    if(postfix[i].getValue() == ">="){
+                        d2>=d1?operandStack.Push(1):operandStack.Push(0);}
+                    if(postfix[i].getValue() == ">"){
+                        d2>d1?operandStack.Push(1):operandStack.Push(0);}
+                    if(postfix[i].getValue() == "="){
+                        d2==d1?operandStack.Push(1):operandStack.Push(0);}
+                    //else throw std::runtime_error("v calculator nasrano");
 
-       }
+                }
+                if (postfix[i].getType()== "VALUEINTEGER"|| postfix[i].getType() == "VALUEREAL") {
+
+                    double ans=std::stod(postfix[i].getValue());
+                    operandStack.Push(ans);
+                }
+            }
+            res = operandStack.TopView();
+            if(res==1) return true;
+            else return false;
+        }
        //if(typeOfCond=="else"){}
-       if(condition[0].getValue()=="for"){}
-       if(condition[0].getValue()=="while"){}
-       if(condition[0].getValue()=="until"){}
+       if(type=="for"){}
+       if(type=="while"){}
+       if(type=="until"){}
        return true;
+
 
     }
     void CalcPostfix(SearchTreeTable<string,double>&table) {
         for (size_t i = 0; i < postfix.size(); i++)
         {
-            if (postfix[i].getValue() == "+" || postfix[i].getValue() == "-" || postfix[i].getValue() == "*" || postfix[i].getValue() == "mod"|| postfix[i].getValue() == "div") {
+            if (postfix[i].getValue() == "+" || postfix[i].getValue() == "-" || postfix[i].getValue() == "*" ||
+            postfix[i].getValue() == "mod"|| postfix[i].getValue() == "div") {
                 double d1, d2;
                 d1 = operandStack.Pop();
                 d2 = operandStack.Pop();
@@ -422,6 +469,7 @@ public:
                double ans=std::stod(postfix[i].getValue());
                operandStack.Push(ans);
             }
+            if (postfix[i].getType()== "VARIABLE"){}//придумать шнягу для переменных
         }
         res = operandStack.TopView();
     }

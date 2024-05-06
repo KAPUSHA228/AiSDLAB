@@ -38,7 +38,6 @@ public:
                 condition.push_back(list[posofEndofIf]);
                 posofEndofIf++;
             }
-            //TPostfixCalc p(condition);//мб сделать какой-то метод именно для проверки условий goto 50
             posofEndofIf++;
             while(list[posofEndofIf].getType()!="ENDofIF"){ //пока не дойдём до конца тела текущего if
                 if(((list[posofEndofIf].getType()=="CONDITION"))|| //если хоть какую-то в нем вложенность находим
@@ -69,7 +68,6 @@ public:
             condition.push_back(list[posofEndofIf]);
             while(list[posofEndofIf].getType()!="BEGIN")
             { posofEndofIf++;} posofEndofIf++;
-            //TPostfixCalc p(condition);// а здесь отрицание этого метода, довольно удобно получится
             // те же шаги, что и при condition, но уже в цикле до ENDofCycle
             while(list[posofEndofIf].getType()!="ENDofCycle"){
                 if(((list[posofEndofIf].getType()=="CONDITION"))||

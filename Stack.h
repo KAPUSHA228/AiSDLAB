@@ -15,7 +15,7 @@ protected:
 
 public:
     TStack(int n = 0) {
-        if (n < 0) throw std::runtime_error{"íåëüçÿ ñîçäàòü ñòýê ñ îòðèöàòåëüíîé äëèíîé"};
+        if (n < 0) throw std::runtime_error{"invalid length"};
         top = -1;
         size = n;
         mas = new T[n];
@@ -40,20 +40,20 @@ public:
         return top + 1;
     }
     void Push(T x) {  // ýëåìåíò õ íà âåðøèíó
-        if (IsFull()) throw std::runtime_error{"Ñòýê ïîëîí"};
+        if (IsFull()) throw std::runtime_error{"stack is full"};
         mas[++top] = x;
     }
     T GetTop() {  // ýëåìåíò õ ñ âåðøèíû
-        if (IsEmpty()) throw std::runtime_error{"Ñòýê ïóñò"};
+        if (IsEmpty()) throw std::runtime_error{"stack is empty from GetTop"};
         return mas[top];
     }
     T Pop()  // óáðàòü ïîñëåäíèé ýëåìåíò
     {
-        if (IsEmpty()) throw std::runtime_error{"Ñòýê ïóñò"};
+        if (IsEmpty()) throw std::runtime_error{"stack is empty from Pop"};
         return mas[top--];
     }
     T TopView() {  // ïîñìîòðåòü ïîñëåäíèé ýëåìåíò
-        if (IsEmpty()) throw std::runtime_error{"Ñòýê ïóñò"};
+        if (IsEmpty()) throw std::runtime_error{"stack is empty from TopView"};
         return mas[top];
     }
 

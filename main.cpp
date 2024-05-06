@@ -31,7 +31,9 @@ int main() {
                 "num1:=2;"
                 "Write('Reader ', res2);"
                 "if Pi=num1 then begin"
-                    "Write('Yes');"
+                    "if Pi=num1 then begin"
+                        "Write('Yes');"
+                    "end"
                 "end"
                 "else begin"
                     "Write('No');"
@@ -52,17 +54,18 @@ int main() {
     Parser parser(lexer);
     try{ parser.parse(); }
     catch(AgeException& e){ e.getMessage();}*/
-    string s2="if (P1=num1) and (P2=num2) then begin"
+    string s2="if ( 2 <> 8 ) and ( 4 > 2 ) then begin"
                 "Write('Yes');"
               "end";
     Lexer lexer2(s2);
     string s="(8 + 3) * (9 + 4)";
     ConditionExpression cx(0,lexer2.getTokenList());
-    //Lexer lexer(s);
-    //vector<Token>list=lexer.getTokenList();
+    Lexer lexer(s);
+    vector<Token>list=lexer.getTokenList();
     TPostfixCalc c;
     c.ChangeEquation(cx);
     c.ToPostfixCondition(cx.getCondition());
+    c.CalcCondition("if");
     //c.Build();
     //c.ToPostfix();
     //c.CalcPostfix();
