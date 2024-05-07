@@ -54,32 +54,33 @@ int main() {
     Parser parser(lexer);
     try{ parser.parse(); }
     catch(AgeException& e){ e.getMessage();}*/
-    string s5="a: integer";
+    /*string s5="a: integer";
     string s6="b: real";
     string s3="a := 5 + 2";
     string s4="Read(a)";
     Lexer lexer3(s5);
     Lexer lexer4(s4);
     StatementExpression sx(lexer3.getTokenList());
-    StatementExpression sx2(lexer4.getTokenList());
-    string s2="if ( 2 <> 8 ) and ( 4 < 2 ) then begin"
+    StatementExpression sx2(lexer4.getTokenList());*/
+    string s2="if ( 2 <> 8 ) and not ( 4 < 2 ) then begin"
                 "Write('Yes');"
               "end";
-    //Lexer lexer2(s2);
-    //ConditionExpression cx(0,lexer2.getTokenList());
-    string s="(8 + 3) * (9 + 4)";
-    Lexer lexer(s);
-    vector<Token>list=lexer.getTokenList();
+    Lexer lexer2(s2);
+    ConditionExpression cx(0,lexer2.getTokenList());
+    //string s="(8 + 3) * (9 + 4)";
+    //Lexer lexer(s);
+    //vector<Token>list=lexer.getTokenList();
     TPostfixCalc c;
-    c.ChangeEquation(sx);
-    c.ChangeEquation(sx2);
-    c.getTable().root->print();
+    c.ChangeEquation(cx);
+    //c.ChangeEquation(sx);
+    //c.ChangeEquation(sx2);
+    //c.getTable().root->print();
     //cout<<c.getTable().findNode("a",c.getTable().root)->data.value;
-    //c.ToPostfixCondition(cx.getCondition());
-    //c.CalcCondition("if");
+    c.ToPostfixCondition(cx.getCondition());
+    c.CalcCondition("if");
     //c.Build();
     //c.ToPostfix();
     //c.CalcPostfix();
-    //cout<<c;
+    cout<<c;
     return 0;
 }
