@@ -283,7 +283,7 @@ int SearchTreeTable<Key, Value>::Insert(Key _key, string type){
     }
     else {
         // Ñîçäàåì íîâûé óçåë
-        Node* new_node = new Node(_key, "0", type);
+        Node* new_node = new Node(_key, string(), type);
         if (root == nullptr) {
             root = new_node; // Åñëè äåðåâî ïóñòîå, íîâûé óçåë ñòàíîâèòñÿ êîðíåì
             root->parent = nullptr;

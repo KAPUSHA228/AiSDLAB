@@ -98,7 +98,8 @@ public:
         operandStack = TStack<double>(v.size());
         res=0;
     }
-   void ChangeEquation(StatementExpression s) {
+    void ChangeEquation(StatementExpression s)// фул работает ура
+    {
         infix = s.getList();
         type=infix[0].getValue();
         postfix = vector<Token>();
@@ -134,12 +135,13 @@ public:
         else{ //отсекли консоль, теперь объявления и выражения
             int i=0;
             while((infix[i].getValue()!=":")&&(i!=(infix.size()-1))){i++;} // токен ":" присутствует только в объявлениях
-            if(i==(infix.size()-1)){Build(table);} //соответственно если дошли до конца то ":" не нашли и просто билдим
+            if(i==(infix.size()-1)){Build();} //соответственно если дошли до конца то ":" не нашли и просто билдим
             else{ toDeclarate(infix);}
             return;
         }
     }
-    void toDeclarate(vector<Token> s){
+    void toDeclarate(vector<Token> s)
+    {
         string str=s.back().getValue();
         int i=0;
         while(i<s.size()-2){
@@ -158,6 +160,8 @@ public:
         operationStack = TStack<string>(s.getCondition().size());
         operandStack = TStack<double>(s.getCondition().size());
         res=0;
+        ToPostfixCondition(s.getCondition());
+        CalcCondition(type);
     }
     vector<Token> GetInf() { return infix; }
     vector<Token> GetPost() { return postfix; }
@@ -193,7 +197,7 @@ public:
                     //ачё делать с char и string? стеки под них не переделаешь, у нас всегда double
                 }
             }*/
-            if ((s[i].getType()=="VALUEINTEGER")||(s[i].getType()=="VALUEREAL")){
+            if ((s[i].getType()=="VALUEINTEGER")||(s[i].getType()=="VALUEREAL")||(s[i].getType()=="VARIABLE")){
                 postfix.push_back(s[i]);}
             if (s[i].getType() == "DIV" || s[i].getType() == "MOD" || s[i].getType() == "PLUS" ||
                 s[i].getType() == "MINUS"||s[i].getType() == "MULTI") {
@@ -379,6 +383,8 @@ public:
                     operandStack.Push(ans);
                 }
                 if (postfix[i].getType()== "VARIABLE"){
+                    double ans=std::stod(table.findNode(postfix[i].getValue(),table.root)->data.value);
+                    operandStack.Push(ans);
 
                 }
             }
@@ -386,7 +392,7 @@ public:
             if(res==1) return true;
             else return false;
         }
-       //if(typeOfCond=="else"){}
+       //if(Ttype=="else"){}
        if(Ttype=="for"){}
        if(Ttype=="while"){ while (CalcCondition("if")){
 
@@ -498,13 +504,11 @@ public:
                     posofEndofIf++;
                 }
             }*/
-
-
-    void CalcPostfix(SearchTreeTable<string,string>tab) {
+    void CalcPostfix() {
         for (size_t i = 0; i < postfix.size(); i++)
         {
             if (postfix[i].getValue() == "+" || postfix[i].getValue() == "-" || postfix[i].getValue() == "*" ||
-            postfix[i].getValue() == "mod"|| postfix[i].getValue() == "div") {
+                postfix[i].getValue() == "mod"|| postfix[i].getValue() == "div") {
                 double d1, d2;
                 d1 = operandStack.Pop();
                 d2 = operandStack.Pop();
@@ -523,44 +527,13 @@ public:
                 double ans=std::stod(postfix[i].getValue());
                 operandStack.Push(ans);
             }
-            if (postfix[i].getType()== "VARIABLE"){}
+            if (postfix[i].getType()== "VARIABLE"){
+                double ans=std::stod(table.findNode(postfix[i].getValue(),table.root)->data.value);
+                operandStack.Push(ans);
+            }
         }
         res = operandStack.TopView();
         table.Change(type,to_string(res));
-        table.root->print();
-    }
-    void CalcPostfix() {
-        for (size_t i = 0; i < postfix.size(); i++)
-        {
-            if (postfix[i].getValue() == "+" || postfix[i].getValue() == "-" || postfix[i].getValue() == "*" || postfix[i].getValue() == "mod"|| postfix[i].getValue() == "div") {
-                double d1, d2;
-                d1 = operandStack.Pop();
-                d2 = operandStack.Pop();
-                if(postfix[i].getValue() == "+"){
-                    operandStack.Push(d2 + d1);}
-                if(postfix[i].getValue() == "-") {
-                    operandStack.Push(d2 - d1);}
-                if(postfix[i].getValue() == "*") {
-                    operandStack.Push(d2 * d1);}
-                if(postfix[i].getValue() == "div") {
-                    operandStack.Push(d2 / d1);}
-                if(postfix[i].getValue() == "mod") {
-                    operandStack.Push(fmod(d2,d1));}
-                //else throw std::runtime_error("v calculator nasrano");
-
-            }
-            if (postfix[i].getType()== "VALUEINTEGER"|| postfix[i].getType() == "VALUEREAL") {
-
-               double ans=std::stod(postfix[i].getValue());
-               operandStack.Push(ans);
-            }
-            //if (postfix[i].getType()== "VARIABLE"){}//придумать шнягу для переменных
-        }
-        res = operandStack.TopView();
-    }
-    void Build(SearchTreeTable<string,string>tab) {
-        ToPostfix();
-        CalcPostfix(tab);
     }
     void Build() {
         ToPostfix();
