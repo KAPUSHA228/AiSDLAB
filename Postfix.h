@@ -108,13 +108,13 @@ public:
         if(infix[0].getValue()=="Write"){
            (infix[3].getType() == "COMMA") ?
            cout << infix[2].getValue() << " " << *(table.FindValue(infix[4].getValue()))
-           : cout<<table.findNode(infix[4].getValue(),table.root)->data.type;
+           : cout<<table.findNode(infix[4].getValue(),table.root)->data.value;
            return;
         }
         if(infix[0].getValue()=="Writeln"){
            (infix[3].getType() == "COMMA") ?
            cout << infix[2].getValue() << " " << *(table.FindValue(infix[4].getValue()))
-           : cout<<*(table.FindValue(infix[4].getValue()));
+           : cout<<table.findNode(infix[4].getValue(),table.root)->data.value;
            cout<<endl;
             return;
         }
