@@ -108,13 +108,13 @@ public:
         if(infix[0].getValue()=="Write"){
            (infix[3].getType() == "COMMA") ?
            cout << infix[2].getValue() << " " << *(table.FindValue(infix[4].getValue()))
-           : cout << infix[2].getValue();
+           : cout<<table.findNode(infix[4].getValue(),table.root)->data.type;
            return;
         }
         if(infix[0].getValue()=="Writeln"){
            (infix[3].getType() == "COMMA") ?
            cout << infix[2].getValue() << " " << *(table.FindValue(infix[4].getValue()))
-           : cout << infix[2].getValue();
+           : cout<<*(table.FindValue(infix[4].getValue()));
            cout<<endl;
             return;
         }
@@ -133,7 +133,7 @@ public:
         }
         else{ //отсекли консоль, теперь объяления и выражения
             int i=0;
-            while((infix[i].getValue()!=":")&&(i!=infix.size()-1)){i++;} // токен ":" присутствует только в объявлениях
+            while((infix[i].getValue()!=":")&&(i!=(infix.size()-1))){i++;} // токен ":" присутствует только в объявлениях
             if(i==(infix.size()-1)){Build(table);} //соответственно если дошли до конца то ":" не нашли и просто билдим
             else{ toDeclarate(infix);}
             return;
