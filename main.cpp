@@ -65,7 +65,7 @@ int main() {
     StatementExpression sx(lexer3.getTokenList());
     StatementExpression sx2(lexer4.getTokenList());
     StatementExpression sx3(lexer5.getTokenList());
-    string s2="if ( 2 <> 8 ) xor not ( 4 < 2 ) then begin"
+    string s2="if ( 2 <> 8 ) xor ( 4 < 2 ) then begin"
               "Write('Yes');"
               "end";
     Lexer lexer2(s2);
@@ -73,13 +73,11 @@ int main() {
     //string s="(8 + 3) * (9 + 4)";
     //Lexer lexer(s);
     //vector<Token>list=lexer.getTokenList();
-    //c.ChangeEquation(cx);
-    c.ChangeEquation(sx);
-    c.ChangeEquation(sx2);
-   // c.getTable().root->print();
-
-    c.ChangeEquation(sx3);
-    c.getTable().root->print();
+    c.ChangeEquation(cx);
+    //c.ChangeEquation(sx);
+    //c.ChangeEquation(sx2);
+    //c.ChangeEquation(sx3);
+    //c.getTable().root->print();
     //cout<<c.getTable().findNode("a",c.getTable().root)->data.value;
     //cout<<c;
     return 0;

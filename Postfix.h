@@ -82,7 +82,6 @@ public:
 
     static void setData(string key,string type){ table.Insert(key,type);}
     static SearchTreeTable<string,string> getTable(){return table;}
-
     void ChangeEquation(string eq){
         Lexer lexer(eq);
         infix=lexer.getTokenList();
@@ -91,32 +90,31 @@ public:
         operandStack = TStack<double>(eq.length());
         res=0;
     }
-    void ChangeEquation(vector<Token>v) {
-        infix = v;
-        postfix = vector<Token>();
-        operationStack = TStack<string>(v.size());
-        operandStack = TStack<double>(v.size());
-        res=0;
-    }
-    void ChangeEquation(StatementExpression s)// фул работает ура
+    void ChangeEquation(StatementExpression sx)// фул работает ура
     {
-        infix = s.getList();
+        infix = sx.getList();
         type=infix[0].getValue();
         postfix = vector<Token>();
-        operationStack = TStack<string>(s.getList().size());
-        operandStack = TStack<double>(s.getList().size());
+        operationStack = TStack<string>(sx.getList().size());
+        operandStack = TStack<double>(sx.getList().size());
         res=0;
         if(infix[0].getValue()=="Write"){
-           (infix[3].getType() == "COMMA") ?
-           cout << infix[2].getValue() << " " << *(table.FindValue(infix[4].getValue()))
-           : cout<<table.findNode(infix[4].getValue(),table.root)->data.value;
+           if(infix[3].getType() == "COMMA") {
+           cout << infix[2].getValue() << " " << *(table.FindValue(infix[4].getValue()));}
+           else {
+               if(infix[2].getType()=="VALUESTRING"){cout<<infix[2].getValue();}
+               else{cout<<table.findNode(infix[2].getValue(),table.root)->data.value;}
+           }
            return;
         }
         if(infix[0].getValue()=="Writeln"){
-           (infix[3].getType() == "COMMA") ?
-           cout << infix[2].getValue() << " " << *(table.FindValue(infix[4].getValue()))
-           : cout<<table.findNode(infix[4].getValue(),table.root)->data.value;
-           cout<<endl;
+            if(infix[3].getType() == "COMMA") {
+                cout << infix[2].getValue() << " " << *(table.FindValue(infix[4].getValue()));}
+            else {
+                if(infix[2].getType()=="VALUESTRING"){cout<<infix[2].getValue();}
+                else{cout<<table.findNode(infix[2].getValue(),table.root)->data.value;}
+            }
+            cout<<endl;
             return;
         }
         if(infix[0].getValue()=="Read"){
@@ -153,15 +151,33 @@ public:
 
         }
     }
-    void ChangeEquation(ConditionExpression s) {
-        infix = s.getCondition();
-        vector<Expression*> body=s.getBody().second;
+    void ChangeEquation(ConditionExpression cx) {
+        infix = cx.getBody().first;
+        auto body=cx.getBody().second;
         postfix = vector<Token>();
-        operationStack = TStack<string>(s.getCondition().size());
-        operandStack = TStack<double>(s.getCondition().size());
+        operationStack = TStack<string>(cx.getCondition().size());
+        operandStack = TStack<double>(cx.getCondition().size());
         res=0;
-        ToPostfixCondition(s.getCondition());
-        CalcCondition(type);
+        ToPostfixCondition(cx.getCondition());
+        if(type=="if"){
+            if(CalcCondition()){
+                for(auto item:body){
+                    if (auto statementExpr = dynamic_cast<StatementExpression*>(item)) {
+                        ChangeEquation(*statementExpr); // Вызов метода для StatementExpression
+                    } else if (auto conditionExpr = dynamic_cast<ConditionExpression*>(item)) {
+                        ChangeEquation(*conditionExpr); // Вызов метода для ConditionExpression
+                    }
+                }
+                return;
+            }
+        }
+        if(type=="while"){
+            while(CalcCondition()){}
+        }
+        if(type=="until") {
+        }
+        if(type=="for") {
+        }
     }
     vector<Token> GetInf() { return infix; }
     vector<Token> GetPost() { return postfix; }
@@ -336,74 +352,56 @@ public:
             else{continue;}
         }
     }
-    bool CalcCondition(string Ttype)//удивительно, но робит
+    bool CalcCondition()//удивительно, но робит
     {
-        int i=0;
-        if(Ttype=="if"){
-            for (size_t i = 0; i < postfix.size(); i++)
-            {
-                if( postfix[i].getValue() == "not") {
-                    double d1;
-                    d1=operandStack.Pop();
-                    d1==1?operandStack.Push(0):operandStack.Push(1);
-                }
-                if(postfix[i].getValue() == "and" || postfix[i].getValue() == "or" || postfix[i].getValue() == "xor"){
-                    double d1, d2;
-                    d1 = operandStack.Pop();
-                    d2 = operandStack.Pop();
-                    if(postfix[i].getValue() == "and"){
-                        ((d1==1)&&(d2==1))?operandStack.Push(1):operandStack.Push(0);}
-                    if(postfix[i].getValue() == "or"){
-                        ((d1==1)||(d2==1))?operandStack.Push(1):operandStack.Push(0);}
-                    if(postfix[i].getValue() == "xor"){
-                        ((d1==1)^(d2==1))?operandStack.Push(1):operandStack.Push(0);}
-                }
-                if (postfix[i].getValue() == "<" || postfix[i].getValue() == "<>" || postfix[i].getValue() == "<="||
-                postfix[i].getValue() == ">"|| postfix[i].getValue() == ">=" || postfix[i].getValue() == "=") {
-                    double d1, d2;
-                    d1 = operandStack.Pop();
-                    d2 = operandStack.Pop();
-                    if(postfix[i].getValue() == "<>"){
-                        d2!=d1?operandStack.Push(1):operandStack.Push(0);}
-                    if(postfix[i].getValue() == "<="){
-                        d2<=d1?operandStack.Push(1):operandStack.Push(0);}
-                    if(postfix[i].getValue() == "<"){
-                        d2<d1?operandStack.Push(1):operandStack.Push(0);}
-                    if(postfix[i].getValue() == ">="){
-                        d2>=d1?operandStack.Push(1):operandStack.Push(0);}
-                    if(postfix[i].getValue() == ">"){
-                        d2>d1?operandStack.Push(1):operandStack.Push(0);}
-                    if(postfix[i].getValue() == "="){
-                        d2==d1?operandStack.Push(1):operandStack.Push(0);}
-
-                }
-                if (postfix[i].getType()== "VALUEINTEGER"|| postfix[i].getType() == "VALUEREAL") {
-
-                    double ans=std::stod(postfix[i].getValue());
-                    operandStack.Push(ans);
-                }
-                if (postfix[i].getType()== "VARIABLE"){
-                    double ans=std::stod(table.findNode(postfix[i].getValue(),table.root)->data.value);
-                    operandStack.Push(ans);
-
-                }
+        for (size_t i = 0; i < postfix.size(); i++)
+        {
+            if( postfix[i].getValue() == "not") {
+                double d1;
+                d1=operandStack.Pop();
+                d1==1?operandStack.Push(0):operandStack.Push(1);
             }
-            res = operandStack.TopView();
-            if(res==1) return true;
-            else return false;
+            if(postfix[i].getValue() == "and" || postfix[i].getValue() == "or" || postfix[i].getValue() == "xor"){
+                double d1, d2;
+                d1 = operandStack.Pop();
+                d2 = operandStack.Pop();
+                if(postfix[i].getValue() == "and"){
+                    ((d1==1)&&(d2==1))?operandStack.Push(1):operandStack.Push(0);}
+                if(postfix[i].getValue() == "or"){
+                    ((d1==1)||(d2==1))?operandStack.Push(1):operandStack.Push(0);}
+                if(postfix[i].getValue() == "xor"){
+                    ((d1==1)^(d2==1))?operandStack.Push(1):operandStack.Push(0);}
+            }
+            if (postfix[i].getValue() == "<" || postfix[i].getValue() == "<>" || postfix[i].getValue() == "<="||
+            postfix[i].getValue() == ">"|| postfix[i].getValue() == ">=" || postfix[i].getValue() == "=") {
+                double d1, d2;
+                d1 = operandStack.Pop();
+                d2 = operandStack.Pop();
+                if(postfix[i].getValue() == "<>"){
+                    d2!=d1?operandStack.Push(1):operandStack.Push(0);}
+                if(postfix[i].getValue() == "<="){
+                    d2<=d1?operandStack.Push(1):operandStack.Push(0);}
+                if(postfix[i].getValue() == "<"){
+                    d2<d1?operandStack.Push(1):operandStack.Push(0);}
+                if(postfix[i].getValue() == ">="){
+                    d2>=d1?operandStack.Push(1):operandStack.Push(0);}
+                if(postfix[i].getValue() == ">"){
+                    d2>d1?operandStack.Push(1):operandStack.Push(0);}
+                if(postfix[i].getValue() == "="){
+                    d2==d1?operandStack.Push(1):operandStack.Push(0);}
+            }
+            if (postfix[i].getType()== "VALUEINTEGER"|| postfix[i].getType() == "VALUEREAL") {
+                double ans=std::stod(postfix[i].getValue());
+                operandStack.Push(ans);
+            }
+            if (postfix[i].getType()== "VARIABLE"){
+                double ans=std::stod(table.findNode(postfix[i].getValue(),table.root)->data.value);
+                operandStack.Push(ans);
+            }
         }
-       //if(Ttype=="else"){}
-       if(Ttype=="for"){}
-       if(Ttype=="while"){ while (CalcCondition("if")){
-
-       }}
-       if(Ttype=="until"){//сначала выполнить одну итерацию цикл, а потом уже
-           while (CalcCondition("if")){
-
-           }
-           //или сразу сделать dowhile????????????
-       }
-       return true;
+        res = operandStack.TopView();
+        if(res==1) return true;
+        else return false;
     }
 
 
@@ -548,7 +546,6 @@ public:
         operandStack = c.operandStack;
         return *this;
     }
-
     bool operator==(const TPostfixCalc& c) {
         if (infix.begin() != c.infix.begin() || postfix.begin() != c.postfix.begin() || operandStack != c.operandStack || operationStack != c.operationStack)
             return false;
