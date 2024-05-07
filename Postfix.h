@@ -172,11 +172,32 @@ public:
             }
         }
         if(type=="while"){
-            while(CalcCondition()){}
+            while(CalcCondition()){
+                for(auto item:body){
+                    if (auto statementExpr = dynamic_cast<StatementExpression*>(item)) {
+                        ChangeEquation(*statementExpr); // Вызов метода для StatementExpression
+                    } else if (auto conditionExpr = dynamic_cast<ConditionExpression*>(item)) {
+                        ChangeEquation(*conditionExpr); // Вызов метода для ConditionExpression
+                    }
+                }
+            }
+            return;
         }
         if(type=="until") {
+            do{
+                for(auto item:body){
+                    if (auto statementExpr = dynamic_cast<StatementExpression*>(item)) {
+                        ChangeEquation(*statementExpr); // Вызов метода для StatementExpression
+                    } else if (auto conditionExpr = dynamic_cast<ConditionExpression*>(item)) {
+                        ChangeEquation(*conditionExpr); // Вызов метода для ConditionExpression
+                    }
+                }
+            }
+            while(CalcCondition());
+            return;
         }
         if(type=="for") {
+            return;
         }
     }
     vector<Token> GetInf() { return infix; }
