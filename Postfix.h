@@ -224,6 +224,8 @@ public:
             }
             return;
         }
+        if(type=="else"){ return;}
+        return;
     }
     vector<Token> GetInf() { return infix; }
     vector<Token> GetPost() { return postfix; }
