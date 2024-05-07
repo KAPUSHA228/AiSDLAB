@@ -54,6 +54,7 @@ int main() {
     Parser parser(lexer);
     try{ parser.parse(); }
     catch(AgeException& e){ e.getMessage();}*/
+    TPostfixCalc c;
     /*string s5="a: integer";
     string s6="b: real";
     string s3="a := 5 + 2";
@@ -62,7 +63,7 @@ int main() {
     Lexer lexer4(s4);
     StatementExpression sx(lexer3.getTokenList());
     StatementExpression sx2(lexer4.getTokenList());*/
-    string s2="if ( 2 <> 8 ) and not ( 4 < 2 ) then begin"
+    string s2="if ( 2 <> 8 ) xor not ( 4 < 2 ) then begin"
                 "Write('Yes');"
               "end";
     Lexer lexer2(s2);
@@ -70,7 +71,6 @@ int main() {
     //string s="(8 + 3) * (9 + 4)";
     //Lexer lexer(s);
     //vector<Token>list=lexer.getTokenList();
-    TPostfixCalc c;
     c.ChangeEquation(cx);
     //c.ChangeEquation(sx);
     //c.ChangeEquation(sx2);
