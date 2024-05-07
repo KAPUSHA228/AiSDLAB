@@ -197,6 +197,31 @@ public:
             return;
         }
         if(type=="for") {
+            int i1,i2;
+            i1=std::stoi(infix[1].getValue());
+            i2=std::stoi(infix[3].getValue());
+            if(i1<i2){
+                for (i1;i1<i2;i1++){
+                    for(auto item:body){
+                        if (auto statementExpr = dynamic_cast<StatementExpression*>(item)) {
+                            ChangeEquation(*statementExpr); // Вызов метода для StatementExpression
+                        } else if (auto conditionExpr = dynamic_cast<ConditionExpression*>(item)) {
+                            ChangeEquation(*conditionExpr); // Вызов метода для ConditionExpression
+                        }
+                    }
+                }
+            }
+            else{
+                for (i1;i1>i2;i2--){
+                    for(auto item:body){
+                        if (auto statementExpr = dynamic_cast<StatementExpression*>(item)) {
+                            ChangeEquation(*statementExpr); // Вызов метода для StatementExpression
+                        } else if (auto conditionExpr = dynamic_cast<ConditionExpression*>(item)) {
+                            ChangeEquation(*conditionExpr); // Вызов метода для ConditionExpression
+                        }
+                    }
+                }
+            }
             return;
         }
     }
@@ -219,9 +244,6 @@ public:
         }
         Token t1={"CLOSEPARENTHESES",")",0};
         s.push_back(t1);
-        /*for(auto item:s){
-        cout<<" "<<item.getValue();
-        } cout<<endl;*/
         for (size_t i = 0; i < s.size(); i++)
         {
             /*if (s[i].getType()== "VARIABLE"){
@@ -424,105 +446,6 @@ public:
         if(res==1) return true;
         else return false;
     }
-
-
-    /*
-   TPostfixCalc(string eq) {
-        if (eq.length() <= 0) throw std::runtime_error{"dlina nasrano"};
-        Lexer lexer(eq);
-        vector<Token>list=lexer.getTokenList();
-        postfix = vector<Token>();
-        infix = list;
-        operationStack = TStack<string>(eq.length());
-        operandStack = TStack<double>(eq.length());
-        res = 0;
-    }
-    TPostfixCalc(std::vector<Token> v){
-       if (v.empty()) throw std::runtime_error{"nasrano"};
-       infix=v;
-       postfix = vector<Token>();
-       operationStack=TStack<string>(v.size());
-       operandStack = TStack<double>(v.size());
-       res = 0;
-    }
-
-    TPostfixCalc(StatementExpression v){
-        infix=v.getList();
-        postfix = vector<Token>();
-        operationStack=TStack<string>(v.getList().size());
-        operandStack = TStack<double>(v.getList().size());
-        res = 0;
-    }
-    TPostfixCalc(ConditionExpression v){
-        auto body = v.getBody();
-        auto con=body.first;
-        auto exp=body.second;
-        if(con[0].getValue()!="for") ToPostfixCondition(con);
-    }*/
-    /*int i=0;
-        if(list.front().getValue()=="Write"){//3 варианта: текст, переменную, текст с переменной
-            list[i+3].getType()=="СOMMA"?
-            cout<<list[i+2].getValue()<<list[i+4].getValue():
-            cout<<list[i+2].getValue();
-        }
-        if(list.front().getValue()=="Writeln"){
-            list[i+3].getType()=="СOMMA"?
-            cout<<list[i+2].getValue()<<list[i+4].getValue():
-            cout<<list[i+2].getValue();
-            cout<<endl;
-        }
-        if(list.front().getValue()=="Read"){
-            double k;
-            cin>>k;
-            //обращение к таблице, добавить в неё значение с клавиатуры
-        }
-        if(list.front().getValue()=="Readln"){
-            double k;
-            cin>>k;
-            //обращение к таблице, добавить в неё значение с клавиатуры
-            cout<<endl;
-        }
-       // else{TPostfixCalc p(list);}//происходит выражение с присвоением*/
-    /*int i1,i2;
-            while(list[posofEndofIf].getType()!="ASSIGN"){  posofEndofIf++;  }
-            i1=std::stoi(list[posofEndofIf+1].getValue());
-            i2=std::stoi(list[posofEndofIf+3].getValue());
-            posofEndofIf=posofEndofIf+6;
-            if( list[posofEndofIf+2].getType()=="INC"){//или можно сделать if(i1<i2){} else{}, не знаю что быстрее,
-                //но наверно второе потому что обратиться к локальной переменной всяко быстрее
-                //чем лезть по индексу в вектор и у него брать поле
-                for (i1;i1<i2;i1++){ //не усралось расшифровка цикла сейчас, надо потом
-                    //либо добавить i2-i1 одинаковых строчек, либо париться с циклом потом, а сейчас сделать как с if
-                    int  c=posofEndofIf;
-                    if((list[c].getType()=="CONDITION")||(list[c].getType()=="CYCLEFOR")||
-                       (list[c].getType()=="CYCLEWHILE")||(list[c].getType()=="CYCLEDOWHILE")){
-                        ConditionExpression cx(c,list);
-                    expressionList.push_back(&cx);}
-                    while(list[posofEndofIf].getValue()!="SEMICOLON"){
-                            localList.push_back(list[posofEndofIf]);
-                            posofEndofIf++;}
-                        StatementExpression ex(localList);
-                        expressionList.push_back(&ex);
-                        localList.clear();
-                        posofEndofIf++;
-                }
-            }
-            else{
-                for (i1;i1>i2;i2--){
-                    if((list[posofEndofIf].getType()=="CONDITION")||
-                       (list[posofEndofIf].getType()=="CYCLEFOR")||
-                       (list[posofEndofIf].getType()=="CYCLEWHILE")||
-                       (list[posofEndofIf].getType()=="CYCLEDOWHILE")){
-                        ConditionExpression ex(posofEndofIf,list);}
-                    while(list[posofEndofIf].getValue()!="SEMICOLON"){
-                        localList.push_back(list[posofEndofIf]);
-                        posofEndofIf++;}
-                    StatementExpression ex(localList);
-                    expressionList.push_back(&ex);
-                    localList.clear();
-                    posofEndofIf++;
-                }
-            }*/
     void CalcPostfix()
     {
         for (size_t i = 0; i < postfix.size(); i++)
