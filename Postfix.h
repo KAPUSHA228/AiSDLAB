@@ -504,7 +504,8 @@ public:
                     posofEndofIf++;
                 }
             }*/
-    void CalcPostfix() {
+    void CalcPostfix()
+    {
         for (size_t i = 0; i < postfix.size(); i++)
         {
             if (postfix[i].getValue() == "+" || postfix[i].getValue() == "-" || postfix[i].getValue() == "*" ||
@@ -547,18 +548,17 @@ public:
         operandStack = c.operandStack;
         return *this;
     }
-/*
+
     bool operator==(const TPostfixCalc& c) {
-        if (infix != c.infix || postfix != c.postfix || operandStack != c.operandStack || operationStack != c.operationStack)
+        if (infix.begin() != c.infix.begin() || postfix.begin() != c.postfix.begin() || operandStack != c.operandStack || operationStack != c.operationStack)
             return false;
         return true;
     }
     bool operator!=(const TPostfixCalc& c) {
-        if (infix != c.infix || postfix != c.postfix || operandStack != c.operandStack || operationStack != c.operationStack)
+        if (infix.begin() != c.infix.begin() || postfix.begin() != c.postfix.begin() || operandStack != c.operandStack || operationStack != c.operationStack)
             return true;
         return false;
     }
-*/
     friend istream& operator>>(istream& in, TPostfixCalc& c)
     {
         string exp;
