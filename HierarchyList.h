@@ -25,7 +25,11 @@ private:
         }
         void toSolve(){
             if(this==nullptr)return;
-            calc.ChangeEquation(value);
+            if (auto statementExpr = dynamic_cast<StatementExpression*>(value)) {
+                calc.ChangeEquation(*statementExpr); // Вызов метода для StatementExpression
+            } else if (auto conditionExpr = dynamic_cast<ConditionExpression*>(value)) {
+                calc.ChangeEquation(*conditionExpr); // Вызов метода для ConditionExpression
+            }
             this->nextDescription->toSolve();
         }
     };

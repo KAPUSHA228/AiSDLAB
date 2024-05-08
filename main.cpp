@@ -1,5 +1,3 @@
-#include <iostream>
-#include <regex>
 #include <string>
 #include "Lexer.h"
 #include "Parser.h"
@@ -27,7 +25,8 @@ int main() {
                 "Res, d: real;"
                 "res2: string;"
             "begin"
-                "res2 := 'Hello world';"
+                "Write('Yes');"
+               /* "res2 := 'Hello world';"
                 "num1:=2;"
                 "Write('Reader ', res2);"
                 "if Pi=num1 then begin"
@@ -48,13 +47,13 @@ int main() {
                 "repeat begin"
                     "Write(i);"
                 "end;"
-                "until a<b;"
+                "until a<b;"*/
             "end.";
-    /*Lexer lexer(test_text);
+    Lexer lexer(test_text);
     Parser parser(lexer);
     try{ parser.parse(); }
-    catch(AgeException& e){ e.getMessage();}*/
-    TPostfixCalc c;
+    catch(AgeException& e){ e.getMessage();}
+    /*TPostfixCalc c;
     string s5="a := 5";
     string s6="b := 2";
     string s3="c := a mod b";
@@ -79,6 +78,6 @@ int main() {
     //c.ChangeEquation(sx3);
     //c.getTable().root->print();
     //cout<<c.getTable().findNode("a",c.getTable().root)->data.value;
-    //cout<<c;
+    //cout<<c;*/
     return 0;
 }

@@ -22,9 +22,10 @@ private:
 };
 class Parser {
 private:
+    TPostfixCalc calc;
     HierarchyList<string,Expression*>hierarchyList;
     std::vector<Token> tokenList;
-    std::vector<Expression*> expressionList;
+    std::vector<std::pair<Expression*,string>> expressionList;
     std::vector<Token> localList;
     int currentPos = 0;
 public:
@@ -34,7 +35,21 @@ public:
     Parser(vector<Token> t){this->tokenList=t;}
     void parse() {
         initDeclaration();
+        tohierarchy();
+        for(auto item:expressionList){
+            if (auto statementExpr = dynamic_cast<StatementExpression*>(item.first)) {
+                calc.ChangeEquation(*statementExpr); // Вызов метода для StatementExpression
+            } else if (auto conditionExpr = dynamic_cast<ConditionExpression*>(item.first)) {
+                calc.ChangeEquation(*conditionExpr); // Вызов метода для ConditionExpression
+            }
+        }
+        //hierarchyList.toSolve();
         return;
+    }
+    void tohierarchy(){
+        for(auto& item:expressionList){
+            hierarchyList.toAddNext(item.first,item.second);
+        }
     }
     void initDeclaration(){
         if(isTypeToken("TITLE")){
@@ -45,17 +60,13 @@ public:
         if(isTypeToken("CONST")){
             currentPos++;
             while (!isTypeToken("VAR")){
-                initRowStatement();
-                hierarchyList.toAddNext(expressionList.front(),"Const");
-                expressionList.clear();
+                initRowStatement("Const");
             }
         }
         if(isTypeToken("VAR")){
             currentPos++;
             while (!isTypeToken("BEGIN")){
-                initRowStatement();
-                hierarchyList.toAddNext(expressionList.front(),"Var");
-                expressionList.clear();
+                initRowStatement("Var");
             }
             currentPos++;
         }
@@ -63,14 +74,15 @@ public:
         return;
     }
     void print(){
-        for(auto item:expressionList){    item->print();      }
+        for(auto item:expressionList){    item.first->print();      }
     }
-    void initRowStatement(){//метод чтобы строчку кода (не условие и не цикл) переводить в StatementExpression
+    void initRowStatement(string chapter){//метод чтобы строчку кода (не условие и не цикл) переводить в StatementExpression
         while(!isTypeToken("SEMICOLON")){
             localList.push_back( tokenList[currentPos]);
             currentPos++; }
         StatementExpression* rx=new StatementExpression(localList);
-        expressionList.push_back(rx);
+        std::pair t={rx,chapter};
+        expressionList.push_back(t);
         localList.clear();
         currentPos++;
         return;
@@ -83,16 +95,13 @@ public:
             {
                 ConditionExpression *cx = new ConditionExpression(currentPos, tokenList);
                 currentPos = cx->getGlobalPos();
-                expressionList.push_back(cx);
-                hierarchyList.toAddNext(expressionList.front(),"Body");
-                expressionList.clear();
+                std::pair t={cx,"Body"};
+                expressionList.push_back(t);
 
             }
             else
             {
-                initRowStatement();
-                hierarchyList.toAddNext(expressionList.front(),"Body");
-                expressionList.clear();
+                initRowStatement("Body");
             }
         }
         return;
