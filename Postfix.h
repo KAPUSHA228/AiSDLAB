@@ -55,10 +55,15 @@ protected:
         if((s=="(")||(s==")")){return 1;}
         if(s=="not"){return 4;}
         if(s=="and"){return 3;}
-        if((s=="or")||(s=="xor")){return 2;}
-        if((s==">")||(s=="<")||
-        (s==">=")||(s=="<=")||
-        (s=="<>")||(s=="=")){return 5;}
+        if((s=="or")||(s=="xor"))
+        {return 2;}
+        if((s==">")||(s=="<")||(s==">=")||
+           (s=="<=")||(s=="<>")||(s=="="))
+        {return 5;}
+        if((s=="+")||(s=="-"))
+        {return 6;}
+        if((s=="*")||(s=="div")||(s=="mod"))
+        {return 7;}
         return -1;
     }
 public:
@@ -102,8 +107,10 @@ public:
            if(infix[3].getType() == "COMMA") {
            cout << infix[2].getValue() << " " << *(table.FindValue(infix[4].getValue()));}
            else {
-               if(infix[2].getType()=="VALUESTRING"){cout<<infix[2].getValue();}
-               else{cout<<table.findNode(infix[2].getValue(),table.root)->data.value;}
+               if(infix[2].getType()=="VARIABLE"){
+                   cout<<table.findNode(infix[2].getValue(),table.root)->data.value;}
+               else{
+                   cout<<infix[2].getValue();}
            }
            return;
         }
@@ -111,8 +118,8 @@ public:
             if(infix[3].getType() == "COMMA") {
                 cout << infix[2].getValue() << " " << *(table.FindValue(infix[4].getValue()));}
             else {
-                if(infix[2].getType()=="VALUESTRING"){cout<<infix[2].getValue();}
-                else{cout<<table.findNode(infix[2].getValue(),table.root)->data.value;}
+                if(infix[2].getType()=="VARIABLE"){cout<<table.findNode(infix[2].getValue(),table.root)->data.value;}
+                else{cout<<infix[2].getValue();}
             }
             cout<<endl;
             return;
@@ -133,8 +140,10 @@ public:
         else{ //отсекли консоль, теперь объявления и выражения
             int i=0;
             while((infix[i].getValue()!=":")&&(i!=(infix.size()-1))){i++;} // токен ":" присутствует только в объявлениях
-            if(i==(infix.size()-1)){Build();} //соответственно если дошли до конца то ":" не нашли и просто билдим
-            else{ toDeclarate(infix);}
+            if(i==(infix.size()-1)){
+                Build();} //соответственно если дошли до конца то ":" не нашли и просто билдим
+            else{
+                toDeclarate(infix);}
             return;
         }
     }
@@ -148,7 +157,6 @@ public:
                 i++;
             }
             else{i++;}
-
         }
     }
     void ChangeEquation(ConditionExpression cx) {
@@ -158,21 +166,9 @@ public:
         operationStack = TStack<string>(cx.getCondition().size());
         operandStack = TStack<double>(cx.getCondition().size());
         res=0;
-        ToPostfixCondition(cx.getCondition());
-        if(type=="if"){
-            if(CalcCondition()){
-                for(auto item:body){
-                    if (auto statementExpr = dynamic_cast<StatementExpression*>(item)) {
-                        ChangeEquation(*statementExpr); // Вызов метода для StatementExpression
-                    } else if (auto conditionExpr = dynamic_cast<ConditionExpression*>(item)) {
-                        ChangeEquation(*conditionExpr); // Вызов метода для ConditionExpression
-                    }
-                }
-                return;
-            }
-        }
-        if(type=="while"){
-            while(CalcCondition()){
+        if(infix.front().getValue()=="if"){
+            ToPostfixCondition(cx.getCondition());
+            if(CalcCondition()==1){
                 for(auto item:body){
                     if (auto statementExpr = dynamic_cast<StatementExpression*>(item)) {
                         ChangeEquation(*statementExpr); // Вызов метода для StatementExpression
@@ -183,7 +179,36 @@ public:
             }
             return;
         }
-        if(type=="until") {
+        if(infix.front().getValue()=="else"){
+            auto iter=infix.begin();
+            infix.erase(iter);
+            ToPostfixCondition(cx.getCondition());
+            if(CalcCondition()!=1){
+                for(auto item:body){
+                    if (auto statementExpr = dynamic_cast<StatementExpression*>(item)) {
+                        ChangeEquation(*statementExpr); // Вызов метода для StatementExpression
+                    } else if (auto conditionExpr = dynamic_cast<ConditionExpression*>(item)) {
+                        ChangeEquation(*conditionExpr); // Вызов метода для ConditionExpression
+                    }
+                }
+            }
+            return;
+        }
+        if(infix.front().getValue()=="while"){
+            ToPostfixCondition(cx.getCondition());
+            while(CalcCondition()==1){
+                for(auto item:body){
+                    if (auto statementExpr = dynamic_cast<StatementExpression*>(item)) {
+                        ChangeEquation(*statementExpr); // Вызов метода для StatementExpression
+                    } else if (auto conditionExpr = dynamic_cast<ConditionExpression*>(item)) {
+                        ChangeEquation(*conditionExpr); // Вызов метода для ConditionExpression
+                    }
+                }
+            }
+            return;
+        }
+        if(infix.front().getValue()=="until") {
+            ToPostfixCondition(cx.getCondition());
             do{
                 for(auto item:body){
                     if (auto statementExpr = dynamic_cast<StatementExpression*>(item)) {
@@ -193,13 +218,13 @@ public:
                     }
                 }
             }
-            while(CalcCondition());
+            while(CalcCondition()==1);
             return;
         }
-        if(type=="for") {
+        if(infix.front().getValue()=="for") {
             int i1,i2;
-            i1=std::stoi(infix[1].getValue());
-            i2=std::stoi(infix[3].getValue());
+            i1=std::stoi(infix[3].getValue());
+            i2=std::stoi(infix[5].getValue());
             if(i1<i2){
                 for (i1;i1<i2;i1++){
                     for(auto item:body){
@@ -224,7 +249,6 @@ public:
             }
             return;
         }
-        if(type=="else"){ return;}
         return;
     }
     vector<Token> GetInf() { return infix; }
@@ -248,16 +272,6 @@ public:
         s.push_back(t1);
         for (size_t i = 0; i < s.size(); i++)
         {
-            /*if (s[i].getType()== "VARIABLE"){
-                string str =*table.FindValue(s[i].getValue());
-                string str2 =table.findNode(s[i].getValue(),table.root)->data.type;
-                if(str2=="VALUEINTEGER"||str2=="VALUEREAL"){
-                    postfix.push_back(s[i]);
-                }
-                else{
-                    //ачё делать с char и string? стеки под них не переделаешь, у нас всегда double
-                }
-            }*/
             if ((s[i].getType()=="VALUEINTEGER")||(s[i].getType()=="VALUEREAL")||(s[i].getType()=="VARIABLE")){
                 postfix.push_back(s[i]);}
             if (s[i].getType() == "DIV" || s[i].getType() == "MOD" || s[i].getType() == "PLUS" ||
@@ -329,16 +343,28 @@ public:
         for (size_t i = 0; i < s.size(); i++)
         {
             if ((s[i].getType()=="VALUEINTEGER")||(s[i].getType()=="VALUEREAL")||(s[i].getType()=="VARIABLE")){
-                postfix.push_back(s[i]);}
-            if (s[i].getType() == "NOT" || s[i].getType() == "AND" ||
-            s[i].getType() == "OR" ||s[i].getType() == "XOR"||
-            s[i].getType() == "JG"||s[i].getType() == "JL" ||
-            s[i].getType() == "JGE" ||s[i].getType() == "JLE"||
-            s[i].getType() == "JNE"||s[i].getType() == "JE") {
-                if(operationStack.IsEmpty()){operationStack.Push(s[i].getValue());
+                postfix.push_back(s[i]);
+                continue; }
+            if (s[i].getType() == "JG" || s[i].getType() == "MOD"||s[i].getType() == "NOT"
+            || s[i].getType() == "AND" ||s[i].getType() == "OR" || s[i].getType() == "XOR"
+            || s[i].getType() == "JL" || s[i].getType() == "JGE" ||s[i].getType() == "JLE"
+            ||s[i].getType() == "JNE"||s[i].getType() == "JE" || s[i].getType() == "DIV" ||
+            s[i].getType() == "PLUS" || s[i].getType() == "MINUS"||s[i].getType() == "MULTI") {
+                if(operationStack.IsEmpty()){
+                    operationStack.Push(s[i].getValue());
                     continue;}
                 el = operationStack.Pop();
-                while (PriorityCond(s[i].getValue()) <= Priority(el)) {
+                while (PriorityCond(s[i].getValue()) <= PriorityCond(el)) {
+                    if(el[0]=='-'){ Token t={"MINUS",el,0};
+                        postfix.push_back(t);}
+                    if(el[0]=='+'){Token t={"PLUS",el,0};
+                        postfix.push_back(t);}
+                    if(el[0]=='*'){Token t={"MULTI",el,0};
+                        postfix.push_back(t);}
+                    if(el[0]=='d'){Token t={"DIV",el,0};
+                        postfix.push_back(t);}
+                    if(el[0]=='m'){Token t={"MOD",el,0};
+                        postfix.push_back(t);}
                     if(el[0]=='n'){ Token t={"NOT",el,0};
                         postfix.push_back(t);}
                     if(el[0]=='a'){ Token t={"AND",el,0};
@@ -360,17 +386,28 @@ public:
                     if(el==">"){ Token t={"JG",el,0};
                         postfix.push_back(t);}
                     el = operationStack.Pop();
-
                 }
                 operationStack.Push(el);
                 operationStack.Push(s[i].getValue());
+                continue;
             }
-            if (s[i].getValue() == "(")            {
-                operationStack.Push(s[i].getValue());}
+            if (s[i].getValue() == "("){
+                operationStack.Push(s[i].getValue());
+                continue;}
             if (s[i].getValue() == ")") {
                 el = operationStack.Pop();
 
                 while (el != "(") {
+                    if(el[0]=='-'){Token t={"MINUS",el,0};
+                        postfix.push_back(t);}
+                    if(el[0]=='+'){Token t={"PLUS",el,0};
+                        postfix.push_back(t);}
+                    if(el[0]=='*'){Token t={"MULTI",el,0};
+                        postfix.push_back(t);}
+                    if(el[0]=='d'){Token t={"DIV",el,0};
+                        postfix.push_back(t);}
+                    if(el[0]=='m'){ Token t={"MOD",el,0};
+                        postfix.push_back(t);}
                     if(el[0]=='n'){ Token t={"NOT",el,0};
                         postfix.push_back(t);}
                     if(el[0]=='a'){ Token t={"AND",el,0};
@@ -393,6 +430,7 @@ public:
                         postfix.push_back(t);}
                     el = operationStack.Pop();
                 }
+                continue;
             }
             else{continue;}
         }
@@ -405,43 +443,88 @@ public:
                 double d1;
                 d1=operandStack.Pop();
                 d1==1?operandStack.Push(0):operandStack.Push(1);
+                continue;
             }
             if(postfix[i].getValue() == "and" || postfix[i].getValue() == "or" || postfix[i].getValue() == "xor"){
                 double d1, d2;
                 d1 = operandStack.Pop();
                 d2 = operandStack.Pop();
                 if(postfix[i].getValue() == "and"){
-                    ((d1==1)&&(d2==1))?operandStack.Push(1):operandStack.Push(0);}
+                    ((d1==1)&&(d2==1))?operandStack.Push(1):operandStack.Push(0);
+                    continue;
+                }
                 if(postfix[i].getValue() == "or"){
-                    ((d1==1)||(d2==1))?operandStack.Push(1):operandStack.Push(0);}
+                    ((d1==1)||(d2==1))?operandStack.Push(1):operandStack.Push(0);
+                    continue;
+                }
                 if(postfix[i].getValue() == "xor"){
-                    ((d1==1)^(d2==1))?operandStack.Push(1):operandStack.Push(0);}
+                    ((d1==1)^(d2==1))?operandStack.Push(1):operandStack.Push(0);
+                    continue;
+                }
             }
             if (postfix[i].getValue() == "<" || postfix[i].getValue() == "<>" || postfix[i].getValue() == "<="||
-            postfix[i].getValue() == ">"|| postfix[i].getValue() == ">=" || postfix[i].getValue() == "=") {
+            postfix[i].getValue() == ">"|| postfix[i].getValue() == ">=" || postfix[i].getValue() == "=" ||
+            postfix[i].getValue() == "+" || postfix[i].getValue() == "-" || postfix[i].getValue() == "*" ||
+            postfix[i].getValue() == "mod"|| postfix[i].getValue() == "div") {
                 double d1, d2;
                 d1 = operandStack.Pop();
                 d2 = operandStack.Pop();
+                if(postfix[i].getValue() == "+"){
+                    operandStack.Push(d2 + d1);
+                    continue;
+                }
+                if(postfix[i].getValue() == "-") {
+                    operandStack.Push(d2 - d1);
+                    continue;
+                }
+                if(postfix[i].getValue() == "*") {
+                    operandStack.Push(d2 * d1);
+                    continue;
+                }
+                if(postfix[i].getValue() == "div") {
+                    operandStack.Push(d2 / d1);
+                    continue;
+                }
+                if(postfix[i].getValue() == "mod") {
+                    operandStack.Push(fmod(d2,d1));
+                    continue;
+                }
                 if(postfix[i].getValue() == "<>"){
-                    d2!=d1?operandStack.Push(1):operandStack.Push(0);}
+                    d2!=d1?operandStack.Push(1):operandStack.Push(0);
+                    continue;
+                }
                 if(postfix[i].getValue() == "<="){
-                    d2<=d1?operandStack.Push(1):operandStack.Push(0);}
+                    d2<=d1?operandStack.Push(1):operandStack.Push(0);
+                    continue;
+                }
                 if(postfix[i].getValue() == "<"){
-                    d2<d1?operandStack.Push(1):operandStack.Push(0);}
+                    d2<d1?operandStack.Push(1):operandStack.Push(0);
+                    continue;
+                }
                 if(postfix[i].getValue() == ">="){
-                    d2>=d1?operandStack.Push(1):operandStack.Push(0);}
+                    d2>=d1?operandStack.Push(1):operandStack.Push(0);
+                    continue;
+                }
                 if(postfix[i].getValue() == ">"){
-                    d2>d1?operandStack.Push(1):operandStack.Push(0);}
+                    d2>d1?operandStack.Push(1):operandStack.Push(0);
+                    continue;
+                }
                 if(postfix[i].getValue() == "="){
-                    d2==d1?operandStack.Push(1):operandStack.Push(0);}
+                    d2==d1?operandStack.Push(1):operandStack.Push(0);
+                    continue;
+                }
             }
             if (postfix[i].getType()== "VALUEINTEGER"|| postfix[i].getType() == "VALUEREAL") {
                 double ans=std::stod(postfix[i].getValue());
                 operandStack.Push(ans);
+                continue;
+
             }
             if (postfix[i].getType()== "VARIABLE"){
                 double ans=std::stod(table.findNode(postfix[i].getValue(),table.root)->data.value);
                 operandStack.Push(ans);
+                continue;
+
             }
         }
         res = operandStack.TopView();
@@ -479,6 +562,7 @@ public:
         }
         res = operandStack.TopView();
         table.Change(type,to_string(res));
+        //table.root->print();
     }
     void Build() {
         ToPostfix();

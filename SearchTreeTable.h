@@ -310,7 +310,8 @@ int SearchTreeTable<Key, Value>::Insert(Key _key, string type){
         }
         new_node->parent = parent;
         return 0; // Óñïåøíàÿ âñòàâêà íîâîãî óçëà
-    }}
+    }
+}
 template<class Key, class Value>
 Key* SearchTreeTable<Key, Value>::FindKey(Key _key)
 {

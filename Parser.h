@@ -36,10 +36,22 @@ public:
     void parse() {
         initDeclaration();
         tohierarchy();
+        vector<vector<Token>> copyIf;
         for(auto item:expressionList){
             if (auto statementExpr = dynamic_cast<StatementExpression*>(item.first)) {
                 calc.ChangeEquation(*statementExpr); // Вызов метода для StatementExpression
             } else if (auto conditionExpr = dynamic_cast<ConditionExpression*>(item.first)) {
+                if((*conditionExpr).getCondition().front().getValue()=="if"){
+                    copyIf.push_back((*conditionExpr).getCondition());}
+                if((*conditionExpr).getCondition().front().getValue()=="else"){
+                    vector<Token>newCon;
+                    newCon.push_back((*conditionExpr).getCondition().front());
+                    for(auto item:copyIf.back()){
+                        newCon.push_back(item);
+                    }
+                    auto iter=copyIf.end();
+                    copyIf.erase(iter);
+                    (*conditionExpr).setCondition(newCon);}
                 calc.ChangeEquation(*conditionExpr); // Вызов метода для ConditionExpression
             }
         }

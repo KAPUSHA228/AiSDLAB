@@ -14,4 +14,5 @@ add_executable(project1 main.cpp
         Postfix.h
         Stack.h
         SearchTreeTable.h
+        Expression/Function.h
 )

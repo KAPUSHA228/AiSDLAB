@@ -23,6 +23,10 @@ public:
     StatementExpression(const StatementExpression& ex){
         this->list=ex.list;
     }
+    StatementExpression& operator=(const StatementExpression& other) {
+        this->list=other.list;
+        return *this;
+    }
     vector<Token>getList(){return list;}
     void add(Token t){list.push_back(t);}
     void print() override{
@@ -31,13 +35,6 @@ public:
           std::cout<<token.getValue()<<" ";
         }
         std::cout<<endl;
-    }
-    string toString()override{
-        string res;
-        for (auto item:list){
-            res+=item.getValue();
-        }
-        return res;
     }
 };
 #endif //RUNNABLEEXPRESSION_H

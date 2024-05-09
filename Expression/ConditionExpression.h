@@ -19,12 +19,15 @@ private:
     std::vector<Token> localList;
 public:
     static int getGlobalPos(){return posofEndofIf;}
-    ConditionExpression(int pos, vector<Token>list){ doCondition(pos,list);}
+    ConditionExpression(int pos, vector<Token>list){
+        doCondition(pos,list);
+    }
     ConditionExpression( const ConditionExpression& ex){
         this->condition=ex.condition;
         this->expressionList=ex.expressionList;
     }
     vector<Token> getCondition(){return condition;}
+    void setCondition(vector<Token> con){this->condition=con;}
     std::pair<vector<Token>, vector<Expression*>> getBody() {
         std::pair<vector<Token>, vector<Expression*>> condAndList(condition, expressionList);
         return condAndList;
@@ -94,10 +97,9 @@ public:
             return;
         }
         if((list[posofEndofIf].getType()=="CYCLEFOR")||(list[posofEndofIf].getType()=="CYCLEWHILE")){
-            while(list[posofEndofIf].getType()!="DO"){
+            while(list[posofEndofIf].getType()!="BEGIN"){
                 condition.push_back(list[posofEndofIf]);
                 posofEndofIf++;  }
-            posofEndofIf++;
             posofEndofIf++;
             // те же шаги, что и при uncondition
             while(list[posofEndofIf].getType()!="ENDofCycle"){
@@ -172,16 +174,6 @@ public:
                std::cout<<"   ";token2->print(); cout<<std::endl;
            }
        }
-    }
-    string toString() override{
-        string res;
-        for (auto item:condition){
-            res+=item.getValue();
-        }
-        for (auto item:expressionList){
-            res+=item->toString();
-        }
-        return res;
     }
 };
 
