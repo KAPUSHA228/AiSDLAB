@@ -15,4 +15,5 @@ add_executable(project1 main.cpp
         Stack.h
         SearchTreeTable.h
         Expression/Function.h
+        Expression/FunctionAllocator.h
 )

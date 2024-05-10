@@ -111,6 +111,8 @@ public:
             {"CLOSESQUARE", "[\]]"},
             {"CONDITION", "if"},
             {"UNCONDITION", "else"},
+            {"WRITELN","Writeln"},
+            {"READLN","Readln"},
             {"WRITE", "Write"},
             {"READ", "Read"},
             {"CYCLEFOR", "for"},

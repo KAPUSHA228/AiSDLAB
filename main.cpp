@@ -25,7 +25,7 @@ int main() {
                 "Res, d: real;"
                 "res2: string;"
             "begin"
-                /*"if 5 mod 3 = 2 then begin"
+                /*"if 5 mod 3 > 0 then begin"
                     "Write ('Yes');"
                 "end"
                 "else begin"
@@ -43,13 +43,14 @@ int main() {
                     "Write('No');"
                 "end;"*/
                 "num1 := 4 div 2;"
-                /*"for i := 1 to 8 do begin"
-                    "Write('3');"
-                "end;"*/
-                "while num1 < 4 do begin"
+                "for i := 1 to 8 do begin"
+                    "Writeln ( '3' ) ;"
+                "end;"
+
+               /* "while num1 < 4 do begin"
                     "Write('Yes');"
                     "num1 := num1 + 1;"
-                "end;"
+                "end;"*/
                 /*"repeat begin"
                     "Write(i);"
                 "end;"
