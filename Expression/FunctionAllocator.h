@@ -2,8 +2,8 @@
 // Created by пк on 11.05.2024.
 //
 
-#ifndef PROJECT1_FUNCTIONALLOCATOR_H
-#define PROJECT1_FUNCTIONALLOCATOR_H
+#ifndef FUNCTIONALLOCATOR_H
+#define FUNCTIONALLOCATOR_H
 
 
 class FunctionAllocator {
@@ -11,4 +11,4 @@ class FunctionAllocator {
 };
 
 
-#endif //PROJECT1_FUNCTIONALLOCATOR_H
+#endif //FUNCTIONALLOCATOR_H

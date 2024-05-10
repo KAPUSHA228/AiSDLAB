@@ -2,8 +2,8 @@
 // Created by пк on 08.05.2024.
 //
 
-#ifndef PROJECT1_FUNCTION_H
-#define PROJECT1_FUNCTION_H
+#ifndef FUNCTION_H
+#define FUNCTION_H
 #include "Expression.h"
 #include "../Token.h"
 #include <vector>
@@ -32,4 +32,4 @@ public:
 };
 
 
-#endif //PROJECT1_FUNCTION_H
+#endif //FUNCTION_H
