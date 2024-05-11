@@ -22,7 +22,7 @@ public:
         return *this;
     }
     vector<Token>getList(){return list;}
-    void print() override{
+    void print(int tab) override{
 
     }
 };
