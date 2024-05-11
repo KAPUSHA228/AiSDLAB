@@ -1,9 +1,9 @@
 //
-// Created by shuri on 08.05.2024.
+// Created by shuri on 11.05.2024.
 //
 
-#ifndef FUNCTION_H
-#define FUNCTION_H
+#ifndef PROCEDURE_H
+#define PROCEDURE_H
 #include "Expression.h"
 #include "../Token.h"
 #include "ConditionExpression.h"
@@ -11,21 +11,20 @@
 #include <utility>
 #include <vector>
 static int globalPos=0; //только для вложенных случаев нужен
-class Function: public Expression {
+class Procedure: public  Expression{
 private:
     std::vector<Expression*> expressionList;
     std::vector<Token> declaration;
     std::vector<Token> localList;
-
 public:
-    Function(int pos, vector<Token> list){
-        doFunction(pos,std::move(list));
+    Procedure(int pos, vector<Token> list){
+        doProcedure(pos,std::move(list));
     }
-    Function( const Function& ex){
+    Procedure( const Procedure& ex){
         this->declaration=ex.declaration;
         this->expressionList=ex.expressionList;
     }
-    void doFunction(int pos, vector<Token> list){
+    void doProcedure(int pos, vector<Token> list){
         globalPos=pos;
         while(list[globalPos].getValue()!="SEMICOLON"){
             declaration.push_back(list[pos]);
@@ -60,4 +59,4 @@ public:
 };
 
 
-#endif //FUNCTION_H
+#endif //PROCEDURE_H

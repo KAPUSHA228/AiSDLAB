@@ -44,7 +44,7 @@ int main() {
                 "end;"*/
                 "num1 := 4 div 2;"
                 "for i := 1 to 8 do begin"
-                    "Writeln ( '3' ) ;"
+                    "Write ( '3' ) ;"
                 "end;"
 
                /* "while num1 < 4 do begin"
