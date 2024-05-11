@@ -10,14 +10,14 @@
 #include "Expression.h"
 #include "Function.h"
 #include "Procedure.h"
-class FunctionAllocator: public Expression{
+class FunctionDistributor: public Expression{
 private:
 vector<Token> list;
 public:
-    FunctionAllocator(vector<Token> vec){
+    FunctionDistributor(vector<Token> vec){
         list=std::move(vec);
     }
-    FunctionAllocator& operator=(const FunctionAllocator& other) {
+    FunctionDistributor& operator=(const FunctionDistributor& other) {
         this->list=other.list;
         return *this;
     }
