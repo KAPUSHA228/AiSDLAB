@@ -17,4 +17,5 @@ add_executable(project1 main.cpp
         Expression/Function.h
         Expression/FunctionDistributor.h
         Expression/Procedure.h
+        Expression/CaseOf.h
 )

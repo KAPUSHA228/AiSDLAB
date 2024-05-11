@@ -29,7 +29,10 @@ public:
     }
     vector<Token>getList(){return list;}
     void add(Token t){list.push_back(t);}
-    void print() override{
+    void print(int tab) override{
+        for(int j=0;j<tab;j++){
+            cout<<"   ";
+        }
         std::cout<<"StateExpression "<<++i<<" = ";
         for(auto token:list){
           std::cout<<token.getValue()<<" ";

@@ -7,6 +7,6 @@
 
 class Expression {
 public:
-    virtual void print()=0;
+    virtual void print(int tab)=0;
 };
 #endif //EXPRESSION_H

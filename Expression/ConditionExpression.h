@@ -161,19 +161,24 @@ public:
         this->expressionList = other.expressionList;
         return *this;
     }
-    void print() override{
+    void print(int tab) override{
+        for(int j=0;j<tab;j++){
+            cout<<"   ";
+        }
        std::cout<<"ConditionExpression "<<++y<<" = ";
-       if(!condition.empty()){
+       if(condition[0].getValue()!="else"){
            for(auto token:condition)
            { std::cout<<token.getValue()<<" "; } std::cout<<endl;}
-       else{std::cout<<"this is else"<<endl;}
+       else{std::cout<<"else"<<endl;}
        if(!expressionList.empty())
        {
+           ++tab;
            for(auto token2:expressionList)
            {
-               std::cout<<"   ";token2->print(); cout<<std::endl;
+               std::cout<<"   ";token2->print(tab);
            }
        }
+       --tab;
     }
 };
 

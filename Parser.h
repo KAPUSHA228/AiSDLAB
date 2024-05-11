@@ -12,6 +12,7 @@
 #include "Expression/StatementExpression.h"
 #include "Expression/ConditionExpression.h"
 using namespace std;
+int number=0;
 class AgeException: public std::exception
 {
 public:
@@ -55,17 +56,19 @@ public:
                 calc.ChangeEquation(*conditionExpr); // Вызов метода для ConditionExpression
             }
         } cout<<endl;
-        calc.getTable().root->print();
-        //hierarchyList.toSolve();
-        return;
+        calc.getTable().root->print();  cout<<endl;
+
+    //hierarchyList.print(hierarchyList.getRoot()); cout<<endl;
+        this->print();
     }
     void tohierarchy(){
-        for(auto& item:expressionList){
+        for( const auto& item:expressionList){
             hierarchyList.toAddNext(item.first,item.second);
         }
     }
     void initDeclaration(){
         if(isTypeToken("TITLE")){
+
             while(!isTypeToken("SEMICOLON")){
                 currentPos++;} //скип названия, чтобы дойти до разделов Const или Var
             currentPos++;}       //есть вариант вообще название не добавлять уже на стадии Lexer, но мб пригодится
@@ -87,7 +90,8 @@ public:
         return;
     }
     void print(){
-        for(auto item:expressionList){    item.first->print();      }
+        for(auto item:expressionList)
+        {    item.first->print(number);      }
     }
     void initRowStatement(string chapter){//метод чтобы строчку кода (не условие и не цикл) переводить в StatementExpression
         while(!isTypeToken("SEMICOLON")){
@@ -104,7 +108,7 @@ public:
         std::vector<Token> condition;
         while (!isTypeToken("ENDofPROGRAM")) {
             if ((isTypeToken("CONDITION"))||(isTypeToken("UNCONDITION"))||(isTypeToken("CYCLEFOR"))||
-                (isTypeToken("CYCLEWHILE"))||(isTypeToken("CYCLEDOWHILE")))
+                (isTypeToken("CYCLEWHILE"))||(isTypeToken("CYCLEDOWHILE"))||(isTypeToken("SWITCH")))
             {
                 ConditionExpression *cx = new ConditionExpression(currentPos, tokenList);
                 currentPos = cx->getGlobalPos();

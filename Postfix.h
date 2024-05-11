@@ -231,7 +231,6 @@ public:
             return;
         }
         if(infix.front().getValue()=="until") {
-            ToPostfixCondition(cx.getCondition());
             do{
                 for(auto item:body){
                     if (auto statementExpr = dynamic_cast<StatementExpression*>(item)) {
@@ -241,8 +240,7 @@ public:
                     }
                 }
                 ToPostfixCondition(cx.getCondition());
-            }
-            while(CalcCondition()==1);
+            }while(CalcCondition()==1);
             infixStorage.pop_back();
             return;
         }
@@ -590,7 +588,6 @@ public:
         }
         res = operandStack.TopView();
         table.Change(type,to_string(res));
-        //table.root->print();
     }
     void Build() {
         ToPostfix();

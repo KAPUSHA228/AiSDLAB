@@ -56,7 +56,7 @@ public:
         globalPos++;
         return;
     }
-    void print() override{}
+    void print(int tab) override{}
 };
 
 

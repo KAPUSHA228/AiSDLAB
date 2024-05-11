@@ -47,6 +47,11 @@ private:
             this->description->toSolve();
             this->nextChapter->toSolve();
         }
+        void print(Node* node){
+            if(node==nullptr) return;
+            cout<<node->value;
+            print(node->nextDescription);
+        }
     };
     Chapter* root;
     static TPostfixCalc calc;
@@ -81,8 +86,15 @@ public:
             //никогда не будет действовать
         }
     }
+    Chapter* getRoot(){ return root;}
     void toSolve(){
         root->toSolve();
+    }
+    void print(Chapter* chapter)
+    {
+        if (chapter == nullptr) return;
+        cout<<"In Chapter "<<chapter->chapter<<": "<<endl;
+        chapter->print(chapter->description);
     }
 };
 

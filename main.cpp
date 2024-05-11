@@ -7,8 +7,8 @@ int main() {
                  "begin"
                     "num1 := 2 ;"
                     "Write('Reader ', res2);"
-                    "if Pi=num1 then begin"
-                        "if Pi=num1 then begin"
+                    "if 2=num1 then begin"
+                        "if num1=2 then begin"
                             "Write('Yes');"
                         "end"
                     "end"
@@ -43,17 +43,18 @@ int main() {
                     "Write('No');"
                 "end;"*/
                 "num1 := 4 div 2;"
-                "for i := 1 to 8 do begin"
+                /*"for i := 1 to 8 do begin"
                     "Write ( '3' ) ;"
-                "end;"
-                "while num1 < 4 do begin"
+                "end;"*/
+                /*"while num1 < 4 do begin"
                     "Write('Yes');"
                     "num1 := num1 + 1;"
+                "end;"*/
+                "repeat begin"
+                    "Write('3');"
+                    "num1 := num1 + 1;"
                 "end;"
-                /*"repeat begin"
-                    "Write(i);"
-                "end;"
-                "until a<b;"*/
+                "until num1 < 4;"
             "end.";
     Lexer lexer(test_text);
     Parser parser(lexer);
