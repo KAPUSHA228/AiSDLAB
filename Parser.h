@@ -54,7 +54,8 @@ public:
                     (*conditionExpr).setCondition(newCon);}
                 calc.ChangeEquation(*conditionExpr); // Вызов метода для ConditionExpression
             }
-        }
+        } cout<<endl;
+        calc.getTable().root->print();
         //hierarchyList.toSolve();
         return;
     }

@@ -42,15 +42,15 @@ int main() {
                 "else begin"
                     "Write('No');"
                 "end;"*/
-                "num1 := 4 div 2;"
-                "for i := 1 to 8 do begin"
+                "num1 := 6 div 2;"
+                /*"for i := 1 to 8 do begin"
                     "Write ( '3' ) ;"
-                "end;"
+                "end;"*/
 
-               /* "while num1 < 4 do begin"
+               "while num1 < 4 do begin"
                     "Write('Yes');"
                     "num1 := num1 + 1;"
-                "end;"*/
+                "end;"
                 /*"repeat begin"
                     "Write(i);"
                 "end;"
@@ -59,6 +59,7 @@ int main() {
     Lexer lexer(test_text);
     Parser parser(lexer);
     try{ parser.parse(); }
+
     catch(AgeException& e){ e.getMessage();}
     /*TPostfixCalc c;
     string s5="a := 5";

@@ -20,6 +20,7 @@ class TPostfixCalc // не доделан под нужды уравнений �
 private:
     string type;
     vector<Token> infix;
+    vector<vector<Token>>infixStorage;
     vector<Token> postfix;
     TStack<string> operationStack;
     TStack<double> operandStack;
@@ -34,7 +35,7 @@ protected:
             {return 3;}
         return -1;
     }
-   static int PrioritySearch(const string& s) {
+    static int PrioritySearch(const string& s) {
         std::unordered_map<std::string, int> priorityMap = {
                 {"(", 1},
                 {")", 1},
@@ -70,6 +71,7 @@ public:
     TPostfixCalc() {
         postfix = vector<Token>();
         infix = vector<Token>();
+        infixStorage=vector<vector<Token>>();
         operationStack = TStack<string>();
         operandStack = TStack<double>();
         res = 0;
@@ -90,6 +92,7 @@ public:
     void ChangeEquation(string eq){
         Lexer lexer(eq);
         infix=lexer.getTokenList();
+        infixStorage.push_back(infix);
         postfix = vector<Token>();
         operationStack = TStack<string>(eq.length());
         operandStack = TStack<double>(eq.length());
@@ -98,7 +101,8 @@ public:
     void ChangeEquation(StatementExpression sx)// фул работает ура
     {
         infix = sx.getList();
-        type=infix[0].getValue();
+        infixStorage.push_back(infix);
+       // type=infix[0].getValue();
         postfix = vector<Token>();
         operationStack = TStack<string>(sx.getList().size());
         operandStack = TStack<double>(sx.getList().size());
@@ -112,6 +116,7 @@ public:
                else{
                    cout<<infix[2].getValue();}
            }
+           infixStorage.pop_back();
            return;
         }
         if(infix[0].getValue()=="Writeln"){
@@ -122,28 +127,41 @@ public:
                 else{cout<<infix[2].getValue();}
             }
             cout<<endl;
+            infixStorage.pop_back();
             return;
         }
         if(infix[0].getValue()=="Read"){
            string value;
            cin >> value;
            table.Change(infix[2].getValue(),value);
-            return;
+           infixStorage.pop_back();
+           return;
         }
         if(infix[0].getValue()=="Readln"){
            string value;
            cin >> value;
            table.Change(infix[2].getValue(),value);
            cout<<endl;
-            return;
+           infixStorage.pop_back();
+           return;
         }
         else{ //отсекли консоль, теперь объявления и выражения
             int i=0;
-            while((infix[i].getValue()!=":")&&(i!=(infix.size()-1))){i++;} // токен ":" присутствует только в объявлениях
-            if(i==(infix.size()-1)){
-                Build();} //соответственно если дошли до конца то ":" не нашли и просто билдим
-            else{
-                toDeclarate(infix);}
+            while((infix[i].getValue()!=":")&&(i!=(infix.size()-1))){i++;} // токен ":" присутствует только в объявлениях и константах
+            if(i==(infix.size()-1)){  //соответственно, если дошли до конца, то значит ":" не нашли и просто билдим
+                Build();
+                infixStorage.pop_back();
+            }else
+            {
+                if(i!=infix.size()-2)
+                {
+                    table.Insert(infix[0].getValue(),infix[4].getValue(),infix[2].getValue());
+                }else
+                {
+                    toDeclarate(infix);
+                }
+                infixStorage.pop_back();
+            }
             return;
         }
     }
@@ -161,6 +179,7 @@ public:
     }
     void ChangeEquation(ConditionExpression cx) {
         infix = cx.getBody().first;
+        infixStorage.push_back(infix);
         auto body=cx.getBody().second;
         postfix = vector<Token>();
         operationStack = TStack<string>(cx.getCondition().size());
@@ -177,6 +196,7 @@ public:
                     }
                 }
             }
+            infixStorage.pop_back();
             return;
         }
         if(infix.front().getValue()=="else"){
@@ -192,6 +212,7 @@ public:
                     }
                 }
             }
+            infixStorage.pop_back();
             return;
         }
         if(infix.front().getValue()=="while"){
@@ -204,7 +225,9 @@ public:
                         ChangeEquation(*conditionExpr); // Вызов метода для ConditionExpression
                     }
                 }
+                ToPostfixCondition(cx.getCondition());
             }
+            infixStorage.pop_back();
             return;
         }
         if(infix.front().getValue()=="until") {
@@ -217,8 +240,10 @@ public:
                         ChangeEquation(*conditionExpr); // Вызов метода для ConditionExpression
                     }
                 }
+                ToPostfixCondition(cx.getCondition());
             }
             while(CalcCondition()==1);
+            infixStorage.pop_back();
             return;
         }
         if(infix.front().getValue()=="for") {
@@ -435,7 +460,7 @@ public:
             else{continue;}
         }
     }
-    bool CalcCondition()//удивительно, но робит
+    bool CalcCondition()
     {
         for (size_t i = 0; i < postfix.size(); i++)
         {
