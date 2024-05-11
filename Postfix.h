@@ -248,11 +248,12 @@ public:
         }
         if(infix.front().getValue()=="for") {
             int i1,i2;
+            string nameValue=infix[1].getValue();
             i1=std::stoi(infix[3].getValue());
-            table.Change(infix[1].getValue(),to_string(i1));
             i2=std::stoi(infix[5].getValue());
             if(i1<i2){
                 for (i1;i1<i2;i1++){
+                    table.Change(nameValue,to_string(i1));
                     for(auto item:body){
                         if (auto statementExpr = dynamic_cast<StatementExpression*>(item)) {
                             ChangeEquation(*statementExpr); // Вызов метода для StatementExpression
@@ -264,6 +265,7 @@ public:
             }
             else{
                 for (i1;i1>i2;i2--){
+                    table.Change(infix[1].getValue(),to_string(i1));
                     for(auto item:body){
                         if (auto statementExpr = dynamic_cast<StatementExpression*>(item)) {
                             ChangeEquation(*statementExpr); // Вызов метода для StatementExpression

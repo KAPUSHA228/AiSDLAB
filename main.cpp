@@ -19,7 +19,7 @@ int main() {
     string test_text=
             "program qq;"
             "const"
-                "Pi: real = 3.1415926;"
+                "PI: real = 3.1415926;"
             "var"
                 "num1, num2, i: integer;"
                 "Res, d: real;"
@@ -43,10 +43,9 @@ int main() {
                     "Write('No');"
                 "end;"*/
                 "num1 := 6 div 2;"
-                /*"for i := 1 to 8 do begin"
+                "for i := 1 to 8 do begin"
                     "Write ( '3' ) ;"
-                "end;"*/
-
+                "end;"
                "while num1 < 4 do begin"
                     "Write('Yes');"
                     "num1 := num1 + 1;"
@@ -59,7 +58,6 @@ int main() {
     Lexer lexer(test_text);
     Parser parser(lexer);
     try{ parser.parse(); }
-
     catch(AgeException& e){ e.getMessage();}
     /*TPostfixCalc c;
     string s5="a := 5";
