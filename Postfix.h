@@ -249,6 +249,7 @@ public:
         if(infix.front().getValue()=="for") {
             int i1,i2;
             i1=std::stoi(infix[3].getValue());
+            table.Change(infix[1].getValue(),to_string(i1));
             i2=std::stoi(infix[5].getValue());
             if(i1<i2){
                 for (i1;i1<i2;i1++){
