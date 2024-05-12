@@ -60,7 +60,7 @@ protected:
                 cout << "Parent: null, ";
             else
                 cout << "Parent: " << this->parent->data.key << ", ";
-            cout << "Key:" << this->data.key  <<" , Value: " << this->data.value <<", Left potomok: ";
+            cout << "Key:" << this->data.key  <<" , Value: " << this->data.value <<", Type: "<<this->data.type<<", Left potomok: ";
             if (this->left == nullptr)
                 cout << "null " << ", ";
             else { cout << this->left->data.key << " ,"; }
@@ -117,10 +117,12 @@ public:
             return node; // Âîçâðàùàåì óçåë, åñëè êëþ÷ ñîâïàäàåò
         }
     }
-    void Change(Key key,Value val){
+    void Change(Key key,Value val, string ty){
         Node* node=findNode(key,root);
-        if(node== nullptr){ Insert(key,val,"VALUEINTEGER");}
-        else{node->data.value=val;}
+        if(node== nullptr){ throw std::runtime_error{"Variable wasn't declared, fix pls"};}//Insert(key,val,"TYPEINTEGER");}
+        else{
+            node->data.value=val;
+            node->data.type=ty;}
     }
     Node* deleteNode(Node* currentNode, Key _key)noexcept
     {
@@ -336,7 +338,7 @@ void SearchTreeTable<Key, Value>::print(Node* node)
         cout << "Parent: null, ";
     else
         cout << "Parent: " << node->parent->data.key << ", ";
-    cout << "Key:" << node->data.key << ", Value: " << node->data.value.ToString() << ", Left potomok: ";
+    cout << "Key:" << node->data.key << ", Value: " << node->data.value <<", Type: "<<node->data.type<< ", Left potomok: ";
     if (node->left == nullptr)
         cout << "null, Right potomok: ";
     else { cout << node->left->data.key << " Right Potomok: "; }

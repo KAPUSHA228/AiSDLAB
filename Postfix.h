@@ -14,17 +14,17 @@
 #include "Expression/StatementExpression.h"
 #include "Expression/ConditionExpression.h"
 using namespace std;
-static SearchTreeTable<string, string>table;
 class TPostfixCalc // не доделан под нужды уравнений с переменными, объявлений и сравнений
 {
 private:
+    SearchTreeTable<string, string>table;
     string type;
     vector<Token> infix;
     vector<vector<Token>>infixStorage;
     vector<Token> postfix;
     TStack<string> operationStack;
-    TStack<double> operandStack;
-    double res;
+    TStack<std::pair<string,string>>operandStack;
+    string res;
 protected:
     static int Priority(string s) {
         if((s=="(")||(s==")"))
@@ -73,8 +73,8 @@ public:
         infix = vector<Token>();
         infixStorage=vector<vector<Token>>();
         operationStack = TStack<string>();
-        operandStack = TStack<double>();
-        res = 0;
+        operandStack = TStack<std::pair<string,string>>();
+        res = string();
 
     }
     TPostfixCalc(const TPostfixCalc& c) {
@@ -87,16 +87,16 @@ public:
     }
     ~TPostfixCalc() = default;
 
-    static void setData(string key,string type){ table.Insert(key,type);}
-    static SearchTreeTable<string,string> getTable(){return table;}
+     void setData(string key,string type){ table.Insert(key,type);}
+     SearchTreeTable<string,string> getTable(){return table;}
     void ChangeEquation(string eq){
         Lexer lexer(eq);
         infix=lexer.getTokenList();
         infixStorage.push_back(infix);
         postfix = vector<Token>();
         operationStack = TStack<string>(eq.length());
-        operandStack = TStack<double>(eq.length());
-        res=0;
+        operandStack = TStack<std::pair<string,string>>(eq.length());
+        res = string();
     }
     void ChangeEquation(StatementExpression sx)// фул работает ура
     {
@@ -105,8 +105,8 @@ public:
        // type=infix[0].getValue();
         postfix = vector<Token>();
         operationStack = TStack<string>(sx.getList().size());
-        operandStack = TStack<double>(sx.getList().size());
-        res=0;
+        operandStack = TStack<std::pair<string,string>>(sx.getList().size());
+        res = string();
         if(infix[0].getValue()=="Write"){
            if(infix[3].getType() == "COMMA") {
            cout << infix[2].getValue() << " " << *(table.FindValue(infix[4].getValue()));}
@@ -133,19 +133,20 @@ public:
         if(infix[0].getValue()=="Read"){
            string value;
            cin >> value;
-           table.Change(infix[2].getValue(),value);
+           table.Change(infix[2].getValue(),value,infix[2].getType());
            infixStorage.pop_back();
            return;
         }
         if(infix[0].getValue()=="Readln"){
            string value;
            cin >> value;
-           table.Change(infix[2].getValue(),value);
+            table.Change(infix[2].getValue(),value,infix[2].getType());
            cout<<endl;
            infixStorage.pop_back();
            return;
         }
-        else{ //отсекли консоль, теперь объявления и выражения
+        else //отсекли консоль, теперь объявления и выражения
+        {
             int i=0;
             while((infix[i].getValue()!=":")&&(i!=(infix.size()-1))){i++;} // токен ":" присутствует только в объявлениях и константах
             if(i==(infix.size()-1)){  //соответственно, если дошли до конца, то значит ":" не нашли и просто билдим
@@ -167,7 +168,7 @@ public:
     }
     void toDeclarate(vector<Token> s)
     {
-        string str=s.back().getValue();
+        string str=s.back().getType();
         int i=0;
         while(i<s.size()-2){
             if(s[i].getType()=="VARIABLE"){
@@ -183,8 +184,8 @@ public:
         auto body=cx.getBody().second;
         postfix = vector<Token>();
         operationStack = TStack<string>(cx.getCondition().size());
-        operandStack = TStack<double>(cx.getCondition().size());
-        res=0;
+        operandStack = TStack<std::pair<string,string>>(cx.getCondition().size());
+        res = string();
         if(infix.front().getValue()=="if"){
             ToPostfixCondition(cx.getCondition());
             if(CalcCondition()==1){
@@ -247,11 +248,12 @@ public:
         if(infix.front().getValue()=="for") {
             int i1,i2;
             string nameValue=infix[1].getValue();
+            string typeValue=infix[1].getType();
             i1=std::stoi(infix[3].getValue());
             i2=std::stoi(infix[5].getValue());
             if(i1<i2){
                 for (i1;i1<i2;i1++){
-                    table.Change(nameValue,to_string(i1));
+                    table.Change(nameValue,to_string(i1),typeValue);
                     for(auto item:body){
                         if (auto statementExpr = dynamic_cast<StatementExpression*>(item)) {
                             ChangeEquation(*statementExpr); // Вызов метода для StatementExpression
@@ -263,7 +265,7 @@ public:
             }
             else{
                 for (i1;i1>i2;i2--){
-                    table.Change(infix[1].getValue(),to_string(i1));
+                    table.Change(nameValue,to_string(i1),typeValue);
                     for(auto item:body){
                         if (auto statementExpr = dynamic_cast<StatementExpression*>(item)) {
                             ChangeEquation(*statementExpr); // Вызов метода для StatementExpression
@@ -279,7 +281,7 @@ public:
     }
     vector<Token> GetInf() { return infix; }
     vector<Token> GetPost() { return postfix; }
-    double GetRes(){  return res; }
+    string GetRes(){  return res; }
     void ToPostfix() //робит
     {
         type= infix[0].getValue();
@@ -298,7 +300,8 @@ public:
         s.push_back(t1);
         for (size_t i = 0; i < s.size(); i++)
         {
-            if ((s[i].getType()=="VALUEINTEGER")||(s[i].getType()=="VALUEREAL")||(s[i].getType()=="VARIABLE")){
+            if ((s[i].getType()=="VALUEINTEGER")||(s[i].getType()=="VALUEREAL")||
+                (s[i].getType()=="VARIABLE")||(s[i].getType()=="VALUECHAR")||(s[i].getType()=="VALUESTRING")){
                 postfix.push_back(s[i]);}
             if (s[i].getType() == "DIV" || s[i].getType() == "MOD" || s[i].getType() == "PLUS" ||
                 s[i].getType() == "MINUS"||s[i].getType() == "MULTI") {
@@ -368,7 +371,7 @@ public:
         s.push_back(t1);
         for (size_t i = 0; i < s.size(); i++)
         {
-            if ((s[i].getType()=="VALUEINTEGER")||(s[i].getType()=="VALUEREAL")||(s[i].getType()=="VARIABLE")){
+            if ((s[i].getType()=="VALUEINTEGER")||(s[i].getType()=="VALUEREAL")||(s[i].getType()=="VARIABLE")||(s[i].getType()=="VALUECHAR")||(s[i].getType()=="VALUESTRING")){
                 postfix.push_back(s[i]);
                 continue; }
             if (s[i].getType() == "JG" || s[i].getType() == "MOD"||s[i].getType() == "NOT"
@@ -462,7 +465,7 @@ public:
         }
     }
     bool CalcCondition()
-    {
+    {/*
         for (size_t i = 0; i < postfix.size(); i++)
         {
             if( postfix[i].getValue() == "not") {
@@ -555,7 +558,7 @@ public:
         }
         res = operandStack.TopView();
         if(res==1) return true;
-        else return false;
+        else*/ return false;
     }
     void CalcPostfix()
     {
@@ -563,31 +566,103 @@ public:
         {
             if (postfix[i].getValue() == "+" || postfix[i].getValue() == "-" || postfix[i].getValue() == "*" ||
                 postfix[i].getValue() == "mod"|| postfix[i].getValue() == "div") {
-                double d1, d2;
-                d1 = operandStack.Pop();
-                d2 = operandStack.Pop();
-                if(postfix[i].getValue() == "+"){
-                    operandStack.Push(d2 + d1);}
-                if(postfix[i].getValue() == "-") {
-                    operandStack.Push(d2 - d1);}
-                if(postfix[i].getValue() == "*") {
-                    operandStack.Push(d2 * d1);}
-                if(postfix[i].getValue() == "div") {
-                    operandStack.Push(d2 / d1);}
-                if(postfix[i].getValue() == "mod") {
-                    operandStack.Push(fmod(d2,d1));}
+                std::pair p1=operandStack.Pop();
+                if(p1.second=="VALUEINTEGER" || p1.second=="VALUEREAL")
+                {
+                    std::pair p2=operandStack.Pop();
+                    if(p2.second=="VALUECHAR" || p2.second=="VALUESTRING"){
+                        if(postfix[i].getValue() == "+"){
+                            throw std::runtime_error{"ERROR: DIGIT + STRING"};}
+                        if(postfix[i].getValue() == "-") {
+                            throw std::runtime_error{"ERROR: DIGIT - STRING"};}
+                        if(postfix[i].getValue() == "*") {
+                            throw std::runtime_error{"ERROR: DIGIT * STRING"};}
+                        if(postfix[i].getValue() == "div") {
+                            throw std::runtime_error{"ERROR: DIGIT div STRING"};}
+                        if(postfix[i].getValue() == "mod") {
+                            throw std::runtime_error{"ERROR: DIGIT mod STRING"};}
+                    }
+                    else{
+                        if(postfix[i].getValue() == "+"){
+                            std::pair p={to_string(std::stod(p2.first) + std::stod(p1.first)),"VALUEREAL"};
+                            operandStack.Push(p);}
+                        if(postfix[i].getValue() == "-") {
+                            std::pair p={to_string(std::stod(p2.first) - std::stod(p1.first)),"VALUEREAL"};
+                            operandStack.Push(p);}
+                        if(postfix[i].getValue() == "*") {
+                            std::pair p={to_string(std::stod(p2.first) * std::stod(p1.first)),"VALUEREAL"};
+                            operandStack.Push(p);}
+                        if(postfix[i].getValue() == "div") {
+                            std::pair p={to_string(std::stod(p2.first) / std::stod(p1.first)),"VALUEREAL"};
+                            operandStack.Push(p);}
+                        if(postfix[i].getValue() == "mod") {
+                            std::pair p={to_string(fmod(std::stod(p2.first), std::stod(p1.first))),"VALUEREAL"};
+                            operandStack.Push(p);}
+                    }
+                }
+                else{
+                    if(p1.second=="VALUECHAR" || p1.second=="VALUESTRING"){
+                        std::pair p2=operandStack.Pop();
+                        if(p2.second=="VALUEINTEGER" || p2.second=="VALUEREAL")
+                        {
+                            if(postfix[i].getValue() == "+"){
+                                throw std::runtime_error{"ERROR: DIGIT + STRING"};}
+                            if(postfix[i].getValue() == "-") {
+                                throw std::runtime_error{"ERROR: DIGIT - STRING"};}
+                            if(postfix[i].getValue() == "*") {
+                                throw std::runtime_error{"ERROR: DIGIT * STRING"};}
+                            if(postfix[i].getValue() == "div") {
+                                throw std::runtime_error{"ERROR: DIGIT div STRING"};}
+                            if(postfix[i].getValue() == "mod") {
+                                throw std::runtime_error{"ERROR: DIGIT mod STRING"};}
+                        }
+                        else{
+                            if(postfix[i].getValue() == "+"){
+                                std::pair p={(p2.first + p1.first),"VALUEREAL"};
+                                operandStack.Push(p);}
+
+                            if(postfix[i].getValue() == "-") {
+                                throw std::runtime_error{"ERROR: STRING - STRING"};}
+                            if(postfix[i].getValue() == "*") {
+                                throw std::runtime_error{"ERROR: STRING * STRING"};}
+                            if(postfix[i].getValue() == "div") {
+                                throw std::runtime_error{"ERROR: STRING div STRING"};}
+                            if(postfix[i].getValue() == "mod") {
+                                throw std::runtime_error{"ERROR: STRING mod STRING"};}
+                        }
+
+                    }
+                }
             }
-            if (postfix[i].getType()== "VALUEINTEGER"|| postfix[i].getType() == "VALUEREAL") {
+            if (postfix[i].getType()== "VALUEINTEGER") {
+                int ans=std::stod(postfix[i].getValue());
+                std::pair t(to_string(ans),"VALUEINTEGER");
+                operandStack.Push(t);
+            }
+            if (postfix[i].getType() == "VALUEREAL") {
                 double ans=std::stod(postfix[i].getValue());
-                operandStack.Push(ans);
+                std::pair t(to_string(ans),"VALUEREAL");
+                operandStack.Push(t);
+            }
+            if (postfix[i].getType()== "VALUECHAR") {
+                std::pair t(postfix[i].getValue(),"VALUECHAR");
+                operandStack.Push(t);
+            }
+            if (postfix[i].getType()== "VALUESTRING") {
+                double ans=std::stod(postfix[i].getValue());
+                std::pair t(to_string(ans),"VALUESTRING");
+                operandStack.Push(t);
             }
             if (postfix[i].getType()== "VARIABLE"){
-                double ans=std::stod(table.findNode(postfix[i].getValue(),table.root)->data.value);
-                operandStack.Push(ans);
+                string sort = table.findNode(postfix[i].getValue(),table.root)->data.type;
+                string ans = table.findNode(postfix[i].getValue(),table.root)->data.value;
+                std::pair t(ans,sort);
+                operandStack.Push(t);
             }
         }
-        res = operandStack.TopView();
-        table.Change(type,to_string(res));
+        res = operandStack.TopView().first;
+        string typeres= operandStack.TopView().second;
+        table.Change(type,res,typeres);
     }
     void Build() {
         ToPostfix();
