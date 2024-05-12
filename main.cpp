@@ -25,7 +25,9 @@ int main() {
                 "Res, d: real;"
                 "res2: string;"
             "begin"
-                "if 5 mod 3 > 0 then begin"
+                "num1 := 4 div 2;"
+
+                /*"if 5 mod 3 > 0 then begin"
                     "Writeln ('Yes,if');"
                 "end"
                 "else begin"
@@ -49,19 +51,18 @@ int main() {
                 "else begin"
                     "Writeln ('Pum');"
                 "end;"
-                "num1 := 4 div 2;"
                 "for i := 1 to 8 do begin"
                     "Write ( '3' ) ;"
-                "end;"
-                "while num1 < 4 do begin"
+                "end;"*/
+                "while num1 < 6 do begin"
                     "Write('Yes');"
                     "num1 := num1 + 1;"
                 "end;"
-                /*"repeat begin"
+                "repeat begin"
                     "Write('3');"
                     "num1 := num1 + 1;"
                 "end;"
-                "until num1 < 4;"*/
+                "until num1 < 6;"
             "end.";
     Lexer lexer(test_text);
     Parser parser(lexer);

@@ -178,7 +178,6 @@ public:
     }
     void ChangeEquation(ConditionExpression cx){
         infix = cx.getBody().first;
-
         infixStorage.push_back(infix);
         auto body=cx.getBody().second;
         postfix = vector<Token>();
