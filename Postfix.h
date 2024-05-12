@@ -465,29 +465,51 @@ public:
         }
     }
     bool CalcCondition()
-    {/*
+    {
         for (size_t i = 0; i < postfix.size(); i++)
         {
             if( postfix[i].getValue() == "not") {
-                double d1;
-                d1=operandStack.Pop();
-                d1==1?operandStack.Push(0):operandStack.Push(1);
+                string d1;
+                d1=operandStack.Pop().first;
+                if(d1=="1"){
+                    std::pair t={"0","VALUEINTEGER"};
+                    operandStack.Push(t);
+                }
+                if(d1=="0"){
+                    std::pair t={"1","VALUEINTEGER"};
+                    operandStack.Push(t);
+                }
                 continue;
             }
             if(postfix[i].getValue() == "and" || postfix[i].getValue() == "or" || postfix[i].getValue() == "xor"){
-                double d1, d2;
-                d1 = operandStack.Pop();
-                d2 = operandStack.Pop();
+                string d1, d2;
+                d1 = operandStack.Pop().first;
+                d2 = operandStack.Pop().first;
                 if(postfix[i].getValue() == "and"){
-                    ((d1==1)&&(d2==1))?operandStack.Push(1):operandStack.Push(0);
+                    if((d1=="1")&&(d2=="1")){
+                        std::pair t={"1","VALUEINTEGER"};
+                        operandStack.Push(t);}
+                    else{
+                        std::pair t={"0","VALUEINTEGER"};
+                        operandStack.Push(t);}
                     continue;
                 }
                 if(postfix[i].getValue() == "or"){
-                    ((d1==1)||(d2==1))?operandStack.Push(1):operandStack.Push(0);
+                   if ((d1=="1")||(d2=="1")){
+                        std::pair t={"1","VALUEINTEGER"};
+                        operandStack.Push(t);}
+                   else{
+                        std::pair t={"0","VALUEINTEGER"};
+                        operandStack.Push(t);}
                     continue;
                 }
                 if(postfix[i].getValue() == "xor"){
-                    ((d1==1)^(d2==1))?operandStack.Push(1):operandStack.Push(0);
+                    if((d1=="1")^(d2=="1")){
+                        std::pair t={"1","VALUEINTEGER"};
+                        operandStack.Push(t);}
+                    else{
+                        std::pair t={"0","VALUEINTEGER"};
+                        operandStack.Push(t);}
                     continue;
                 }
             }
@@ -495,77 +517,6 @@ public:
             postfix[i].getValue() == ">"|| postfix[i].getValue() == ">=" || postfix[i].getValue() == "=" ||
             postfix[i].getValue() == "+" || postfix[i].getValue() == "-" || postfix[i].getValue() == "*" ||
             postfix[i].getValue() == "mod"|| postfix[i].getValue() == "div") {
-                double d1, d2;
-                d1 = operandStack.Pop();
-                d2 = operandStack.Pop();
-                if(postfix[i].getValue() == "+"){
-                    operandStack.Push(d2 + d1);
-                    continue;
-                }
-                if(postfix[i].getValue() == "-") {
-                    operandStack.Push(d2 - d1);
-                    continue;
-                }
-                if(postfix[i].getValue() == "*") {
-                    operandStack.Push(d2 * d1);
-                    continue;
-                }
-                if(postfix[i].getValue() == "div") {
-                    operandStack.Push(d2 / d1);
-                    continue;
-                }
-                if(postfix[i].getValue() == "mod") {
-                    operandStack.Push(fmod(d2,d1));
-                    continue;
-                }
-                if(postfix[i].getValue() == "<>"){
-                    d2!=d1?operandStack.Push(1):operandStack.Push(0);
-                    continue;
-                }
-                if(postfix[i].getValue() == "<="){
-                    d2<=d1?operandStack.Push(1):operandStack.Push(0);
-                    continue;
-                }
-                if(postfix[i].getValue() == "<"){
-                    d2<d1?operandStack.Push(1):operandStack.Push(0);
-                    continue;
-                }
-                if(postfix[i].getValue() == ">="){
-                    d2>=d1?operandStack.Push(1):operandStack.Push(0);
-                    continue;
-                }
-                if(postfix[i].getValue() == ">"){
-                    d2>d1?operandStack.Push(1):operandStack.Push(0);
-                    continue;
-                }
-                if(postfix[i].getValue() == "="){
-                    d2==d1?operandStack.Push(1):operandStack.Push(0);
-                    continue;
-                }
-            }
-            if (postfix[i].getType()== "VALUEINTEGER"|| postfix[i].getType() == "VALUEREAL") {
-                double ans=std::stod(postfix[i].getValue());
-                operandStack.Push(ans);
-                continue;
-
-            }
-            if (postfix[i].getType()== "VARIABLE"){
-                double ans=std::stod(table.findNode(postfix[i].getValue(),table.root)->data.value);
-                operandStack.Push(ans);
-                continue;
-
-            }
-        }
-        res = operandStack.TopView();
-        if(res==1) return true;
-        else*/ return false;
-    }
-    void CalcPostfix()
-    {
-        for (size_t i = 0; i < postfix.size(); i++)
-        {
-            if (postfix[i].getValue() == "+" || postfix[i].getValue() == "-" || postfix[i].getValue() == "*" ||
-                postfix[i].getValue() == "mod"|| postfix[i].getValue() == "div") {
                 std::pair p1=operandStack.Pop();
                 if(p1.second=="VALUEINTEGER" || p1.second=="VALUEREAL")
                 {
@@ -581,56 +532,186 @@ public:
                             throw std::runtime_error{"ERROR: DIGIT div STRING"};}
                         if(postfix[i].getValue() == "mod") {
                             throw std::runtime_error{"ERROR: DIGIT mod STRING"};}
+                        if(postfix[i].getValue() == "<>"){
+                            throw std::runtime_error{"ERROR: DIGIT <> STRING"};}
+                        if(postfix[i].getValue() == "<="){
+                            throw std::runtime_error{"ERROR: DIGIT <= STRING"};}
+                        if(postfix[i].getValue() == "<"){
+                            throw std::runtime_error{"ERROR: DIGIT < STRING"};}
+                        if(postfix[i].getValue() == ">="){
+                            throw std::runtime_error{"ERROR: DIGIT >= STRING"};}
+                        if(postfix[i].getValue() == ">"){
+                            throw std::runtime_error{"ERROR: DIGIT > STRING"};}
+                        if(postfix[i].getValue() == "="){
+                            throw std::runtime_error{"ERROR: DIGIT = STRING"};}
                     }
                     else{
                         if(postfix[i].getValue() == "+"){
                             std::pair p={to_string(std::stod(p2.first) + std::stod(p1.first)),"VALUEREAL"};
-                            operandStack.Push(p);}
+                            operandStack.Push(p);
+                            continue;
+                        }
                         if(postfix[i].getValue() == "-") {
                             std::pair p={to_string(std::stod(p2.first) - std::stod(p1.first)),"VALUEREAL"};
-                            operandStack.Push(p);}
+                            operandStack.Push(p);
+                            continue;
+                        }
                         if(postfix[i].getValue() == "*") {
                             std::pair p={to_string(std::stod(p2.first) * std::stod(p1.first)),"VALUEREAL"};
-                            operandStack.Push(p);}
+                            operandStack.Push(p);
+                            continue;
+                        }
                         if(postfix[i].getValue() == "div") {
                             std::pair p={to_string(std::stod(p2.first) / std::stod(p1.first)),"VALUEREAL"};
-                            operandStack.Push(p);}
+                            operandStack.Push(p);
+                            continue;
+                        }
                         if(postfix[i].getValue() == "mod") {
                             std::pair p={to_string(fmod(std::stod(p2.first), std::stod(p1.first))),"VALUEREAL"};
-                            operandStack.Push(p);}
+                            operandStack.Push(p);
+                            continue;
+                        }
+                        if(postfix[i].getValue() == "<>"){
+                            if(std::stod(p2.first)!=std::stod(p1.first)){
+                                std::pair p={"1","VALUEREAL"};
+                                operandStack.Push(p);
+                            }
+                            else{
+                                std::pair p={"0","VALUEREAL"};
+                                operandStack.Push(p);
+                            }
+                            continue;
+                        }
+                        if(postfix[i].getValue() == "<="){
+                            if(std::stod(p2.first)<=std::stod(p1.first)){
+                                std::pair p={"1","VALUEREAL"};
+                                operandStack.Push(p);
+                            }
+                            else{
+                                std::pair p={"0","VALUEREAL"};
+                                operandStack.Push(p);
+                            }
+                            continue;
+                        }
+                        if(postfix[i].getValue() == "<"){
+                            if(std::stod(p2.first)<std::stod(p1.first)){
+                                std::pair p={"1","VALUEREAL"};
+                                operandStack.Push(p);
+                            }
+                            else{
+                                std::pair p={"0","VALUEREAL"};
+                                operandStack.Push(p);
+                            }
+                            continue;
+                        }
+                        if(postfix[i].getValue() == ">="){
+                            if(std::stod(p2.first)>=std::stod(p1.first)){
+                                std::pair p={"1","VALUEREAL"};
+                                operandStack.Push(p);
+                            }
+                            else{
+                                std::pair p={"0","VALUEREAL"};
+                                operandStack.Push(p);
+                            }
+                            continue;
+                        }
+                        if(postfix[i].getValue() == ">"){
+                            if(std::stod(p2.first)>std::stod(p1.first)){
+                                std::pair p={"1","VALUEREAL"};
+                                operandStack.Push(p);
+                            }
+                            else{
+                                std::pair p={"0","VALUEREAL"};
+                                operandStack.Push(p);
+                            }
+                            continue;
+                        }
+                        if(postfix[i].getValue() == "="){
+                            if(std::stod(p2.first)==std::stod(p1.first)){
+                                std::pair p={"1","VALUEREAL"};
+                                operandStack.Push(p);
+                            }
+                            else{
+                                std::pair p={"0","VALUEREAL"};
+                                operandStack.Push(p);
+                            }
+                            continue;
+                        }
                     }
                 }
-                else{
-                    if(p1.second=="VALUECHAR" || p1.second=="VALUESTRING"){
-                        std::pair p2=operandStack.Pop();
-                        if(p2.second=="VALUEINTEGER" || p2.second=="VALUEREAL")
-                        {
-                            if(postfix[i].getValue() == "+"){
-                                throw std::runtime_error{"ERROR: DIGIT + STRING"};}
-                            if(postfix[i].getValue() == "-") {
-                                throw std::runtime_error{"ERROR: DIGIT - STRING"};}
-                            if(postfix[i].getValue() == "*") {
-                                throw std::runtime_error{"ERROR: DIGIT * STRING"};}
-                            if(postfix[i].getValue() == "div") {
-                                throw std::runtime_error{"ERROR: DIGIT div STRING"};}
-                            if(postfix[i].getValue() == "mod") {
-                                throw std::runtime_error{"ERROR: DIGIT mod STRING"};}
+                if(p1.second=="VALUECHAR" || p1.second=="VALUESTRING"){
+                    std::pair p2=operandStack.Pop();
+                    if(p2.second=="VALUEINTEGER" || p2.second=="VALUEREAL")
+                    {
+                        if(postfix[i].getValue() == "+"){
+                            throw std::runtime_error{"ERROR: STRING + DIGIT"};}
+                        if(postfix[i].getValue() == "-") {
+                            throw std::runtime_error{"ERROR: STRING - DIGIT"};}
+                        if(postfix[i].getValue() == "*") {
+                            throw std::runtime_error{"ERROR: STRING * DIGIT"};}
+                        if(postfix[i].getValue() == "div") {
+                            throw std::runtime_error{"ERROR: STRING div DIGIT"};}
+                        if(postfix[i].getValue() == "mod") {
+                            throw std::runtime_error{"ERROR: STRING mod DIGIT"};}
+                        if(postfix[i].getValue() == "<>"){
+                            throw std::runtime_error{"ERROR: STRING <> DIGIT"};}
+                        if(postfix[i].getValue() == "<="){
+                            throw std::runtime_error{"ERROR: STRING <= DIGIT"};}
+                        if(postfix[i].getValue() == "<"){
+                            throw std::runtime_error{"ERROR: STRING < DIGIT"};}
+                        if(postfix[i].getValue() == ">="){
+                            throw std::runtime_error{"ERROR: STRING >= DIGIT"};}
+                        if(postfix[i].getValue() == ">"){
+                            throw std::runtime_error{"ERROR: STRING > DIGIT"};}
+                        if(postfix[i].getValue() == "="){
+                            throw std::runtime_error{"ERROR: STRING = DIGIT"};}
+                    }
+                    else{
+                        if(postfix[i].getValue() == "+"){
+                            std::pair p={(p2.first + p1.first),"VALUESTRING"};
+                            operandStack.Push(p);
+                            continue;
                         }
-                        else{
-                            if(postfix[i].getValue() == "+"){
-                                std::pair p={(p2.first + p1.first),"VALUEREAL"};
-                                operandStack.Push(p);}
-
-                            if(postfix[i].getValue() == "-") {
-                                throw std::runtime_error{"ERROR: STRING - STRING"};}
-                            if(postfix[i].getValue() == "*") {
-                                throw std::runtime_error{"ERROR: STRING * STRING"};}
-                            if(postfix[i].getValue() == "div") {
-                                throw std::runtime_error{"ERROR: STRING div STRING"};}
-                            if(postfix[i].getValue() == "mod") {
-                                throw std::runtime_error{"ERROR: STRING mod STRING"};}
+                        if(postfix[i].getValue() == "-") {
+                            throw std::runtime_error{"ERROR: STRING - STRING"};}
+                        if(postfix[i].getValue() == "*") {
+                            throw std::runtime_error{"ERROR: STRING * STRING"};}
+                        if(postfix[i].getValue() == "div") {
+                            throw std::runtime_error{"ERROR: STRING div STRING"};}
+                        if(postfix[i].getValue() == "mod") {
+                            throw std::runtime_error{"ERROR: STRING mod STRING"};}
+                        if(postfix[i].getValue() == "<>"){
+                            if(p2.first=="VALUESTRING"){
+                                std::pair p={to_string(p2.first < p1.first),"VALUEINTEGER"};
+                                operandStack.Push(p);
+                                continue;
+                            }
                         }
-
+                        if(postfix[i].getValue() == "<="){
+                            std::pair p={to_string(p2.first <= p1.first),"VALUEINTEGER"};
+                            operandStack.Push(p);
+                            continue;
+                        }
+                        if(postfix[i].getValue() == "<"){
+                            std::pair p={to_string(p2.first < p1.first),"VALUEINTEGER"};
+                            operandStack.Push(p);
+                            continue;
+                        }
+                        if(postfix[i].getValue() == ">="){
+                            std::pair p={to_string(p2.first >= p1.first),"VALUEINTEGER"};
+                            operandStack.Push(p);
+                            continue;
+                        }
+                        if(postfix[i].getValue() == ">"){
+                            std::pair p={to_string(p2.first > p1.first),"VALUEINTEGER"};
+                            operandStack.Push(p);
+                            continue;
+                        }
+                        if(postfix[i].getValue() == "="){
+                            std::pair p={to_string(p2.first == p1.first),"VALUEINTEGER"};
+                            operandStack.Push(p);
+                            continue;
+                        }
                     }
                 }
             }
@@ -638,26 +719,151 @@ public:
                 int ans=std::stod(postfix[i].getValue());
                 std::pair t(to_string(ans),"VALUEINTEGER");
                 operandStack.Push(t);
+                continue;
             }
             if (postfix[i].getType() == "VALUEREAL") {
                 double ans=std::stod(postfix[i].getValue());
                 std::pair t(to_string(ans),"VALUEREAL");
                 operandStack.Push(t);
+                continue;
             }
             if (postfix[i].getType()== "VALUECHAR") {
                 std::pair t(postfix[i].getValue(),"VALUECHAR");
                 operandStack.Push(t);
+                continue;
             }
             if (postfix[i].getType()== "VALUESTRING") {
                 double ans=std::stod(postfix[i].getValue());
                 std::pair t(to_string(ans),"VALUESTRING");
                 operandStack.Push(t);
+                continue;
             }
             if (postfix[i].getType()== "VARIABLE"){
                 string sort = table.findNode(postfix[i].getValue(),table.root)->data.type;
                 string ans = table.findNode(postfix[i].getValue(),table.root)->data.value;
                 std::pair t(ans,sort);
                 operandStack.Push(t);
+                continue;
+            }
+        }
+        res = operandStack.TopView().first;
+        if(res=="1") return true;
+        else return false;
+    }
+    void CalcPostfix()
+    {
+        for (size_t i = 0; i < postfix.size(); i++)
+        {
+            if (postfix[i].getValue() == "+" || postfix[i].getValue() == "-" || postfix[i].getValue() == "*" ||
+                postfix[i].getValue() == "mod"|| postfix[i].getValue() == "div")
+            {
+                std::pair p1=operandStack.Pop();
+                if(p1.second=="VALUEINTEGER" || p1.second=="VALUEREAL")
+                {
+                    std::pair p2=operandStack.Pop();
+                    if(p2.second=="VALUECHAR" || p2.second=="VALUESTRING")
+                    {
+                        if(postfix[i].getValue() == "+"){
+                            throw std::runtime_error{"ERROR: DIGIT + STRING"};}
+                        if(postfix[i].getValue() == "-") {
+                            throw std::runtime_error{"ERROR: DIGIT - STRING"};}
+                        if(postfix[i].getValue() == "*") {
+                            throw std::runtime_error{"ERROR: DIGIT * STRING"};}
+                        if(postfix[i].getValue() == "div") {
+                            throw std::runtime_error{"ERROR: DIGIT div STRING"};}
+                        if(postfix[i].getValue() == "mod") {
+                            throw std::runtime_error{"ERROR: DIGIT mod STRING"};}
+                    }
+                    else
+                    {
+                        if(postfix[i].getValue() == "+"){
+                            std::pair p={to_string(std::stod(p2.first) + std::stod(p1.first)),"VALUEREAL"};
+                            operandStack.Push(p);
+                            continue;
+                        }
+                        if(postfix[i].getValue() == "-") {
+                            std::pair p={to_string(std::stod(p2.first) - std::stod(p1.first)),"VALUEREAL"};
+                            operandStack.Push(p);
+                            continue;
+                        }
+                        if(postfix[i].getValue() == "*") {
+                            std::pair p={to_string(std::stod(p2.first) * std::stod(p1.first)),"VALUEREAL"};
+                            operandStack.Push(p);
+                            continue;
+                        }
+                        if(postfix[i].getValue() == "div") {
+                            std::pair p={to_string(std::stod(p2.first) / std::stod(p1.first)),"VALUEREAL"};
+                            operandStack.Push(p);
+                            continue;
+                        }
+                        if(postfix[i].getValue() == "mod") {
+                            std::pair p={to_string(fmod(std::stod(p2.first), std::stod(p1.first))),"VALUEREAL"};
+                            operandStack.Push(p);
+                            continue;
+                        }
+                    }
+                }
+                if(p1.second=="VALUECHAR" || p1.second=="VALUESTRING"){
+                    std::pair p2=operandStack.Pop();
+                    if(p2.second=="VALUEINTEGER" || p2.second=="VALUEREAL")
+                    {
+                        if(postfix[i].getValue() == "+"){
+                            throw std::runtime_error{"ERROR: DIGIT + STRING"};}
+                        if(postfix[i].getValue() == "-") {
+                            throw std::runtime_error{"ERROR: DIGIT - STRING"};}
+                        if(postfix[i].getValue() == "*") {
+                            throw std::runtime_error{"ERROR: DIGIT * STRING"};}
+                        if(postfix[i].getValue() == "div") {
+                            throw std::runtime_error{"ERROR: DIGIT div STRING"};}
+                        if(postfix[i].getValue() == "mod") {
+                            throw std::runtime_error{"ERROR: DIGIT mod STRING"};}
+                    }
+                    else{
+                        if(postfix[i].getValue() == "+"){
+                            std::pair p={(p2.first + p1.first),"VALUESTRING"};
+                            operandStack.Push(p);
+                            continue;
+                        }
+                        if(postfix[i].getValue() == "-") {
+                            throw std::runtime_error{"ERROR: STRING - STRING"};}
+                        if(postfix[i].getValue() == "*") {
+                            throw std::runtime_error{"ERROR: STRING * STRING"};}
+                        if(postfix[i].getValue() == "div") {
+                            throw std::runtime_error{"ERROR: STRING div STRING"};}
+                        if(postfix[i].getValue() == "mod") {
+                            throw std::runtime_error{"ERROR: STRING mod STRING"};}
+                    }
+                }
+            }
+            if (postfix[i].getType()== "VALUEINTEGER") {
+                int ans=std::stod(postfix[i].getValue());
+                std::pair t(to_string(ans),"VALUEINTEGER");
+                operandStack.Push(t);
+                continue;
+            }
+            if (postfix[i].getType() == "VALUEREAL") {
+                double ans=std::stod(postfix[i].getValue());
+                std::pair t(to_string(ans),"VALUEREAL");
+                operandStack.Push(t);
+                continue;
+            }
+            if (postfix[i].getType()== "VALUECHAR") {
+                std::pair t(postfix[i].getValue(),"VALUECHAR");
+                operandStack.Push(t);
+                continue;
+            }
+            if (postfix[i].getType()== "VALUESTRING") {
+                double ans=std::stod(postfix[i].getValue());
+                std::pair t(to_string(ans),"VALUESTRING");
+                operandStack.Push(t);
+                continue;
+            }
+            if (postfix[i].getType()== "VARIABLE"){
+                string sort = table.findNode(postfix[i].getValue(),table.root)->data.type;
+                string ans = table.findNode(postfix[i].getValue(),table.root)->data.value;
+                std::pair t(ans,sort);
+                operandStack.Push(t);
+                continue;
             }
         }
         res = operandStack.TopView().first;

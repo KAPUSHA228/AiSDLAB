@@ -3,6 +3,7 @@
 #include "Parser.h"
 using namespace std;
 int main() {
+    char a='a';
    /* string test= "var"
                  "begin"
                     "num1 := 2 ;"
@@ -76,21 +77,22 @@ int main() {
     StatementExpression sx3(lexer3.getTokenList());
     StatementExpression sx4(lexer4.getTokenList());
     StatementExpression sx5(lexer5.getTokenList());
-   /* string s2="if ( 2 <> 8 ) xor ( 4 < 2 ) then begin"
-              "Write('Yes');"
-              "end";*/
-   // Lexer lexer2(s2);
-    //ConditionExpression cx(0,lexer2.getTokenList());
+    string s6="if ( 2 <> 8 ) xor ( 4 < 2 ) then begin"
+                "Write('Yes');"
+              "end";
+    Lexer lexer6(s6);
+    ConditionExpression cx(0,lexer6.getTokenList());
     //string s="(8 + 3) * (9 + 4)";
     //Lexer lexer(s);
     //vector<Token>list=lexer.getTokenList();
-    c.ChangeEquation(sx1);
+    /*c.ChangeEquation(sx1);
     c.ChangeEquation(sx2);
     c.ChangeEquation(sx3);
     c.ChangeEquation(sx4);
-    c.ChangeEquation(sx5);
-    c.getTable().root->print();
+    c.ChangeEquation(sx5);*/
+    c.ChangeEquation(cx);
+    //c.getTable().root->print();
     //cout<<c.getTable().findNode("a",c.getTable().root)->data.value;
-    //cout<<c;
+    cout<<c;
     return 0;
 }
