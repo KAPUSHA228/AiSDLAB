@@ -75,6 +75,7 @@ public:
             {"MULTI","[\*]"},
             {"SWITCH", "case"},
             {"FUNCTION", "function"},
+            {"PROCEDURE","procedure"},
             {"BEGIN", "begin"},
             {"ENDofCycle", "end;"},
             {"ENDofPROGRAM", "end[\.]"},

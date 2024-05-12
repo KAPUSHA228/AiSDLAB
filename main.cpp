@@ -18,10 +18,14 @@ int main() {
                  "end.";
     string test_text=
             "program qq;"
-            /*"function AddNumbers ( a , b : integer ) : integer ;"
+            "function AddNumbers ( a , b : integer ) : integer ;"
             "begin"
                 "AddNumbers := a + b;"
-            "end;"*/
+            "end;"
+            "procedure GreetUser ( name: string ) ;"
+            "begin"
+                "Writeln ( 'Hello,' , name , '!' );"
+            "end;"
             "const"
                 "PI: real = 3.1415926;"
             "var"

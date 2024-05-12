@@ -10,16 +10,16 @@
 #include "StatementExpression.h"
 #include <utility>
 #include <vector>
-static int globalPosFun=0; //только для вложенных случаев нужен
 class Function: public Expression {
 private:
     std::vector<Expression*> expressionList;
     std::vector<Token> declaration;
     std::vector<Token> localList;
+    int globalPosFun;
 
 public:
     Function(int pos, vector<Token> list){
-        doFunction(pos,std::move(list));
+        doFunction(pos,list);
     }
     Function( const Function& ex){
         this->declaration=ex.declaration;
@@ -27,8 +27,8 @@ public:
     }
     void doFunction(int pos, vector<Token> list){
         globalPosFun=pos;
-        while(list[globalPosFun].getValue() != "SEMICOLON"){
-            declaration.push_back(list[pos]);
+        while(list[globalPosFun].getType() != "SEMICOLON"){
+            declaration.push_back(list[globalPosFun]);
             globalPosFun++;
         }
         globalPosFun++; globalPosFun++;

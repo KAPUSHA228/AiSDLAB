@@ -10,12 +10,12 @@
 #include "StatementExpression.h"
 #include <utility>
 #include <vector>
-static int globalPosProc=0; //только для вложенных случаев нужен
 class Procedure: public  Expression{
 private:
     std::vector<Expression*> expressionList;
     std::vector<Token> declaration;
     std::vector<Token> localList;
+    int globalPosProc;
 public:
     Procedure(int pos, vector<Token> list){
         doProcedure(pos,std::move(list));
@@ -26,7 +26,7 @@ public:
     }
     void doProcedure(int pos, vector<Token> list){
         globalPosProc=pos;
-        while(list[globalPosProc].getValue() != "SEMICOLON"){
+        while(list[globalPosProc].getType() != "SEMICOLON"){
             declaration.push_back(list[pos]);
             globalPosProc++;
         }
