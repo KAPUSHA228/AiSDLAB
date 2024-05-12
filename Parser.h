@@ -11,6 +11,9 @@
 #include "Expression/Expression.h"
 #include "Expression/StatementExpression.h"
 #include "Expression/ConditionExpression.h"
+#include "Expression/CaseOf.h"
+#include "Expression/Function.h"
+#include "Expression/Procedure.h"
 using namespace std;
 int number=0;
 class AgeException: public std::exception
@@ -67,11 +70,22 @@ public:
     }
     void initDeclaration(){
         if(isTypeToken("TITLE")){
-
-            while(!isTypeToken("SEMICOLON")){
-                currentPos++;} //скип названия, чтобы дойти до разделов Const или Var
-            currentPos++;}       //есть вариант вообще название не добавлять уже на стадии Lexer, но мб пригодится
-
+            while(!isTypeToken("SEMICOLON"))
+            {currentPos++;} //скип названия, чтобы дойти до разделов Const или Var
+            currentPos++;
+        }       //есть вариант вообще название не добавлять уже на стадии Lexer, но мб пригодится
+        if(isTypeToken("FUNCTION")){
+            Function* sw= new Function(currentPos,tokenList);
+            currentPos=sw->getPos();
+            std::pair t{sw,"Var"};
+            expressionList.push_back(t);
+        }
+        if(isTypeToken("PROCEDURE")){
+            Procedure* sw= new Procedure(currentPos,tokenList);
+            currentPos=sw->getPos();
+            std::pair t{sw,"Var"};
+            expressionList.push_back(t);
+        }
         if(isTypeToken("CONST")){
             currentPos++;
             while (!isTypeToken("VAR")){
@@ -106,8 +120,15 @@ public:
     void initBegin() {
         std::vector<Token> condition;
         while (!isTypeToken("ENDofPROGRAM")) {
+            if(isTypeToken("SWITCH"))
+            {
+                CaseOf* sw= new CaseOf(currentPos,tokenList);
+                currentPos=sw->getPos();
+                std::pair t{sw,"Body"};
+                expressionList.push_back(t);
+            }
             if ((isTypeToken("CONDITION"))||(isTypeToken("UNCONDITION"))||(isTypeToken("CYCLEFOR"))||
-                (isTypeToken("CYCLEWHILE"))||(isTypeToken("CYCLEDOWHILE"))||(isTypeToken("SWITCH")))
+                (isTypeToken("CYCLEWHILE"))||(isTypeToken("CYCLEDOWHILE")))
             {
                 ConditionExpression *cx = new ConditionExpression(currentPos, tokenList);
                 currentPos = cx->getGlobalPos();

@@ -9,7 +9,7 @@
 #include <vector>
 #include "Expression.h"
 #include "../Token.h"
-
+static int globalPosCase=0;
 class CaseOf: public Expression {
 private:
     Token value;
@@ -20,8 +20,11 @@ public:
         doSwitch(pos,list);
     }
     void doSwitch(int pos, vector<Token>list){
-
+        pos++;
+        value=list[pos];
     }
+    void print(int tab)override{}
+    int getPos(){return globalPosCase;}
 };
 
 

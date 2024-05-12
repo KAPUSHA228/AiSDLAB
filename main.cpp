@@ -18,6 +18,10 @@ int main() {
                  "end.";
     string test_text=
             "program qq;"
+            /*"function AddNumbers ( a , b : integer ) : integer ;"
+            "begin"
+                "AddNumbers := a + b;"
+            "end;"*/
             "const"
                 "PI: real = 3.1415926;"
             "var"
@@ -26,7 +30,6 @@ int main() {
                 "res2: string;"
             "begin"
                 "num1 := 4 div 2;"
-
                 /*"if 5 mod 3 > 0 then begin"
                     "Writeln ('Yes,if');"
                 "end"
@@ -62,7 +65,7 @@ int main() {
                     "Write('3');"
                     "num1 := num1 + 1;"
                 "end;"
-                "until num1 < 6;"
+                "until num1 < 13 ;"
             "end.";
     Lexer lexer(test_text);
     Parser parser(lexer);
@@ -88,7 +91,7 @@ int main() {
                 "Write('Yes');"
               "end";
     Lexer lexer6(s6);
-    ConditionExpression cx(0,lexer6.getTokenList());*/
+    ConditionExpression cx(0,lexer6.getTokenList());
     //string s="(8 + 3) * (9 + 4)";
     //Lexer lexer(s);
     //vector<Token>list=lexer.getTokenList();
@@ -96,10 +99,10 @@ int main() {
     c.ChangeEquation(sx2);
     c.ChangeEquation(sx3);
     c.ChangeEquation(sx4);
-    c.ChangeEquation(sx5);*/
-    //c.ChangeEquation(cx);
-    //c.getTable().root->print();
+    c.ChangeEquation(sx5);
+    c.ChangeEquation(cx);
+    c.getTable().root->print();
     //cout<<c.getTable().findNode("a",c.getTable().root)->data.value;
-    //cout<<c;
+    //cout<<c;*/
     return 0;
 }

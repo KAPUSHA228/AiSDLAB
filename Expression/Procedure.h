@@ -10,7 +10,7 @@
 #include "StatementExpression.h"
 #include <utility>
 #include <vector>
-static int globalPos=0; //только для вложенных случаев нужен
+static int globalPosProc=0; //только для вложенных случаев нужен
 class Procedure: public  Expression{
 private:
     std::vector<Expression*> expressionList;
@@ -25,37 +25,38 @@ public:
         this->expressionList=ex.expressionList;
     }
     void doProcedure(int pos, vector<Token> list){
-        globalPos=pos;
-        while(list[globalPos].getValue()!="SEMICOLON"){
+        globalPosProc=pos;
+        while(list[globalPosProc].getValue() != "SEMICOLON"){
             declaration.push_back(list[pos]);
-            globalPos++;
+            globalPosProc++;
         }
-        globalPos++; globalPos++;
-        while(list[globalPos].getType()!="ENDofCycle"){
-            if(((list[globalPos].getType()=="CONDITION"))|| //если хоть какую-то в нем вложенность находим
-               (list[globalPos].getType()=="CYCLEFOR")|| // хоть вложенное условие, хоть вложенный цикл, то создаём новый объект
-               (list[globalPos].getType()=="CYCLEWHILE")|| // не забываем про static переменную, она указывает новое место где мы окажемся
-               (list[globalPos].getType()=="CYCLEDOWHILE"))//поднявшись обратно наверх от вложенного объекта
+        globalPosProc++; globalPosProc++;
+        while(list[globalPosProc].getType() != "ENDofCycle"){
+            if(((list[globalPosProc].getType() == "CONDITION")) || //если хоть какую-то в нем вложенность находим
+               (list[globalPosProc].getType() == "CYCLEFOR") || // хоть вложенное условие, хоть вложенный цикл, то создаём новый объект
+               (list[globalPosProc].getType() == "CYCLEWHILE") || // не забываем про static переменную, она указывает новое место где мы окажемся
+               (list[globalPosProc].getType() == "CYCLEDOWHILE"))//поднявшись обратно наверх от вложенного объекта
             {
-                ConditionExpression* cx = new ConditionExpression(globalPos,list);
-                globalPos=cx->getGlobalPos();
+                ConditionExpression* cx = new ConditionExpression(globalPosProc, list);
+                globalPosProc=cx->getGlobalPos();
                 expressionList.push_back(cx);
             }
             else
             {
-                while(list[globalPos].getType()!="SEMICOLON"){ //если вложенности нет или мы с ней уже закончили, то формируем обычные выражения
-                    localList.push_back(list[globalPos]);
-                    globalPos++;}
+                while(list[globalPosProc].getType() != "SEMICOLON"){ //если вложенности нет или мы с ней уже закончили, то формируем обычные выражения
+                    localList.push_back(list[globalPosProc]);
+                    globalPosProc++;}
                 StatementExpression* rx= new StatementExpression(localList);
                 expressionList.push_back(rx);
                 localList.clear();
-                globalPos++;
+                globalPosProc++;
             }
         }
-        globalPos++;
+        globalPosProc++;
         return;
     }
     void print(int tab) override{}
+    int getPos(){ return globalPosProc;}
 };
 
 

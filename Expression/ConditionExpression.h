@@ -5,10 +5,8 @@
 #define CONDITIONEXPRESSION_H
 #include <vector>
 #include "Expression.h"
-#include "../Parser.h"
 #include <bits/stdc++.h>
 #include "stdexcept"
-#include "../Lexer.h"
 #include "../Token.h"
 static int y=0;
 static int posofEndofIf=0; //только для вложенных случаев нужен
