@@ -14,7 +14,7 @@
 #include "Expression/StatementExpression.h"
 #include "Expression/ConditionExpression.h"
 using namespace std;
-class TPostfixCalc // не доделан под нужды уравнений с переменными, объявлений и сравнений
+class TPostfixCalc
 {
 private:
     SearchTreeTable<string, string>table;
@@ -68,7 +68,7 @@ protected:
         return -1;
     }
 public:
-    TPostfixCalc() {
+    TPostfixCalc(){
         postfix = vector<Token>();
         infix = vector<Token>();
         infixStorage=vector<vector<Token>>();
@@ -77,7 +77,7 @@ public:
         res = string();
 
     }
-    TPostfixCalc(const TPostfixCalc& c) {
+    TPostfixCalc(const TPostfixCalc& c){
         if (&c == this) throw std::runtime_error{"odinakovo nasrano"};
         postfix = c.postfix;
         infix = c.infix;
@@ -86,9 +86,8 @@ public:
         res = c.res;
     }
     ~TPostfixCalc() = default;
-
-     void setData(string key,string type){ table.Insert(key,type);}
-     SearchTreeTable<string,string> getTable(){return table;}
+    void setData(string key,string type){ table.Insert(key,type);}
+    SearchTreeTable<string,string> getTable(){return table;}
     void ChangeEquation(string eq){
         Lexer lexer(eq);
         infix=lexer.getTokenList();
@@ -98,11 +97,9 @@ public:
         operandStack = TStack<std::pair<string,string>>(eq.length());
         res = string();
     }
-    void ChangeEquation(StatementExpression sx)// фул работает ура
-    {
+    void ChangeEquation(StatementExpression sx){
         infix = sx.getList();
         infixStorage.push_back(infix);
-       // type=infix[0].getValue();
         postfix = vector<Token>();
         operationStack = TStack<string>(sx.getList().size());
         operandStack = TStack<std::pair<string,string>>(sx.getList().size());
@@ -152,12 +149,14 @@ public:
             if(i==(infix.size()-1)){  //соответственно, если дошли до конца, то значит ":" не нашли и просто билдим
                 Build();
                 infixStorage.pop_back();
-            }else
+            }
+            else
             {
                 if(i!=infix.size()-2)
                 {
                     table.Insert(infix[0].getValue(),infix[4].getValue(),infix[2].getValue());
-                }else
+                }
+                else
                 {
                     toDeclarate(infix);
                 }
@@ -166,8 +165,7 @@ public:
             return;
         }
     }
-    void toDeclarate(vector<Token> s)
-    {
+    void toDeclarate(vector<Token> s){
         string str=s.back().getType();
         int i=0;
         while(i<s.size()-2){
@@ -178,8 +176,9 @@ public:
             else{i++;}
         }
     }
-    void ChangeEquation(ConditionExpression cx) {
+    void ChangeEquation(ConditionExpression cx){
         infix = cx.getBody().first;
+
         infixStorage.push_back(infix);
         auto body=cx.getBody().second;
         postfix = vector<Token>();
@@ -282,8 +281,7 @@ public:
     vector<Token> GetInf() { return infix; }
     vector<Token> GetPost() { return postfix; }
     string GetRes(){  return res; }
-    void ToPostfix() //робит
-    {
+    void ToPostfix(){
         type= infix[0].getValue();
         auto iter=infix.begin();
         infix.erase(iter);
@@ -351,8 +349,7 @@ public:
             else{continue;}
             }
     }
-    void ToPostfixCondition(vector<Token>condition)//робит
-    {
+    void ToPostfixCondition(vector<Token>condition){
         type= condition[0].getValue();
         infix = condition;
         auto iter=infix.begin();
@@ -464,11 +461,11 @@ public:
             else{continue;}
         }
     }
-    bool CalcCondition()
-    {
+    bool CalcCondition(){
         for (size_t i = 0; i < postfix.size(); i++)
         {
-            if( postfix[i].getValue() == "not") {
+            if( postfix[i].getValue() == "not")
+            {
                 string d1;
                 d1=operandStack.Pop().first;
                 if(d1=="1"){
@@ -481,7 +478,8 @@ public:
                 }
                 continue;
             }
-            if(postfix[i].getValue() == "and" || postfix[i].getValue() == "or" || postfix[i].getValue() == "xor"){
+            if(postfix[i].getValue() == "and" || postfix[i].getValue() == "or" || postfix[i].getValue() == "xor")
+            {
                 string d1, d2;
                 d1 = operandStack.Pop().first;
                 d2 = operandStack.Pop().first;
@@ -514,9 +512,10 @@ public:
                 }
             }
             if (postfix[i].getValue() == "<" || postfix[i].getValue() == "<>" || postfix[i].getValue() == "<="||
-            postfix[i].getValue() == ">"|| postfix[i].getValue() == ">=" || postfix[i].getValue() == "=" ||
-            postfix[i].getValue() == "+" || postfix[i].getValue() == "-" || postfix[i].getValue() == "*" ||
-            postfix[i].getValue() == "mod"|| postfix[i].getValue() == "div") {
+                postfix[i].getValue() == ">"|| postfix[i].getValue() == ">=" || postfix[i].getValue() == "=" ||
+                postfix[i].getValue() == "+" || postfix[i].getValue() == "-" || postfix[i].getValue() == "*" ||
+                postfix[i].getValue() == "mod"|| postfix[i].getValue() == "div")
+            {
                 std::pair p1=operandStack.Pop();
                 if(p1.second=="VALUEINTEGER" || p1.second=="VALUEREAL")
                 {
@@ -639,7 +638,8 @@ public:
                         }
                     }
                 }
-                if(p1.second=="VALUECHAR" || p1.second=="VALUESTRING"){
+                if(p1.second=="VALUECHAR" || p1.second=="VALUESTRING")
+                {
                     std::pair p2=operandStack.Pop();
                     if(p2.second=="VALUEINTEGER" || p2.second=="VALUEREAL")
                     {
@@ -666,7 +666,8 @@ public:
                         if(postfix[i].getValue() == "="){
                             throw std::runtime_error{"ERROR: STRING = DIGIT"};}
                     }
-                    else{
+                    else
+                    {
                         if(postfix[i].getValue() == "+"){
                             std::pair p={(p2.first + p1.first),"VALUESTRING"};
                             operandStack.Push(p);
@@ -750,8 +751,7 @@ public:
         if(res=="1") return true;
         else return false;
     }
-    void CalcPostfix()
-    {
+    void CalcPostfix(){
         for (size_t i = 0; i < postfix.size(); i++)
         {
             if (postfix[i].getValue() == "+" || postfix[i].getValue() == "-" || postfix[i].getValue() == "*" ||
@@ -853,8 +853,7 @@ public:
                 continue;
             }
             if (postfix[i].getType()== "VALUESTRING") {
-                double ans=std::stod(postfix[i].getValue());
-                std::pair t(to_string(ans),"VALUESTRING");
+                std::pair t(postfix[i].getValue(),"VALUESTRING");
                 operandStack.Push(t);
                 continue;
             }
@@ -870,7 +869,7 @@ public:
         string typeres= operandStack.TopView().second;
         table.Change(type,res,typeres);
     }
-    void Build() {
+    void Build(){
         ToPostfix();
         CalcPostfix();
     }

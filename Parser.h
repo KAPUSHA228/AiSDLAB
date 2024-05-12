@@ -56,10 +56,9 @@ public:
                 calc.ChangeEquation(*conditionExpr); // Вызов метода для ConditionExpression
             }
         } cout<<endl;
-        calc.getTable().root->print();  cout<<endl;
-
-    //hierarchyList.print(hierarchyList.getRoot()); cout<<endl;
-        this->print();
+        //calc.getTable().root->print();  cout<<endl;
+        //hierarchyList.print(hierarchyList.getRoot()); cout<<endl;
+        //this->print();
     }
     void tohierarchy(){
         for( const auto& item:expressionList){
