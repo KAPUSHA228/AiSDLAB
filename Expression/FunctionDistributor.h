@@ -12,14 +12,24 @@
 #include "Procedure.h"
 class FunctionDistributor: public Expression{
 private:
-vector<Token> list;
+    vector<Token> list;
+    string ans;
 public:
     FunctionDistributor(vector<Token> vec){
         list=std::move(vec);
+        ParseFunction(vec);
     }
     FunctionDistributor& operator=(const FunctionDistributor& other) {
         this->list=other.list;
         return *this;
+    }
+    void ParseFunction(vector<Token> vec){
+        if(vec[2].getValue()=="AddNumbers"){
+
+        }
+        if (vec[2].getValue()=="GreetUser"){
+
+        }
     }
     vector<Token>getList(){return list;}
     void print(int tab) override{

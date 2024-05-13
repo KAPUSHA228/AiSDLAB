@@ -13,10 +13,12 @@
 #include "Expression/Expression.h"
 #include "Expression/StatementExpression.h"
 #include "Expression/ConditionExpression.h"
+#include "Expression/FunctionDistributor.h"
 using namespace std;
 class TPostfixCalc
 {
 private:
+    vector<Token> storageNamesOfFunctions;
     SearchTreeTable<string, string>table;
     string type;
     vector<Token> infix;
@@ -88,6 +90,7 @@ public:
     ~TPostfixCalc() = default;
     void setData(string key,string type){ table.Insert(key,type);}
     SearchTreeTable<string,string> getTable(){return table;}
+    void add(Token T){ storageNamesOfFunctions.push_back(T);}
     void ChangeEquation(string eq){
         Lexer lexer(eq);
         infix=lexer.getTokenList();
@@ -147,16 +150,25 @@ public:
             int i=0;
             while((infix[i].getValue()!=":")&&(i!=(infix.size()-1))){i++;} // токен ":" присутствует только в объявлениях и константах
             if(i==(infix.size()-1)){  //соответственно, если дошли до конца, то значит ":" не нашли и просто билдим
-                Build();
+                if (infix[2].getType()=="VARIABLE"){
+                    for(auto item: storageNamesOfFunctions){
+                        if(item.getValue()==infix[2].getValue()){
+                            FunctionDistributor* fd = new FunctionDistributor(infix);
+
+                        }
+                    }
+                }
+                else {
+                    Build();}
                 infixStorage.pop_back();
             }
             else
             {
-                if(i!=infix.size()-2)
+                if(i!=infix.size()-2)// у констант токен ":" находится не на последнем месте
                 {
                     table.Insert(infix[0].getValue(),infix[4].getValue(),infix[2].getValue());
                 }
-                else
+                else //если докатились до этого, то это точно что-то из var
                 {
                     toDeclarate(infix);
                 }

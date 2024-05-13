@@ -12,11 +12,11 @@
 #include <vector>
 class Function: public Expression {
 private:
+    Token name;
     std::vector<Expression*> expressionList;
     std::vector<Token> declaration;
     std::vector<Token> localList;
     int globalPosFun;
-
 public:
     Function(int pos, vector<Token> list){
         doFunction(pos,list);
@@ -31,6 +31,7 @@ public:
             declaration.push_back(list[globalPosFun]);
             globalPosFun++;
         }
+        name = declaration[1];
         globalPosFun++; globalPosFun++;
         while(list[globalPosFun].getType() != "ENDofCycle"){
             if(((list[globalPosFun].getType() == "CONDITION")) || //если хоть какую-то в нем вложенность находим
@@ -56,6 +57,7 @@ public:
         globalPosFun++;
         return;
     }
+    Token getName(){return name;}
     void print(int tab) override{}
     int getPos(){ return globalPosFun;}
 };

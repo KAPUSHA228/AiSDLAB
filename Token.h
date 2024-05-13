@@ -40,6 +40,12 @@ public:
     int getPos() {
         return this->pos;
     }
+    Token& operator=(const Token& other) {
+        this->type = other.type;
+        this->value = other.value;
+        this->pos=other.pos;
+        return *this;
+    }
     friend std::ostream& operator<<(std::ostream& ostr, const Token& v)
     {
        return ostr;

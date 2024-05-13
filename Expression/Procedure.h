@@ -12,13 +12,14 @@
 #include <vector>
 class Procedure: public  Expression{
 private:
+    Token name;
     std::vector<Expression*> expressionList;
     std::vector<Token> declaration;
     std::vector<Token> localList;
     int globalPosProc;
 public:
     Procedure(int pos, vector<Token> list){
-        doProcedure(pos,std::move(list));
+        doProcedure(pos,list);
     }
     Procedure( const Procedure& ex){
         this->declaration=ex.declaration;
@@ -27,9 +28,10 @@ public:
     void doProcedure(int pos, vector<Token> list){
         globalPosProc=pos;
         while(list[globalPosProc].getType() != "SEMICOLON"){
-            declaration.push_back(list[pos]);
+            declaration.push_back(list[globalPosProc]);
             globalPosProc++;
         }
+        name = declaration[1];
         globalPosProc++; globalPosProc++;
         while(list[globalPosProc].getType() != "ENDofCycle"){
             if(((list[globalPosProc].getType() == "CONDITION")) || //если хоть какую-то в нем вложенность находим
@@ -55,6 +57,7 @@ public:
         globalPosProc++;
         return;
     }
+    Token getName(){return name;}
     void print(int tab) override{}
     int getPos(){ return globalPosProc;}
 };
