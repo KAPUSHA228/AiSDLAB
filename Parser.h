@@ -41,7 +41,7 @@ public:
         initDeclaration();
         tohierarchy();
         vector<vector<Token>> copyIf;
-       /*for(auto item:expressionList){
+        for(auto item:expressionList){
             if (auto statementExpr = dynamic_cast<StatementExpression*>(item.first))
             {
                 calc.ChangeEquation(*statementExpr); // Вызов метода для StatementExpression
@@ -62,10 +62,10 @@ public:
                 calc.ChangeEquation(*conditionExpr); // Вызов метода для ConditionExpression
             }
             else if  (auto CaseExpr = dynamic_cast<CaseOf*>(item.first)) {
-                calc.ChangeEquation(*conditionExpr);
+                calc.ChangeEquation(*CaseExpr);
             }
             else{ continue;}
-        } */cout<<endl;
+        } cout<<endl;
         //calc.getTable().root->print();  cout<<endl;
         //hierarchyList.print(hierarchyList.getRoot()); cout<<endl;
         //this->print();

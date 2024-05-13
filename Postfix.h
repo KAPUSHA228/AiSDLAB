@@ -173,6 +173,7 @@ public:
                     }
                     else {Build();}
                 }
+                else {Build();}
                 infixStorage.pop_back();
             }
             else
@@ -319,7 +320,31 @@ public:
         }
         return;
     }
-    void ChangeEquation(CaseOf sw){}
+    void ChangeEquation(CaseOf sw){
+        string s= sw.getVal().getValue();
+        string value = table.findNode(sw.getVal().getValue(), table.root)->data.value; //вытащил переменную switch
+        bool shouldBreak = false;
+        for (auto item:sw.getBody()){
+            for(auto item2: item.first){
+                if(item2.getValue()==value){
+                    for(auto item3:item.second){
+                        if (auto statementExpr = dynamic_cast<StatementExpression*>(item3))
+                        {
+                            this->ChangeEquation(*statementExpr); // Вызов метода для StatementExpression
+                        }
+                        else if (auto conditionExpr = dynamic_cast<ConditionExpression*>(item3))
+                        {
+                            this->ChangeEquation(*conditionExpr); // Вызов метода для ConditionExpression
+                        }
+                    }
+                    shouldBreak=true;
+                    break;
+                }
+            }
+            if (shouldBreak) {return;}
+        }
+        sw.getBody().back().second; //выполнить по ветке else как в default
+    }
     vector<Token> GetInf() { return infix; }
     vector<Token> GetPost() { return postfix; }
     string GetRes(){  return res; }
@@ -834,12 +859,12 @@ public:
                             continue;
                         }
                         if(postfix[i].getValue() == "div") {
-                            std::pair p={to_string(std::stod(p2.first) / std::stod(p1.first)),"VALUEREAL"};
+                            std::pair p={to_string((int)(std::stod(p2.first) / std::stod(p1.first))),"VALUEREAL"};
                             operandStack.Push(p);
                             continue;
                         }
                         if(postfix[i].getValue() == "mod") {
-                            std::pair p={to_string(fmod(std::stod(p2.first), std::stod(p1.first))),"VALUEREAL"};
+                            std::pair p={to_string((int)fmod(std::stod(p2.first), std::stod(p1.first))),"VALUEREAL"};
                             operandStack.Push(p);
                             continue;
                         }

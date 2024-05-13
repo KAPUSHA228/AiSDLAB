@@ -4,8 +4,6 @@
 
 #ifndef CASEOF_H
 #define CASEOF_H
-
-
 #include <vector>
 #include "Expression.h"
 #include "../Token.h"
@@ -14,12 +12,13 @@ private:
     Token value;
     vector<std::pair<vector<Token>,vector<Expression*>>> body;
     int globalPosCase;
-
 public:
     CaseOf(){value=Token();};
     CaseOf(int pos, vector<Token>list){
         doSwitch(pos,list);
     }
+    Token getVal(){return value;}
+    vector<std::pair<vector<Token>,vector<Expression*>>> getBody(){return body;}
     void doSwitch(int pos, vector<Token>list){
         globalPosCase=pos;
         globalPosCase++;

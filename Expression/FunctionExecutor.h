@@ -15,15 +15,15 @@ private:
     vector<Token> list;
     string ans;
 public:
-    FunctionExecutor(vector<Token> vec, vector<Token> head, vector<Expression*> exp){
-        list=vec;
-        ParseFunction(vec, head, exp);
+    FunctionExecutor(vector<Token> argue, vector<Token> head, vector<Expression*> exp){
+        list=argue;
+        ParseFunction(argue, head, exp);
     }
     FunctionExecutor& operator=(const FunctionExecutor& other) {
         this->list=other.list;
         return *this;
     }
-    void ParseFunction(vector<Token> vec, vector<Token> head, vector<Expression*> exp){
+    void ParseFunction(vector<Token> argue, vector<Token> head, vector<Expression*> exp){
 
     }
     vector<Token>getList(){return list;}
