@@ -41,7 +41,7 @@ public:
         initDeclaration();
         tohierarchy();
         vector<vector<Token>> copyIf;
-        for(auto item:expressionList){
+       /* for(auto item:expressionList){
             if (auto statementExpr = dynamic_cast<StatementExpression*>(item.first)) {
                 calc.ChangeEquation(*statementExpr); // Вызов метода для StatementExpression
             } else if (auto conditionExpr = dynamic_cast<ConditionExpression*>(item.first)) {
@@ -58,7 +58,7 @@ public:
                     (*conditionExpr).setCondition(newCon);}
                 calc.ChangeEquation(*conditionExpr); // Вызов метода для ConditionExpression
             }
-        } cout<<endl;
+        } */cout<<endl;
         //calc.getTable().root->print();  cout<<endl;
         //hierarchyList.print(hierarchyList.getRoot()); cout<<endl;
         //this->print();
@@ -126,6 +126,7 @@ public:
                 currentPos=sw->getPos();
                 std::pair t{sw,"Body"};
                 expressionList.push_back(t);
+                continue;
             }
             if ((isTypeToken("CONDITION"))||(isTypeToken("UNCONDITION"))||(isTypeToken("CYCLEFOR"))||
                 (isTypeToken("CYCLEWHILE"))||(isTypeToken("CYCLEDOWHILE")))
@@ -134,6 +135,7 @@ public:
                 currentPos = cx->getGlobalPos();
                 std::pair t={cx,"Body"};
                 expressionList.push_back(t);
+                continue;
 
             }
             else
