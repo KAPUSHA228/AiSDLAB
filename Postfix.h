@@ -13,12 +13,13 @@
 #include "Expression/Expression.h"
 #include "Expression/StatementExpression.h"
 #include "Expression/ConditionExpression.h"
-#include "Expression/FunctionDistributor.h"
+#include "Expression/FunctionExecutor.h"
+#include "Expression/CaseOf.h"
 using namespace std;
 class TPostfixCalc
 {
 private:
-    vector<Token> storageNamesOfFunctions;
+    vector<Expression*> storageOfFunctions;
     SearchTreeTable<string, string>table;
     string type;
     vector<Token> infix;
@@ -77,7 +78,6 @@ public:
         operationStack = TStack<string>();
         operandStack = TStack<std::pair<string,string>>();
         res = string();
-
     }
     TPostfixCalc(const TPostfixCalc& c){
         if (&c == this) throw std::runtime_error{"odinakovo nasrano"};
@@ -90,7 +90,7 @@ public:
     ~TPostfixCalc() = default;
     void setData(string key,string type){ table.Insert(key,type);}
     SearchTreeTable<string,string> getTable(){return table;}
-    void add(Token T){ storageNamesOfFunctions.push_back(T);}
+    void add(Expression* ex){ storageOfFunctions.push_back(ex);}
     void ChangeEquation(string eq){
         Lexer lexer(eq);
         infix=lexer.getTokenList();
@@ -151,15 +151,28 @@ public:
             while((infix[i].getValue()!=":")&&(i!=(infix.size()-1))){i++;} // токен ":" присутствует только в объявлениях и константах
             if(i==(infix.size()-1)){  //соответственно, если дошли до конца, то значит ":" не нашли и просто билдим
                 if (infix[2].getType()=="VARIABLE"){
-                    for(auto item: storageNamesOfFunctions){
-                        if(item.getValue()==infix[2].getValue()){
-                            FunctionDistributor* fd = new FunctionDistributor(infix);
-
+                    if(searchFuncs()){
+                        for(auto item: storageOfFunctions){
+                            if (auto funcExpr = dynamic_cast<Function*>(item))
+                            {
+                                if(funcExpr->getName().getValue()==infix[2].getValue())
+                                {
+                                    FunctionExecutor* fe = new FunctionExecutor(infix,funcExpr->getHead(),funcExpr->getBody());
+                                    break;
+                                }
+                            }
+                            if (auto procExpr = dynamic_cast<Procedure*>(item))
+                            {
+                                if(procExpr->getName().getValue()==infix[2].getValue())
+                                {
+                                    FunctionExecutor *fe = new FunctionExecutor(infix, procExpr->getHead(),procExpr->getBody());
+                                    break;
+                                }
+                            }
                         }
                     }
+                    else {Build();}
                 }
-                else {
-                    Build();}
                 infixStorage.pop_back();
             }
             else
@@ -176,6 +189,23 @@ public:
             }
             return;
         }
+    }
+    bool searchFuncs(){
+        for(auto item: storageOfFunctions){
+            if (auto funcExpr = dynamic_cast<Function*>(item))
+            {
+                if(funcExpr->getName().getValue()==infix[2].getValue()){
+                    return true;
+                }
+            }
+            if (auto procExpr = dynamic_cast<Procedure*>(item))
+            {
+                if(procExpr->getName().getValue()==infix[2].getValue()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
     void toDeclarate(vector<Token> s){
         string str=s.back().getType();
@@ -289,6 +319,7 @@ public:
         }
         return;
     }
+    void ChangeEquation(CaseOf sw){}
     vector<Token> GetInf() { return infix; }
     vector<Token> GetPost() { return postfix; }
     string GetRes(){  return res; }

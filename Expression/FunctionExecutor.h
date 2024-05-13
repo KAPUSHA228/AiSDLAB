@@ -10,26 +10,21 @@
 #include "Expression.h"
 #include "Function.h"
 #include "Procedure.h"
-class FunctionDistributor: public Expression{
+class FunctionExecutor: public Expression{
 private:
     vector<Token> list;
     string ans;
 public:
-    FunctionDistributor(vector<Token> vec){
-        list=std::move(vec);
-        ParseFunction(vec);
+    FunctionExecutor(vector<Token> vec, vector<Token> head, vector<Expression*> exp){
+        list=vec;
+        ParseFunction(vec, head, exp);
     }
-    FunctionDistributor& operator=(const FunctionDistributor& other) {
+    FunctionExecutor& operator=(const FunctionExecutor& other) {
         this->list=other.list;
         return *this;
     }
-    void ParseFunction(vector<Token> vec){
-        if(vec[2].getValue()=="AddNumbers"){
+    void ParseFunction(vector<Token> vec, vector<Token> head, vector<Expression*> exp){
 
-        }
-        if (vec[2].getValue()=="GreetUser"){
-
-        }
     }
     vector<Token>getList(){return list;}
     void print(int tab) override{

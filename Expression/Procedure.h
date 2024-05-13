@@ -57,6 +57,8 @@ public:
         globalPosProc++;
         return;
     }
+    vector<Expression*> getBody(){ return expressionList;}
+    vector<Token> getHead(){return declaration;}
     Token getName(){return name;}
     void print(int tab) override{}
     int getPos(){ return globalPosProc;}

@@ -85,16 +85,14 @@ public:
             Function* sw= new Function(currentPos,tokenList);
             currentPos=sw->getPos();
             std::pair t{sw,"Var"};
-            Token m = sw->getName();
-            calc.add(m);
+            calc.add(sw);
             expressionList.push_back(t);
         }
         if(isTypeToken("PROCEDURE")){
             Procedure* sw= new Procedure(currentPos,tokenList);
             currentPos=sw->getPos();
             std::pair t{sw,"Var"};
-            Token m = sw->getName();
-            calc.add(m);
+            calc.add(sw);
             expressionList.push_back(t);
         }
         if(isTypeToken("CONST")){
