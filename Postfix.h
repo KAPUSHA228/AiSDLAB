@@ -157,7 +157,8 @@ public:
                             {
                                 if(funcExpr->getName().getValue()==infix[2].getValue())
                                 {
-                                    FunctionExecutor* fe = new FunctionExecutor(infix,funcExpr->getHead(),funcExpr->getBody());
+                                    FunctionExecutor* fe = new FunctionExecutor(infix,funcExpr->getHead(),funcExpr->getBody(), table);
+                                    string ans;
                                     break;
                                 }
                             }
@@ -165,13 +166,17 @@ public:
                             {
                                 if(procExpr->getName().getValue()==infix[2].getValue())
                                 {
-                                    FunctionExecutor *fe = new FunctionExecutor(infix, procExpr->getHead(),procExpr->getBody());
+                                    FunctionExecutor *fe = new FunctionExecutor(infix, procExpr->getHead(),procExpr->getBody(), table);
                                     break;
                                 }
                             }
                         }
                     }
-                    else {Build();}
+                    else {
+                        table.findNode(infix[2].getValue(),table.root)==nullptr
+                        ? throw std::runtime_error{"No found that name of function"}
+                        :Build();
+                    }
                 }
                 else {Build();}
                 infixStorage.pop_back();

@@ -119,7 +119,7 @@ public:
     }
     void Change(Key key,Value val, string ty){
         Node* node=findNode(key,root);
-        if(node== nullptr){ throw std::runtime_error{"Variable wasn't declared, fix pls"};}//Insert(key,val,"TYPEINTEGER");}
+        if(node == nullptr){ throw std::runtime_error{"Variable wasn't declared, fix pls"};}//Insert(key,val,"TYPEINTEGER");}
         else{
             node->data.value=val;
             node->data.type=ty;}
