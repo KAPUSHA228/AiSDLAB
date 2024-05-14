@@ -9,6 +9,7 @@
 #include "Expression.h"
 #include "Function.h"
 #include "Procedure.h"
+#include "../Postfix.h"
 class FunctionExecutor: public Expression{
 private:
     vector<Expression*> expressionList;

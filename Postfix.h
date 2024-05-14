@@ -157,7 +157,17 @@ public:
                             {
                                 if(funcExpr->getName().getValue()==infix[2].getValue())
                                 {
-                                    FunctionExecutor* fe = new FunctionExecutor(infix,funcExpr->getHead(),funcExpr->getBody(), table);
+                                    FunctionExecutor* fe = new FunctionExecutor(infix,funcExpr->getHead(), table);
+                                    for(auto item:funcExpr->getBody()){
+                                        if (auto statementExpr = dynamic_cast<StatementExpression*>(item))
+                                        {
+                                            ChangeEquation(*statementExpr); // Вызов метода для StatementExpression
+                                        }
+                                        else if (auto conditionExpr = dynamic_cast<ConditionExpression*>(item))
+                                        {
+                                            ChangeEquation(*conditionExpr); // Вызов метода для ConditionExpression
+                                        }
+                                    }
                                     string ans;
                                     break;
                                 }
@@ -166,7 +176,17 @@ public:
                             {
                                 if(procExpr->getName().getValue()==infix[2].getValue())
                                 {
-                                    FunctionExecutor *fe = new FunctionExecutor(infix, procExpr->getHead(),procExpr->getBody(), table);
+                                    FunctionExecutor *fe = new FunctionExecutor(infix, procExpr->getHead(), table);
+                                    for(auto item:procExpr->getBody()){
+                                        if (auto statementExpr = dynamic_cast<StatementExpression*>(item))
+                                        {
+                                            ChangeEquation(*statementExpr); // Вызов метода для StatementExpression
+                                        }
+                                        else if (auto conditionExpr = dynamic_cast<ConditionExpression*>(item))
+                                        {
+                                            ChangeEquation(*conditionExpr); // Вызов метода для ConditionExpression
+                                        }
+                                    }
                                     break;
                                 }
                             }
@@ -175,7 +195,7 @@ public:
                     else {
                         table.findNode(infix[2].getValue(),table.root)==nullptr
                         ? throw std::runtime_error{"No found that name of function"}
-                        :Build();
+                        : Build();
                     }
                 }
                 else {Build();}
