@@ -321,7 +321,6 @@ public:
         return;
     }
     void ChangeEquation(CaseOf sw){
-        string s= sw.getVal().getValue();
         string value = table.findNode(sw.getVal().getValue(), table.root)->data.value; //вытащил переменную switch
         bool shouldBreak = false;
         for (auto item:sw.getBody()){
@@ -343,7 +342,15 @@ public:
             }
             if (shouldBreak) {return;}
         }
-        sw.getBody().back().second; //выполнить по ветке else как в default
+        if(!shouldBreak) {
+            for (auto item: sw.getBody().back().second) {
+                if (auto statementExpr = dynamic_cast<StatementExpression *>(item)) {
+                    this->ChangeEquation(*statementExpr); // Вызов метода для StatementExpression
+                } else if (auto conditionExpr = dynamic_cast<ConditionExpression *>(item)) {
+                    this->ChangeEquation(*conditionExpr); // Вызов метода для ConditionExpression
+                }
+            }
+        }
     }
     vector<Token> GetInf() { return infix; }
     vector<Token> GetPost() { return postfix; }
