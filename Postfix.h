@@ -158,8 +158,8 @@ public:
                                 if(funcExpr->getName().getValue()==infix[2].getValue())
                                 {
                                     string name =funcExpr->getName().getValue();
-                                    string returnType = funcExpr->getHead()[funcExpr->getHead().size()-1].getValue();
-                                    table.Change(name, string(),returnType);
+                                    string returnType = funcExpr->getHead()[funcExpr->getHead().size()-1].getType();
+                                    table.Insert(name,returnType);
                                     FunctionExecutor* fe = new FunctionExecutor(infix,funcExpr->getHead(), table);
                                     for(auto item:funcExpr->getBody()){
                                         if (auto statementExpr = dynamic_cast<StatementExpression*>(item))
@@ -182,9 +182,6 @@ public:
                             {
                                 if(procExpr->getName().getValue()==infix[2].getValue())
                                 {
-                                    string name =procExpr->getName().getValue();
-                                    string returnType = procExpr->getHead()[procExpr->getHead().size()-1].getValue();
-                                    table.Change(name, string(),returnType);
                                     FunctionExecutor* fe = new FunctionExecutor(infix,procExpr->getHead(), table);
                                     for(auto item:procExpr->getBody()){
                                         if (auto statementExpr = dynamic_cast<StatementExpression*>(item))
@@ -196,10 +193,6 @@ public:
                                             ChangeEquation(*conditionExpr); // Вызов метода для ConditionExpression
                                         }
                                     }
-                                    table.Change(infix[0].getValue(),
-                                                 table.findNode(name,table.root)->data.value,
-                                                 table.findNode(name,table.root)->data.type);
-
                                     break;
                                 }
                             }

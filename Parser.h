@@ -66,7 +66,7 @@ public:
             }
             else{ continue;}
         } cout<<endl;
-        //calc.getTable().root->print();  cout<<endl;
+        calc.getTable().root->print();  cout<<endl;
         //hierarchyList.print(hierarchyList.getRoot()); cout<<endl;
         //this->print();
     }
