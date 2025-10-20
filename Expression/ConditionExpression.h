@@ -12,18 +12,17 @@ static int y=0;
 static int posofEndofIf=0; //только для вложенных случаев нужен
 class ConditionExpression: public Expression{
 private:
+    int y1;
     std::vector<Expression*> expressionList;
     std::vector<Token> condition;
     std::vector<Token> localList;
 public:
     static int getGlobalPos(){return posofEndofIf;}
     ConditionExpression(int pos, vector<Token>list){
+        y1=++y;
         doCondition(pos,list);
     }
-    ConditionExpression( const ConditionExpression& ex){
-        this->condition=ex.condition;
-        this->expressionList=ex.expressionList;
-    }
+
     vector<Token> getCondition(){return condition;}
     void setCondition(vector<Token> con){this->condition=con;}
     std::pair<vector<Token>, vector<Expression*>> getBody() {
@@ -163,10 +162,14 @@ public:
         for(int j=0;j<tab;j++){
             cout<<"   ";
         }
-       std::cout<<"ConditionExpression "<<++y<<" = ";
+       std::cout<<"ConditionExpression "<<y1<<" = ";
        if(condition[0].getValue()!="else"){
            for(auto token:condition)
-           { std::cout<<token.getValue()<<" "; } std::cout<<endl;}
+           {
+               std::cout<<token.getValue()<<" ";
+           }
+           std::cout<<endl;
+       }
        else{std::cout<<"else"<<endl;}
        if(!expressionList.empty())
        {

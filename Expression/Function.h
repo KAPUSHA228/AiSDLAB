@@ -60,7 +60,9 @@ public:
     Token getName(){return name;}
     vector<Expression*> getBody(){ return expressionList;}
     vector<Token> getHead(){return declaration;}
-    void print(int tab) override{}
+    void print(int tab) override{
+
+    }
     int getPos(){ return globalPosFun;}
 };
 

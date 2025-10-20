@@ -19,13 +19,12 @@
 #include "Expression/Procedure.h"
 
 using namespace std;
-int number = 0;
 
 class AgeException : public std::exception {
 public:
     AgeException(std::string message) : message(std::move(message)) {}
 
-    std::string getMessage() const {
+    [[nodiscard]] std::string getMessage() const {
         std::cout << message;
         return message;
     }
@@ -138,18 +137,19 @@ public:
     }
 
     void print() {
-        for (auto item: expressionList) { item.first->print(number); }
+        for (auto item: expressionList) {
+            item.first->print(0);
+        }
     }
 
-    void
-    initRowStatement(string chapter) {//метод чтобы строчку кода (не условие и не цикл) переводить в StatementExpression
+    void initRowStatement(string chapter) {//метод чтобы строчку кода (не условие и не цикл) переводить в StatementExpression
         while (!isTypeToken("SEMICOLON")) {
             localList.push_back(tokenList[currentPos]);
             currentPos++;
         }
         auto *rx = new StatementExpression(localList);
         std::pair t = {rx, chapter};
-        expressionList.push_back(t);
+        expressionList.emplace_back(t);
         localList.clear();
         currentPos++;
         return;

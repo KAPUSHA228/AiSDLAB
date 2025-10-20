@@ -11,18 +11,19 @@
 #include "../Expression/ConditionExpression.h"
 #include "../Expression/CaseOf.h"
 
+static int id = 1;
+static int tmpid = 0;
+
 struct FlowchartFromExpressions {
     static std::string build(const std::vector<Expression *> &exprs) {
         std::ostringstream out; // Будет содержать итоговый Mermaid-код
         std::string last; // Текущая позиция в графе для соединения узлов
-        int id = 0;
-        out << "graph TD\n";
-        // out << "N" << (++id) << "([" + title + "])\n";
-        out << "N" << (++id) << "([program qq])\n";
         last = "N" + std::to_string(id);
         size_t i = 0;
+        std::cout << "EBEBE" << std::endl;
         while (i < exprs.size()) {
             Expression *e = exprs[i];
+            e->print(0);
             if (auto st = dynamic_cast<StatementExpression *>(e)) {
                 //std::cout<<"EX "<<st->getList()[0].getValue()<<std::endl;
                 std::string node =
@@ -36,71 +37,33 @@ struct FlowchartFromExpressions {
                 continue;
             }
             if (auto cx = dynamic_cast<ConditionExpression *>(e)) {
-                bool isElse = !cx->getCondition().empty() && cx->getCondition().front().getValue() == "else";
-                if (!isElse) {
+                bool isElseOrRepeat = (!cx->getCondition().empty()) &&
+                                      (cx->getCondition().front().getValue() == "else" ||
+                                       cx->getCondition().front().getValue() == "repeat");
+                if (!isElseOrRepeat) {
                     std::string node = newDecision(out, ++id, tokensToLine(cx->getCondition()));
+                    tmpid = id;
                     link(out, last, node);
                     last = node;
                     ++i;
-                    continue;
                 }
-                {std::string node = newProcess(out, ++id, "else");
-                link(out, last, node);
-                last = node;
-                ++i;}
-
-
-                // decision node
-                std::string cond = tokensToLine(cx->getCondition());
-                std::string dec = newDecision(out, ++id, cond);
-                link(out, last, dec);
-
-                // yes branch
-                std::string yesTail = dec;
                 const auto body = cx->getBody().second;
                 std::string f = FlowchartFromExpressions::build(body);
+                link(out, last, f);
+                last = f;
 
+                //std::cout << "BUBUBU" << f << std::endl;
+                //std::string node = newProcess(out, ++id, "else");
+                //link(out, last, node);
+                //last = node;
+                //++i;
+                // decision node
+//                std::string cond = tokensToLine(cx->getCondition());
+//                std::string dec = newDecision(out, ++id, cond);
+//                link(out, last, dec);
+//                // yes branch
+//                std::string yesTail = dec;
 
-                // no branch
-                std::string noTail = dec;
-                if (i + 1 < exprs.size()) {
-                    if (auto nextCx = dynamic_cast<ConditionExpression *>(exprs[i + 1])) {
-                        bool isElse2 = !nextCx->getCondition().empty() && nextCx->getCondition().front().getValue() == "else";
-                        if (isElse2) {
-                            const auto body2 = nextCx->getBody().second;
-                            for (auto *inner: body2) {
-                                if (auto st3 = dynamic_cast<StatementExpression *>(inner)) {
-                                    std::string n3 = newProcess(out, ++id, tokensToLine(st3->getList()));
-                                    out << dec << " -- No --> " << n3 << "\n";
-                                    noTail = n3;
-                                } else {
-                                    std::string n3 = newProcess(out, ++id, "nested");
-                                    out << dec << " -- No --> " << n3 << "\n";
-                                    noTail = n3;
-                                }
-                            }
-                            ++i; // consume else
-                        } else {
-                            std::string skip = newProcess(out, ++id, "skip");
-                            out << dec << " -- No --> " << skip << "\n";
-                            noTail = skip;
-                        }
-                    } else {
-                        std::string skip = newProcess(out, ++id, "skip");
-                        out << dec << " -- No --> " << skip << "\n";
-                        noTail = skip;
-                    }
-                } else {
-                    std::string skip = newProcess(out, ++id, "skip");
-                    out << dec << " -- No --> " << skip << "\n";
-                    noTail = skip;
-                }
-
-                // merge point
-                std::string merge = newProcess(out, ++id, "merge");
-                out << yesTail << " --> " << merge << "\n";
-                out << noTail << " --> " << merge << "\n";
-                last = merge;
                 ++i;
                 continue;
             }
@@ -113,8 +76,8 @@ struct FlowchartFromExpressions {
             }
             ++i;
         }
-        out << "N" << (++id) << "([End])\n";
-        out << last << " --> N" << id << "\n";
+        out << "N" << (id) << "([End])\n";
+        //link(out,"N" + std::to_string(--(--id)),"N" + std::to_string(--id));
         return out.str();
     }
 
@@ -132,7 +95,7 @@ private:
     static std::string newProcess(std::ostringstream &out, int id, const std::string &label) {
         std::string node = "N" + std::to_string(id);
         std::string lab = escape(label);
-        out << node << "[" << lab << "]\n";
+        out << node << "[\"" << lab << "\"]\n";
 
         return node;
     }
@@ -140,11 +103,11 @@ private:
     static std::string newOut(std::ostringstream &out, int id, const std::string &label) {
         std::string node = "N" + std::to_string(id);
         std::string lab = escape(label);
-        out << node << "[/" << lab << "/]\n";
+        out << node << "[/\"" << lab << "\"/]\n";
         return node;
     }
 
-    static std::string newDecision(std::ostringstream &out, int& id, const std::string &label) {
+    static std::string newDecision(std::ostringstream &out, int &id, const std::string &label) {
         std::string node = "N" + std::to_string(id);
         out << node << "{\"" << escape(label) << "\"}\n";
         return node;
