@@ -1,6 +1,9 @@
 #include <string>
 #include "Lexer.h"
 #include "Parser.h"
+#include <fstream>
+#include "Flowchart/FromExpressions.h"
+#include "Flowchart/ExporterJson.h"
 using namespace std;
 int main() {
     string test= "var"
@@ -33,8 +36,8 @@ int main() {
                 "Res, d: real;"
                 "res2: string;"
             "begin"
-                "Read ( Res ) ;"
-                "Writeln ('From Read ' , Res ) ;"
+                //"Read ( Res ) ;"
+                //"Writeln ('From Read ' , Res ) ;"
                 "num1 := 12 div 2;"
                // "num1 := AddNumbers ( PI , PI);"
                "case num1 of"
@@ -89,6 +92,22 @@ int main() {
     Parser parser(lexer);
     try{ parser.parse(); }
     catch(AgeException& e){ e.getMessage();}
+    // Экспорт блок-схемы по существующим Expression (Mermaid и JSON)
+    {
+        const auto &exprs = parser.getExpressionsOnly();
+        parser.print();
+        std::cout<<parser.getTitle()<<std::endl;
+                                                    //parser.getTitle()
+        std::string mmd = FlowchartFromExpressions::build(exprs);
+        std::ofstream f("flowchart.mmd");
+        f << mmd;
+        f.close();
+
+        std::string json = FlowchartExporterJson::toJson(exprs);
+        std::ofstream f2("flowchart.json");
+        f2 << json;
+        f2.close();
+    }
     /*TPostfixCalc c;
     string s1 ="b : integer ";
     string s2="a : integer ";
