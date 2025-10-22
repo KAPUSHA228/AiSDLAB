@@ -40,18 +40,29 @@ int main() {
 //                "end;"
                 "if 5 mod 3 > 0 then begin"
                     "Writeln ('Yes,if 1 ');"
+                    "Writeln ('Yes,if 2 ');"
                 "end"
-//                "else begin"
-//                    "Writeln ('No,else 1 ');"
-//                "end;"
+                "else begin"
+                    "Writeln ('No,else 1 ');"
+                    "Writeln ('No,else 2 ');"
+                "end;"
+                "if 5 mod 3 > 0 then begin"
+                    "Writeln ('Yes,if 1 ');"
+                    "Writeln ('Yes,if 2 ');"
+                "end"
+                "else begin"
+                    "Writeln ('No,else 1 ');"
+                    "Writeln ('No,else 2 ');"
+                "end;"
+                "res2 := 'Hello world' ;"
+                "num1 := 2 ;"
+
 //                "if 5 mod 3 = 0 then begin"
 //                    "Writeln ('Yes,if 2 ');"
 //                "end"
 //                "else begin"
 //                    "Writeln ('No,else 2 ');"
 //                "end;"
-//                "res2 := 'Hello world' ;"
-//                "num1 := 2 ;"
 //                "Writeln ('From table ' , num1);"
 //                "if PI <> num1 then begin"
 //                    "Writeln( 'Pim' );"
@@ -77,16 +88,20 @@ int main() {
             "end.";
     Lexer lexer(test_text);
     Parser parser(lexer);
-    try{ parser.parse(); }
-    catch(AgeException& e){ e.getMessage();}
+//    try{ parser.parse(); }
+    parser.initDeclaration();
+
+//    catch(AgeException& e){ e.getMessage();}
     // Экспорт блок-схемы по существующим Expression (Mermaid и JSON)
 
         const auto &exprs = parser.getExpressionsOnly();
         //parser.print();
-        std::string mmd = FlowchartFromExpressions::build(exprs);
+        auto* ffe=new FlowchartFromExpressions(exprs);
+        std::string mmd = ffe->build(exprs);
         std::ofstream f("flowchart.mmd");
         f << "graph TD\n";
         f << "N1" << "(["<<parser.getTitle()<<"])\n";
+        f << "N1 --> N2\n";
         f << mmd;
         f.close();
 
