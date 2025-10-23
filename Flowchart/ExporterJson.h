@@ -1,5 +1,3 @@
-// JSON exporter for flowchart built from existing Expression objects
-
 #ifndef FLOWCHART_EXPORTER_JSON_H
 #define FLOWCHART_EXPORTER_JSON_H
 
@@ -105,6 +103,7 @@ struct FlowchartExporterJson {
             if (auto sw = dynamic_cast<CaseOf *>(e)) {
                 std::string n = addNode(st, "Decision", "case ... of");
                 addEdge(st, last, n, "");
+                Token t =sw->getVal();
                 last = n;
                 ++i;
                 continue;

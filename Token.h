@@ -27,10 +27,12 @@ public:
         this->value = std::move(value);
         this->pos = pos;
     }
-
-    void setType(std::string type) {
-        this->type = type;
-    }
+    Token(const Token& other) {
+        this->type = other.type;
+        this->value = other.value;
+        this->pos = other.pos;
+    };
+    
     std::string getType() {
         return this->type;
     }
@@ -48,6 +50,7 @@ public:
     }
     friend std::ostream& operator<<(std::ostream& ostr, const Token& v)
     {
+        std::cout<<v.type;
        return ostr;
     }
 };

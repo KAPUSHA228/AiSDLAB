@@ -1,5 +1,3 @@
-// Generate Mermaid flowchart from existing Expression objects (no AST required)
-
 #ifndef FLOWCHART_FROM_EXPRESSIONS_H
 #define FLOWCHART_FROM_EXPRESSIONS_H
 
@@ -18,6 +16,7 @@ class FlowchartFromExpressions {
 public:
     int tmpCondId[3] = {-1, -1, -1}; //tmp массив, преимущественно для if/else конструкций
     FlowchartFromExpressions() = default;
+
     std::string build(const std::vector<Expression *> &exprs) {
         layer++;
         std::ostringstream out; // Будет содержать итоговую Mermaid-разметку
@@ -32,14 +31,28 @@ public:
                         st->getList()[0].getValue() == "Readln" || st->getList()[0].getValue() == "Read"
                         ? newOut(out, ++id, tokensToLine(st->getList()))
                         : newProcess(out, ++id, tokensToLine(st->getList()));
-                if (tmpCondId[2] != -1) {
-                    link(out, "N" + to_string(tmpCondId[1]), node);
-                    link(out, "N" + to_string(tmpCondId[2]), node);
-                    tmpCondId[1] = -1;
-                    tmpCondId[2] = -1;
-                } else {
-                    if ((layer == 1 && sz != 0) || sz != 0) {
-                        link(out, last, node);
+                bool skipNormalLink = false;
+
+                // Проверяем предыдущий элемент ТОЛЬКО если он существует
+                if (sz > 0) {
+                    Expression *tmpe = exprs[sz-1];
+                    if (auto tmpst = dynamic_cast<ConditionExpression *>(tmpe)) {
+                        if (tmpst->getCondition()[0].getValue() != "if" &&
+                            tmpst->getCondition()[0].getValue() != "else") {
+                            skipNormalLink = true;
+                        }
+                    }
+                }
+                if(!skipNormalLink){
+                    if (tmpCondId[2] != -1) {
+                        link(out, "N" + to_string(tmpCondId[1]), node);
+                        link(out, "N" + to_string(tmpCondId[2]), node);
+                        tmpCondId[1] = -1;
+                        tmpCondId[2] = -1;
+                    } else {
+                        if ((layer == 1 && sz != 0) || sz != 0) {
+                            link(out, last, node);
+                        }
                     }
                 }
                 last = node;
@@ -47,50 +60,62 @@ public:
                 continue;
             }
             if (auto cx = dynamic_cast<ConditionExpression *>(e)) {
-                tmpCondId[0]=id+1;//запомнить начальный элемент (условие для while/for и действие для repeat)
+                tmpCondId[0] = id + 1;//запомнить начальный элемент (условие для while/for и действие для until)
                 if (cx->getCondition().front().getValue() != "else" &&
                     cx->getCondition().front().getValue() != "until") {
                     std::string node;
-                    if(cx->getCondition().front().getValue() == "for"){
+                    if (cx->getCondition().front().getValue() == "for") {
                         node = newFor(out, ++id, tokensToLine(cx->getCondition())); // у for своя атмосфера
-                    }else{
+                    } else {
                         node = newDecision(out, ++id, tokensToLine(cx->getCondition()));  //создаём ромбик условия
                     }
-                    if (tmpCondId[2] != -1) { //если предыдущий блок содержал в себе две ветки (пресловутый if/else), то соединяем
-                        link(out, "N" + to_string(tmpCondId[1]), node);
-                        link(out, "N" + to_string(tmpCondId[2]), node);
-                        tmpCondId[1] = -1;
-                        tmpCondId[2] = -1;
-                    } else { //если одну, то тоже соединяем
-                        link(out, last, node);
+                    bool skipNormalLink = false;
+
+                    // Проверяем предыдущий элемент ТОЛЬКО если он существует
+                    if (sz > 0) {
+                        Expression *tmpe = exprs[sz-1];
+                        if (auto tmpst = dynamic_cast<ConditionExpression *>(tmpe)) {
+                            if (tmpst->getCondition()[0].getValue() != "if" &&
+                                tmpst->getCondition()[0].getValue() != "else") {
+                                skipNormalLink = true;
+                            }
+                        }
+                    }
+                    if(!skipNormalLink){
+                        if (tmpCondId[2] != -1) { //если предыдущий блок содержал в себе две ветки (пресловутый if/else), то соединяем
+                            link(out, "N" + to_string(tmpCondId[1]), node);
+                            link(out, "N" + to_string(tmpCondId[2]), node);
+                            tmpCondId[1] = -1;
+                            tmpCondId[2] = -1;
+                        } else { //если одну, то тоже соединяем
+                            link(out, last, node);
+                        }
                     }
                     last = node; //курсор на новом ромбике
                 }
                 const auto body = cx->getBody().second;
                 std::string f = build(body); //обрабатываем тело
-                if (cx->getCondition().front().getValue() == "if") { //если не Else/Repeat, то запускаем тело по ветке true
+                if (cx->getCondition().front().getValue() == "if") { //если тип if, то запускаем тело по ветке true
                     tmpCondId[1] = id;
                     link(out, last, f, "true");
-                }
-                else if(cx->getCondition().front().getValue() == "else"){ //в противном случае по false
+                } else if (cx->getCondition().front().getValue() == "else") { //в противном случае по false
                     tmpCondId[2] = id;
                     link(out, last, f, "false");
-                }
-                else if(cx->getCondition().front().getValue() == "while" || cx->getCondition().front().getValue() == "for"){
+                } else if (cx->getCondition().front().getValue() == "while" ||
+                           cx->getCondition().front().getValue() == "for") {
                     link(out, last, f, "true");
-                    link(out, "N"+ to_string(id), "N"+ to_string(tmpCondId[0]));
-                    link(out,"N"+ to_string(tmpCondId[0]), "N"+ to_string(id+1), "false");
-                }
-                else if(cx->getCondition().front().getValue() == "until"){
-                    link(out, last, f);
-                    std::string node = newDecision(out, ++id, tokensToLine(cx->getCondition())); //создаём ромбик условия
-                    link(out, "N"+ to_string(id-1), node);
-                    last=node;
-                    link(out, last, "N"+ to_string(tmpCondId[0]), "true");
-                    link(out,last, "N"+ to_string(id+1), "false");
-                }
-                else{
-                    std::cout<<"DIRBIRBEB"<<std::endl;
+                    link(out, "N" + to_string(id), "N" + to_string(tmpCondId[0]));
+                    link(out, "N" + to_string(tmpCondId[0]), "N" + to_string(id + 1), "false");
+                } else if (cx->getCondition().front().getValue() == "until") {
+                    out<<f;
+                    std::string node = newDecision(out, ++id,
+                                                   tokensToLine(cx->getCondition())); //создаём ромбик условия
+                    link(out, "N" + to_string(id - 1), node);
+                    last = node;
+                    link(out, last, "N" + to_string(tmpCondId[0]), "true");
+                    link(out, last, "N" + to_string(id + 1), "false");
+                } else {
+                    std::cout << "DIRBIRBEB" << std::endl;
                 }
                 ++sz; //следующий элемент
                 continue;
@@ -98,20 +123,24 @@ public:
             if (auto sw = dynamic_cast<CaseOf *>(e)) {
                 std::string node = newDecision(out, ++id, "case ... of");
                 link(out, last, node);
+                Token t =sw->getVal();
                 last = node;
                 ++sz;
                 continue;
             }
             if (auto sw = dynamic_cast<Procedure *>(e)) {
-                std::string node = newDecision(out, ++id, "case ... of");
-                link(out, last, node);
+                std::string node = newFunction(out, ++id, tokensToLine(sw->getHead()));
+                if ((layer == 1 && sz != 0) || sz != 0) {
+                    link(out, last, node);}
+
                 last = node;
                 ++sz;
                 continue;
             }
             if (auto sw = dynamic_cast<Function *>(e)) {
-                std::string node = newDecision(out, ++id, "case ... of");
-                link(out, last, node);
+                std::string node =  newFunction(out, ++id, tokensToLine(sw->getHead()));
+                if ((layer == 1 && sz != 0) || sz != 0) {
+                    link(out, last, node);}
                 last = node;
                 ++sz;
                 continue;
@@ -148,6 +177,13 @@ private:
 
         return node;
     }
+    std::string newFunction(std::ostringstream &out, int idd, const std::string &label) {
+        std::string node = "N" + std::to_string(idd);
+        std::string lab = escape(label);
+        out << node << "[[\"" << lab << "\"]]\n";
+
+        return node;
+    }
 
     std::string newOut(std::ostringstream &out, int idd, const std::string &label) {
         std::string node = "N" + std::to_string(idd);
@@ -161,6 +197,7 @@ private:
         out << node << "{\"" << escape(label) << "\"}\n";
         return node;
     }
+
     std::string newFor(std::ostringstream &out, int idd, const std::string &label) {
         std::string node = "N" + std::to_string(idd);
         out << node << "{{\"" << escape(label) << "\"}}\n";

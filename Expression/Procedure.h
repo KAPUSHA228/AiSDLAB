@@ -10,8 +10,10 @@
 #include "StatementExpression.h"
 #include <utility>
 #include <vector>
+static int p=0;
 class Procedure: public  Expression{
 private:
+    int p1;
     Token name;
     std::vector<Expression*> expressionList;
     std::vector<Token> declaration;
@@ -19,9 +21,11 @@ private:
     int globalPosProc;
 public:
     Procedure(int pos, vector<Token> list){
+        p1=++p;
         doProcedure(pos,list);
     }
     Procedure( const Procedure& ex){
+        p1=++p;
         this->declaration=ex.declaration;
         this->expressionList=ex.expressionList;
     }
@@ -60,7 +64,29 @@ public:
     vector<Expression*> getBody(){ return expressionList;}
     vector<Token> getHead(){return declaration;}
     Token getName(){return name;}
-    void print(int tab) override{}
+    void print(int tab) override{
+        for(int j=0;j<tab;j++){
+            cout<<"   ";
+        }
+        std::cout<<"Procedure "<<p1<<" = ";
+        for(auto token:declaration)
+        {
+            if(token.getValue()!="procedure"){
+                std::cout<<token.getValue()<<" ";
+            }
+        }
+        std::cout<<endl;
+
+        if(!expressionList.empty())
+        {
+            ++tab;
+            for(auto token2:expressionList)
+            {
+                std::cout<<"   ";token2->print(tab);
+            }
+        }
+        --tab;
+    }
     int getPos(){ return globalPosProc;}
 };
 

@@ -155,7 +155,7 @@ public:
         }
         else //отсекли консоль, теперь объявления и выражения
         {
-            int i = 0;
+            size_t i = 0;
             while ((infix[i].getValue() != ":") && (i != (infix.size() - 1))) {
                 i++;
             } // токен ":" присутствует только в объявлениях и константах
@@ -168,7 +168,7 @@ public:
                                     string name = funcExpr->getName().getValue();
                                     string returnType = funcExpr->getHead()[funcExpr->getHead().size() - 1].getType();
                                     table.Insert(name, returnType);
-                                    FunctionExecutor *fe = new FunctionExecutor(infix, funcExpr->getHead(), table);
+                                 //   FunctionExecutor *fe = new FunctionExecutor(infix, funcExpr->getHead(), table);
                                     for (auto item: funcExpr->getBody()) {
                                         if (auto statementExpr = dynamic_cast<StatementExpression *>(item)) {
                                             ChangeEquation(*statementExpr); // Вызов метода для StatementExpression
@@ -185,7 +185,7 @@ public:
                             }
                             if (auto procExpr = dynamic_cast<Procedure *>(item)) {
                                 if (procExpr->getName().getValue() == infix[2].getValue()) {
-                                    FunctionExecutor *fe = new FunctionExecutor(infix, procExpr->getHead(), table);
+                                   // FunctionExecutor *fe = new FunctionExecutor(infix, procExpr->getHead(), table);
                                     for (auto item: procExpr->getBody()) {
                                         if (auto statementExpr = dynamic_cast<StatementExpression *>(item)) {
                                             ChangeEquation(*statementExpr); // Вызов метода для StatementExpression
@@ -239,7 +239,7 @@ public:
     void toDeclarate(vector<Token> s) {
         string str = s.back().getType();
         int i = 0;
-        while (i < s.size() - 2) {
+        while (i < static_cast<int>(s.size()) - 2){
             if (s[i].getType() == "VARIABLE") {
                 table.Insert(s[i].getValue(), str);
                 i++;
@@ -321,7 +321,7 @@ public:
             i1 = std::stoi(infix[3].getValue());
             i2 = std::stoi(infix[5].getValue());
             if (i1 < i2) {
-                for (i1; i1 < i2; i1++) {
+                for (; i1 < i2; i1++) {
                     table.Change(nameValue, to_string(i1), typeValue);
                     for (auto item: body) {
                         if (auto statementExpr = dynamic_cast<StatementExpression *>(item)) {
@@ -332,7 +332,7 @@ public:
                     }
                 }
             } else {
-                for (i1; i1 > i2; i2--) {
+                for (; i1 > i2; i2--) {
                     table.Change(nameValue, to_string(i1), typeValue);
                     for (auto item: body) {
                         if (auto statementExpr = dynamic_cast<StatementExpression *>(item)) {
@@ -378,7 +378,7 @@ public:
         }
     }
 
-    vector<Token> GetInf() { return infix; }
+    vector<Token> GetInf() { return infix;   }
 
     vector<Token> GetPost() { return postfix; }
 

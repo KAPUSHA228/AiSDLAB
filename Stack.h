@@ -24,7 +24,7 @@ public:
         size = s.size;
         top = s.top;
         mas = new T[size];
-        for (size_t i = 0; i < size; i++)
+        for (int i = 0; i < size; i++)
         {
             mas[i] = s.mas[i];
         }
@@ -39,20 +39,20 @@ public:
     int GetSize() {
         return top + 1;
     }
-    void Push(T x) {  // ýëåìåíò õ íà âåðøèíó
+    void Push(T x) {
         if (IsFull()) throw std::runtime_error{"stack is full"};
         mas[++top] = x;
     }
-    T GetTop() {  // ýëåìåíò õ ñ âåðøèíû
+    T GetTop() {
         if (IsEmpty()) throw std::runtime_error{"stack is empty from GetTop"};
         return mas[top];
     }
-    T Pop()  // óáðàòü ïîñëåäíèé ýëåìåíò
+    T Pop()
     {
         if (IsEmpty()) throw std::runtime_error{"stack is empty from Pop"};
         return mas[top--];
     }
-    T TopView() {  // ïîñìîòðåòü ïîñëåäíèé ýëåìåíò
+    T TopView() {
         if (IsEmpty()) throw std::runtime_error{"stack is empty from TopView"};
         return mas[top];
     }
@@ -71,13 +71,13 @@ public:
         size = s.size;
         top = s.top;
         mas = new T[size];
-        for (size_t i = 0; i < size; i++) mas[i] = s.mas[i];
+        for (int i = 0; i < size; i++) mas[i] = s.mas[i];
         return *this;
     }
 
     bool operator==(const TStack<T>& stack) {
         if (size != stack.size) return false;
-        for (size_t i = 0; i < stack.size; i++)
+        for (int i = 0; i < stack.size; i++)
         {
             if (mas[i] != stack.mas[i]) return false;
         }
@@ -85,7 +85,7 @@ public:
     }
     bool operator!=(const TStack<T>& stack) {
         if (size != stack.size) return true;
-        for (size_t i = 0; i < size; i++) {
+        for (int i = 0; i < size; i++) {
             if (mas[i] != stack.mas[i]) return true;
         }
         return false;

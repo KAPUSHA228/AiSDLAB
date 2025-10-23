@@ -17,6 +17,7 @@ private:
     std::vector<Token> condition;
     std::vector<Token> localList;
 public:
+    ConditionExpression(const ConditionExpression& other) = default;
     static int getGlobalPos(){return posofEndofIf;}
     ConditionExpression(int pos, vector<Token>list){
         y1=++y;
