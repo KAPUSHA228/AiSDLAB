@@ -11,98 +11,120 @@
 #include "../Expression/ConditionExpression.h"
 #include "../Expression/CaseOf.h"
 
-static int id = 1;
-static int tmpCondId[3] = {-1, -1, -1};
-static int layer = 0;
+static int id = 1; //id элемента блок-схемы
+static int layer = 0;  //слой, глубина рекурсии
 
 class FlowchartFromExpressions {
-private:
-    std::vector<Expression *> exprs;
 public:
-    FlowchartFromExpressions(const std::vector<Expression *> &exprs) {
-        this->exprs = exprs;
-    }
-
+    int tmpCondId[3] = {-1, -1, -1}; //tmp массив, преимущественно для if/else конструкций
+    FlowchartFromExpressions() = default;
     std::string build(const std::vector<Expression *> &exprs) {
         layer++;
-        std::ostringstream out; // Будет содержать итоговый Mermaid-код
-        std::string last; // Текущая позиция в графе для соединения узлов
-        //std::string copylast;
-        last = "N" + std::to_string(id);
-        size_t i = 0;
-        std::cout << "BEBEBE" << std::endl;
-
-        while (i < exprs.size()) {
-            Expression *e = exprs[i];
+        std::ostringstream out; // Будет содержать итоговую Mermaid-разметку
+        std::string last = "N" + std::to_string(id);; // Текущая позиция в графе для соединения узлов
+        size_t sz = 0;
+        while (sz < exprs.size()) {
+            Expression *e = exprs[sz];
             e->print(0);
             if (auto st = dynamic_cast<StatementExpression *>(e)) {
-                //std::cout<<"EX "<<st->getList()[0].getValue()<<std::endl;
                 std::string node =
                         st->getList()[0].getValue() == "Writeln" || st->getList()[0].getValue() == "Write" ||
                         st->getList()[0].getValue() == "Readln" || st->getList()[0].getValue() == "Read"
                         ? newOut(out, ++id, tokensToLine(st->getList()))
                         : newProcess(out, ++id, tokensToLine(st->getList()));
                 if (tmpCondId[2] != -1) {
-                    link(out, "N"+to_string(tmpCondId[1]), node);
-                    link(out, "N"+to_string(tmpCondId[2]), node);
-                    tmpCondId[0]=-1;
-                    tmpCondId[1]=-1;
-                    tmpCondId[2]=-1;
+                    link(out, "N" + to_string(tmpCondId[1]), node);
+                    link(out, "N" + to_string(tmpCondId[2]), node);
+                    tmpCondId[1] = -1;
+                    tmpCondId[2] = -1;
                 } else {
-                    if ((layer == 1 && i != 0) || i != 0)// || (id - tmpCondId[0] != 1))
-                    {
+                    if ((layer == 1 && sz != 0) || sz != 0) {
                         link(out, last, node);
                     }
                 }
                 last = node;
-                ++i;
+                ++sz;
                 continue;
             }
             if (auto cx = dynamic_cast<ConditionExpression *>(e)) {
-                bool isElseOrRepeat = (cx->getCondition().front().getValue() == "else" ||
-                                       cx->getCondition().front().getValue() == "repeat");
-                if (!isElseOrRepeat) {
-                    std::string node = newDecision(out, ++id, tokensToLine(cx->getCondition()));
-                    tmpCondId[0] = id;
-                    if (tmpCondId[2] != -1) {
-                        link(out, "N"+to_string(tmpCondId[1]), node);
-                        link(out, "N"+to_string(tmpCondId[2]), node);
-                        tmpCondId[0]=-1;
-                        tmpCondId[1]=-1;
-                        tmpCondId[2]=-1;
-                    } else {
+                tmpCondId[0]=id+1;//запомнить начальный элемент (условие для while/for и действие для repeat)
+                if (cx->getCondition().front().getValue() != "else" &&
+                    cx->getCondition().front().getValue() != "until") {
+                    std::string node;
+                    if(cx->getCondition().front().getValue() == "for"){
+                        node = newFor(out, ++id, tokensToLine(cx->getCondition())); // у for своя атмосфера
+                    }else{
+                        node = newDecision(out, ++id, tokensToLine(cx->getCondition()));  //создаём ромбик условия
+                    }
+                    if (tmpCondId[2] != -1) { //если предыдущий блок содержал в себе две ветки (пресловутый if/else), то соединяем
+                        link(out, "N" + to_string(tmpCondId[1]), node);
+                        link(out, "N" + to_string(tmpCondId[2]), node);
+                        tmpCondId[1] = -1;
+                        tmpCondId[2] = -1;
+                    } else { //если одну, то тоже соединяем
                         link(out, last, node);
                     }
-
-                    last = node;
-                    //  copylast=last;
+                    last = node; //курсор на новом ромбике
                 }
                 const auto body = cx->getBody().second;
-                std::string f = build(body);
-                // last=copylast;
-                if (!isElseOrRepeat) {
+                std::string f = build(body); //обрабатываем тело
+                if (cx->getCondition().front().getValue() == "if") { //если не Else/Repeat, то запускаем тело по ветке true
                     tmpCondId[1] = id;
                     link(out, last, f, "true");
-                } else {
+                }
+                else if(cx->getCondition().front().getValue() == "else"){ //в противном случае по false
                     tmpCondId[2] = id;
                     link(out, last, f, "false");
                 }
-                //last = f;
-                ++i;
+                else if(cx->getCondition().front().getValue() == "while" || cx->getCondition().front().getValue() == "for"){
+                    link(out, last, f, "true");
+                    link(out, "N"+ to_string(id), "N"+ to_string(tmpCondId[0]));
+                    link(out,"N"+ to_string(tmpCondId[0]), "N"+ to_string(id+1), "false");
+                }
+                else if(cx->getCondition().front().getValue() == "until"){
+                    link(out, last, f);
+                    std::string node = newDecision(out, ++id, tokensToLine(cx->getCondition())); //создаём ромбик условия
+                    link(out, "N"+ to_string(id-1), node);
+                    last=node;
+                    link(out, last, "N"+ to_string(tmpCondId[0]), "true");
+                    link(out,last, "N"+ to_string(id+1), "false");
+                }
+                else{
+                    std::cout<<"DIRBIRBEB"<<std::endl;
+                }
+                ++sz; //следующий элемент
                 continue;
             }
             if (auto sw = dynamic_cast<CaseOf *>(e)) {
                 std::string node = newDecision(out, ++id, "case ... of");
                 link(out, last, node);
                 last = node;
-                ++i;
+                ++sz;
                 continue;
             }
-            ++i;
+            if (auto sw = dynamic_cast<Procedure *>(e)) {
+                std::string node = newDecision(out, ++id, "case ... of");
+                link(out, last, node);
+                last = node;
+                ++sz;
+                continue;
+            }
+            if (auto sw = dynamic_cast<Function *>(e)) {
+                std::string node = newDecision(out, ++id, "case ... of");
+                link(out, last, node);
+                last = node;
+                ++sz;
+                continue;
+            }
         }
         if (layer == 1) {
             out << "N" << (++id) << "([End])\n";
-            link(out, "N" + std::to_string(--id), "N" + std::to_string(id));
+            if (tmpCondId[2] != -1) {
+                link(out, "N" + std::to_string(tmpCondId[1]), "N" + std::to_string(id));
+                link(out, "N" + std::to_string(tmpCondId[2]), "N" + std::to_string(id));
+            } else {
+                link(out, "N" + std::to_string(id - 1), "N" + std::to_string(id));
+            }
         }
         layer--;
         return out.str();
@@ -119,24 +141,29 @@ private:
         return s;
     }
 
-    std::string newProcess(std::ostringstream &out, int id, const std::string &label) {
-        std::string node = "N" + std::to_string(id);
+    std::string newProcess(std::ostringstream &out, int idd, const std::string &label) {
+        std::string node = "N" + std::to_string(idd);
         std::string lab = escape(label);
         out << node << "[\"" << lab << "\"]\n";
 
         return node;
     }
 
-    std::string newOut(std::ostringstream &out, int id, const std::string &label) {
-        std::string node = "N" + std::to_string(id);
+    std::string newOut(std::ostringstream &out, int idd, const std::string &label) {
+        std::string node = "N" + std::to_string(idd);
         std::string lab = escape(label);
         out << node << "[/\"" << lab << "\"/]\n";
         return node;
     }
 
-    std::string newDecision(std::ostringstream &out, int &id, const std::string &label) {
-        std::string node = "N" + std::to_string(id);
+    std::string newDecision(std::ostringstream &out, int idd, const std::string &label) {
+        std::string node = "N" + std::to_string(idd);
         out << node << "{\"" << escape(label) << "\"}\n";
+        return node;
+    }
+    std::string newFor(std::ostringstream &out, int idd, const std::string &label) {
+        std::string node = "N" + std::to_string(idd);
+        out << node << "{{\"" << escape(label) << "\"}}\n";
         return node;
     }
 
@@ -144,7 +171,7 @@ private:
         out << a << " --> " << b << "\n";
     }
 
-    void link(std::ostringstream &out, const std::string &a, const std::string &b, const std::string direction) {
+    void link(std::ostringstream &out, const std::string &a, const std::string &b, const std::string &direction) {
         out << a << " -->|" << direction << "| " << b << "\n";
     }
 

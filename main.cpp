@@ -26,7 +26,7 @@ int main() {
                 //"Read ( Res ) ;"
                 //"Writeln ('From Read ' , Res ) ;"
                 "num1 := 12 div 2;"
-                //"num1 := AddNumbers ( PI , PI);"
+//                "num1 := AddNumbers ( PI , PI);"
 //               "case num1 of"
 //                "begin"
 //                    "1 , 2 , 3 , 4 , 5 :"
@@ -56,7 +56,6 @@ int main() {
                 "end;"
                 "res2 := 'Hello world' ;"
                 "num1 := 2 ;"
-
 //                "if 5 mod 3 = 0 then begin"
 //                    "Writeln ('Yes,if 2 ');"
 //                "end"
@@ -73,42 +72,38 @@ int main() {
 //                "else begin"
 //                    "Writeln ('Pum');"
 //                "end;"
-//                "for i := 1 to 8 do begin"
-//                    "Write ( '3' ) ;"
-//                "end;"
-//                "while num1 < 6 do begin"
-//                    "Write('Yes');"
-//                    "num1 := num1 + 1;"
-//                "end;"
-//                "repeat begin"
-//                    "Write('3');"
-//                    "num1 := num1 + 1;"
-//                "end;"
-//                "until num1 < 7 ;"
+                "for i := 1 to 8 do begin"
+                    "Write ( '3' ) ;"
+                "end;"
+                "while num1 < 6 do begin"
+                    "Write('Yes');"
+                    "num1 := num1 + 1;"
+                "end;"
+                "repeat begin"
+                    "Write('3');"
+                    "num1 := num1 + 1;"
+                "end;"
+                "until num1 < 7 ;"
+                "num1 := num1 + 3;"
             "end.";
     Lexer lexer(test_text);
     Parser parser(lexer);
-//    try{ parser.parse(); }
     parser.initDeclaration();
-
-//    catch(AgeException& e){ e.getMessage();}
     // Экспорт блок-схемы по существующим Expression (Mermaid и JSON)
+    const auto &exprs = parser.getExpressionsOnly();
+    auto* ffe=new FlowchartFromExpressions();
+    std::string mmd = ffe->build(exprs);
+    std::ofstream f("flowchart.mmd");
+    f << "graph TD\n";
+    f << "N1" << "(["<<parser.getTitle()<<"])\n";
+    f << "N1 --> N2\n";
+    f << mmd;
+    f.close();
 
-        const auto &exprs = parser.getExpressionsOnly();
-        //parser.print();
-        auto* ffe=new FlowchartFromExpressions(exprs);
-        std::string mmd = ffe->build(exprs);
-        std::ofstream f("flowchart.mmd");
-        f << "graph TD\n";
-        f << "N1" << "(["<<parser.getTitle()<<"])\n";
-        f << "N1 --> N2\n";
-        f << mmd;
-        f.close();
-
-        std::string json = FlowchartExporterJson::toJson(exprs);
-        std::ofstream f2("flowchart.json");
-        f2 << json;
-        f2.close();
+    std::string json = FlowchartExporterJson::toJson(exprs);
+    std::ofstream f2("flowchart.json");
+    f2 << json;
+    f2.close();
 
     /*TPostfixCalc c;
     string s1 ="b : integer ";

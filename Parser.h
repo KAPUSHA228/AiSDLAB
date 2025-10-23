@@ -20,18 +20,18 @@
 
 using namespace std;
 
-class AgeException : public std::exception {
-public:
-    AgeException(std::string message) : message(std::move(message)) {}
-
-    [[nodiscard]] std::string getMessage() const {
-        std::cout << message;
-        return message;
-    }
-
-private:
-    std::string message;
-};
+//class AgeException : public std::exception {
+//public:
+//    AgeException(std::string message) : message(std::move(message)) {}
+//
+//    [[nodiscard]] std::string getMessage() const {
+//        std::cout << message;
+//        return message;
+//    }
+//
+//private:
+//    std::string message;
+//};
 
 class Parser {
 private:
@@ -75,9 +75,9 @@ public:
                 calc.ChangeEquation(*CaseExpr);
             } else { continue; }
         }
-        cout << endl;
-        calc.getTable().root->print();
-        cout << endl;
+//        cout << endl;
+//        calc.getTable().root->print();
+//        cout << endl;
         //hierarchyList.print(hierarchyList.getRoot()); cout<<endl;
         //this->print();
     }

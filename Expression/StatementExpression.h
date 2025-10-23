@@ -16,7 +16,6 @@ private:
     int i1;
     std::vector<Token> list;
 public:
-    StatementExpression(){cout << list.size();}
     StatementExpression(std::vector<Token> _list)
     {
         i1=++i;
