@@ -15,6 +15,7 @@ static int layer = 0;  //слой, глубина рекурсии
 class FlowchartFromExpressions {
 public:
     int tmpCondId[3] = {-1, -1, -1}; //tmp массив, преимущественно для if/else конструкций
+    int* tmpSwitchId;
     FlowchartFromExpressions() = default;
 
     std::string build(const std::vector<Expression *> &exprs) {
@@ -25,25 +26,28 @@ public:
         while (sz < exprs.size()) {
             Expression *e = exprs[sz];
             e->print(0);
-            if (auto st = dynamic_cast<StatementExpression *>(e)) {
+            if (auto sx = dynamic_cast<StatementExpression *>(e)) {
                 std::string node =
-                        st->getList()[0].getValue() == "Writeln" || st->getList()[0].getValue() == "Write" ||
-                        st->getList()[0].getValue() == "Readln" || st->getList()[0].getValue() == "Read"
-                        ? newOut(out, ++id, tokensToLine(st->getList()))
-                        : newProcess(out, ++id, tokensToLine(st->getList()));
+                        sx->getList()[0].getValue() == "Writeln" || sx->getList()[0].getValue() == "Write" ||
+                        sx->getList()[0].getValue() == "Readln" || sx->getList()[0].getValue() == "Read"
+                        ? newOut(out, ++id, tokensToLine(sx->getList()))
+                        : newProcess(out, ++id, tokensToLine(sx->getList()));
                 bool skipNormalLink = false;
 
                 // Проверяем предыдущий элемент ТОЛЬКО если он существует
                 if (sz > 0) {
-                    Expression *tmpe = exprs[sz-1];
+                    Expression *tmpe = exprs[sz - 1];
                     if (auto tmpst = dynamic_cast<ConditionExpression *>(tmpe)) {
                         if (tmpst->getCondition()[0].getValue() != "if" &&
                             tmpst->getCondition()[0].getValue() != "else") {
                             skipNormalLink = true;
                         }
                     }
+                    if (auto tmpst = dynamic_cast<CaseOf *>(tmpe)){
+                        skipNormalLink = true;
+                    }
                 }
-                if(!skipNormalLink){
+                if (!skipNormalLink) {
                     if (tmpCondId[2] != -1) {
                         link(out, "N" + to_string(tmpCondId[1]), node);
                         link(out, "N" + to_string(tmpCondId[2]), node);
@@ -73,15 +77,18 @@ public:
 
                     // Проверяем предыдущий элемент ТОЛЬКО если он существует
                     if (sz > 0) {
-                        Expression *tmpe = exprs[sz-1];
+                        Expression *tmpe = exprs[sz - 1];
                         if (auto tmpst = dynamic_cast<ConditionExpression *>(tmpe)) {
                             if (tmpst->getCondition()[0].getValue() != "if" &&
                                 tmpst->getCondition()[0].getValue() != "else") {
                                 skipNormalLink = true;
                             }
                         }
+                        if (auto tmpst = dynamic_cast<CaseOf *>(tmpe)){
+                            skipNormalLink = true;
+                        }
                     }
-                    if(!skipNormalLink){
+                    if (!skipNormalLink) {
                         if (tmpCondId[2] != -1) { //если предыдущий блок содержал в себе две ветки (пресловутый if/else), то соединяем
                             link(out, "N" + to_string(tmpCondId[1]), node);
                             link(out, "N" + to_string(tmpCondId[2]), node);
@@ -107,7 +114,7 @@ public:
                     link(out, "N" + to_string(id), "N" + to_string(tmpCondId[0]));
                     link(out, "N" + to_string(tmpCondId[0]), "N" + to_string(id + 1), "false");
                 } else if (cx->getCondition().front().getValue() == "until") {
-                    out<<f;
+                    out << f;
                     std::string node = newDecision(out, ++id,
                                                    tokensToLine(cx->getCondition())); //создаём ромбик условия
                     link(out, "N" + to_string(id - 1), node);
@@ -121,26 +128,36 @@ public:
                 continue;
             }
             if (auto sw = dynamic_cast<CaseOf *>(e)) {
-                std::string node = newDecision(out, ++id, "case ... of");
+                std::string node = newDecision(out, ++id, "case "+ tokensToLine(sw->getVal())+" of");
                 link(out, last, node);
-                Token t =sw->getVal();
+                last = node;
+                const auto body = sw->getBody();
+                tmpSwitchId=new int [body.size()];
+                for(int i=0; i<body.size();i++) {
+                    std::string f = build(body[i].second); //обрабатываем тело
+                    tmpSwitchId[i]=id;
+                    link(out, last, f, tokensToLine(body[i].first));
+                }
+                for(int i=0; i<body.size();i++) {
+                    link(out,"N"+ to_string(tmpSwitchId[i]), "N"+ to_string(id+1));
+                }
+                ++sz;
+                continue;
+            }
+            if (auto pr = dynamic_cast<Procedure *>(e)) {
+                std::string node = newFunction(out, ++id, tokensToLine(pr->getHead()));
+                if ((layer == 1 && sz != 0) || sz != 0) {
+                    link(out, last, node);
+                }
                 last = node;
                 ++sz;
                 continue;
             }
-            if (auto sw = dynamic_cast<Procedure *>(e)) {
-                std::string node = newFunction(out, ++id, tokensToLine(sw->getHead()));
+            if (auto fc = dynamic_cast<Function *>(e)) {
+                std::string node = newFunction(out, ++id, tokensToLine(fc->getHead()));
                 if ((layer == 1 && sz != 0) || sz != 0) {
-                    link(out, last, node);}
-
-                last = node;
-                ++sz;
-                continue;
-            }
-            if (auto sw = dynamic_cast<Function *>(e)) {
-                std::string node =  newFunction(out, ++id, tokensToLine(sw->getHead()));
-                if ((layer == 1 && sz != 0) || sz != 0) {
-                    link(out, last, node);}
+                    link(out, last, node);
+                }
                 last = node;
                 ++sz;
                 continue;
@@ -169,6 +186,13 @@ private:
         }
         return s;
     }
+    std::string tokensToLine(Token t) {
+        std::string s;
+        if (!s.empty())
+            s += " ";
+        s += t.getValue();
+        return s;
+    }
 
     std::string newProcess(std::ostringstream &out, int idd, const std::string &label) {
         std::string node = "N" + std::to_string(idd);
@@ -177,6 +201,7 @@ private:
 
         return node;
     }
+
     std::string newFunction(std::ostringstream &out, int idd, const std::string &label) {
         std::string node = "N" + std::to_string(idd);
         std::string lab = escape(label);
