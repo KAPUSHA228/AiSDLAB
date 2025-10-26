@@ -9,8 +9,12 @@
 #include "../Expression/ConditionExpression.h"
 #include "../Expression/CaseOf.h"
 #include "../Token.h"
+#include "../json.hpp"
+using json = nlohmann::json;
 
-struct FlowchartExporterJson {
+class FlowchartExporterJson {
+private:
+    json programJson;
     struct BuildState {
         int nextId{1};
         std::ostringstream nodes;
@@ -18,8 +22,8 @@ struct FlowchartExporterJson {
         bool firstNode{true};
         bool firstEdge{true};
     };
-
-    static std::string toJson(const std::vector<Expression *> &exprs) {
+public:
+    std::string toJson(const std::vector<Expression *> &exprs) {
         BuildState st;
         std::string start = addNode(st, "Start", "");
         std::string last = start;

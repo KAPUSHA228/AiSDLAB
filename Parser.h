@@ -20,40 +20,28 @@
 
 using namespace std;
 
-//class AgeException : public std::exception {
-//public:
-//    AgeException(std::string message) : message(std::move(message)) {}
-//
-//    [[nodiscard]] std::string getMessage() const {
-//        std::cout << message;
-//        return message;
-//    }
-//
-//private:
-//    std::string message;
-//};
-
 class Parser {
 private:
     std::string title;
     TPostfixCalc calc;
-    //HierarchyList<string,Expression*>hierarchyList;
     std::vector<Token> tokenList;
     std::vector<std::pair<Expression *, string>> expressionList;
     std::vector<Expression *> expressionOnly;
     std::vector<Token> localList;
     int currentPos = 0;
+    types type;
 public:
-    Parser(Lexer lexer) {
+    Parser(Lexer lexer, types type) {
         this->tokenList = lexer.getTokenList();
+        this->type=type;
     }
-
-    Parser(vector<Token> t) { this->tokenList = t; }
-
+    void setType(types t){
+        this->type=t;
+    }
     void parse() {
         initDeclaration();
         vector<vector<Token>> copyIf;
-        for (auto item: expressionList) {
+        for (const auto& item: expressionList) {
             if (auto statementExpr = dynamic_cast<StatementExpression *>(item.first)) {
                 calc.ChangeEquation(*statementExpr); // Вызов метода для StatementExpression
             } else if (auto conditionExpr = dynamic_cast<ConditionExpression *>(item.first)) {
@@ -82,7 +70,6 @@ public:
         //this->print();
     }
 
-    // Expose parsed expressions for downstream generators (read-only access expected)
     [[nodiscard]] const std::vector<std::pair<Expression *, std::string>> &getExpressions() const {
         return expressionList;
     }
@@ -117,7 +104,7 @@ public:
             currentPos = sw->getPos();
             std::pair t{sw, "Var"};
             calc.add(sw);
-            expressionList.push_back(t);
+            expressionList.emplace_back(t);
         }
         if (isTypeToken("CONST")) {
             currentPos++;
@@ -142,7 +129,7 @@ public:
         }
     }
 
-    void initRowStatement(string chapter) {//метод чтобы строчку кода (не условие и не цикл) переводить в StatementExpression
+    void initRowStatement(const string& chapter) {//метод чтобы строчку кода (не условие и не цикл) переводить в StatementExpression
         while (!isTypeToken("SEMICOLON")) {
             localList.push_back(tokenList[currentPos]);
             currentPos++;

@@ -81,21 +81,33 @@ public:
         for(int j=0;j<tab;j++){
             cout<<"   ";
         }
-        std::cout<<"CasOf "<<c1<<" = ";
-//        for(auto token:declaration)
-//        {
-//            std::cout<<token.getValue()<<" ";
-//        }
+        std::cout<<"CaseOf "<<c1<<" of "<<value.getValue()<<" =";
         std::cout<<endl;
 
-//        if(!expressionList.empty())
-//        {
-//            ++tab;
-//            for(auto token2:expressionList)
-//            {
-//                std::cout<<"   ";token2->print(tab);
-//            }
-//        }
+        if(!body.empty())
+        {
+            ++tab;
+            for(auto token2:body)
+            {
+                for(int j=0;j<tab;j++){
+                    std::cout<<"   ";
+                }
+                std::cout<<"in case:";
+                for(auto token3:token2.first){
+                    std::cout<<" "<< token3.getValue();
+                }
+                std::cout<<std::endl;
+                for(int j=0;j<tab;j++){
+                    std::cout<<"   ";
+                }
+                std::cout<<"corresponds to:";
+                for(auto token3:token2.second){
+                    std::cout<<"   ";
+                    token3->print(tab);
+                }
+                std::cout<<std::endl;
+            }
+        }
         --tab;
     }
     int getPos(){return globalPosCase;}

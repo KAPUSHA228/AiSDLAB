@@ -177,7 +177,8 @@ public:
            ++tab;
            for(auto token2:expressionList)
            {
-               std::cout<<"   ";token2->print(tab);
+               std::cout<<"   ";
+               token2->print(tab);
            }
        }
        --tab;

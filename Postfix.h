@@ -96,7 +96,7 @@ public:
     void add(Expression *ex) { storageOfFunctions.push_back(ex); }
 
     void ChangeEquation(string eq) {
-        Lexer lexer(eq);
+        Lexer lexer(eq, PASCAL);
         infix = lexer.getTokenList();
         infixStorage.push_back(infix);
         postfix = vector<Token>();
