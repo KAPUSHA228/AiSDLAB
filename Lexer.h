@@ -11,7 +11,7 @@
 #include "Token.h"
 
 enum types{
-    PASCAL, C, CPLUSPLUS
+    PASCAL, C, CPLUSPLUS, MERMAID
 };
 class Lexer {
 private:
@@ -39,11 +39,14 @@ public:
             case CPLUSPLUS:
                 vector =getTokenTypeCPlusPlus();
                 break;
+            case MERMAID:
+                vector =getTokenTypeMermaid();
+                while(hasNext3()){}
+                break;
             default:
                 break;
         }
-        while (hasNext()) {
-        }
+
     }
 
     bool hasNext() {
@@ -166,6 +169,23 @@ public:
         pos++;
         return true;
     }
+    bool hasNext3() {
+            for (const auto &item: vector) {
+                const std::string s = input_string;
+                std::regex rgx("^" + item.second);
+                std::smatch match;
+                if (std::regex_search(s.begin() + pos, s.end(), match, rgx)) {
+                    std::string res = static_cast<std::string>(match[0]);
+                    pos += res.length();
+                    if (item.first != "SPACE") {
+                        tokenList.emplace_back(item.first, res, pos - res.length());
+                    }
+                    return true;
+                }
+            }
+            return false;
+
+    }
 
     void printTokenList() {
         for (auto item: tokenList) {
@@ -176,8 +196,86 @@ public:
     std::vector<Token> getTokenList() {
         return this->tokenList;
     }
+    
+    /**
+     * Разбирает метку узла из Mermaid на токены
+     * Пример: "if 5 mod 3 > 0 then" -> [CONDITION:if, VALUEINTEGER:5, MOD:mod, ...]
+     */
+    static std::vector<std::pair<std::string, std::string>> getTokenTypeMermaid() {
+        return {
+                // Основные ключевые слова блок-схем
+                {"FLOWCHART", "flowchart"},
+                {"GRAPH", "graph"},
 
-    static std::vector<std::pair<std::string, std::string> > getTokenTypeCPlusPlus() {
+                // Направления
+                {"DIRECTION_TB", "TB"},
+                {"DIRECTION_BT", "BT"},
+                {"DIRECTION_LR", "LR"},
+                {"DIRECTION_RL", "RL"},
+                {"DIRECTION_TD", "TD"},
+
+                // Типы блоков (узлов)
+                {"START_END", "\\(\\[.*?\\]\\)"},                   // Начало/конец ([ ])
+                {"NEWFOR", "\\{\\{.*?\\}\\}"},                      // Отдельный блок для for {{ }}
+                {"DECISION", "\\{.*?\\}"},                          // Ромбик { }
+                {"INPUT_OUTPUT", "\\[\\/.*?\\/\\]"},                // Ввод/вывод [/ /]
+                {"SUBROUTINE", "\\[\\[.*?\\]\\]"},                  // Подпрограмма [[ ]]
+                {"DATABASE", "\\[\\(\\|.*?\\|\\)\\]"},              // База данных [(| |)]
+                {"NODE_ID", "N\\d+"},
+                // Операторы связей
+                {"CONDITION_TRUE", "--\\>\\|true\\|"},
+                {"CONDITION_FALSE", "--\\>\\|false\\|"},
+                {"CONDITION_SWITCH", "--\\>\\|[0-9a-zA-Z'\" ]+\\|"},
+                {"ARROW_SOLID", "-->"},
+
+                {"LINK_SOLID", "---"},
+                {"LINK_THICK", "==="},
+
+                // Ветки условий (true/false)
+
+                {"ARROW_TEXT", "\\|.*?\\|"},
+
+                // Подграфы (группы)
+                {"SUBGRAPH_START", "subgraph"},
+                {"SUBGRAPH_END", "end"},
+
+                // Стили и классы
+                {"STYLE", "style"},
+                {"CLASS_DEF", "classDef"},
+                {"CLASS", "class"},
+                {"CLICK", "click"},
+                {"LINK_STYLE", "linkStyle"},
+
+                // Текст и содержимое
+                {"QUOTED_STRING", "\"[^\"]*\""},
+                {"IDENTIFIER", "N\\d*"},
+                {"TEXT_CONTENT", "[^\\s\\[\\]\\(\\)\\{\\}<>,;\"]+"},
+
+                // Символы и разделители
+                {"BRACKET_OPEN", "\\["},
+                {"BRACKET_CLOSE", "\\]"},
+                {"PAREN_OPEN", "\\("},
+                {"PAREN_CLOSE", "\\)"},
+                {"BRACE_OPEN", "\\{"},
+                {"BRACE_CLOSE", "\\}"},
+                {"ANGLE_OPEN", "<"},
+                {"ANGLE_CLOSE", ">"},
+                {"COMMA", ","},
+                {"SEMICOLON", ";"},
+                {"COLON", ":"},
+                {"EQUALS", "="},
+                {"PIPE", "\\|"},
+
+                // Комментарии
+                {"COMMENT", "%%[^\\n]*"},
+
+                // Пробельные символы
+                {"SPACE", "[ \t\n]"},
+                {"NEWLINE", "\\n"},
+
+        };
+    }
+    static std::vector<std::pair<std::string, std::string>> getTokenTypeCPlusPlus() {
         return {
                 {"CONST", "const"},
                 {"VAR", "var"},
@@ -339,7 +437,7 @@ public:
               //  {"COMMENT", "//[^\\n]*|/\\*.*?\\*/"}
         };
     }
-    static std::vector<std::pair<std::string, std::string> > getTokenTypePascal() {
+    static std::vector<std::pair<std::string, std::string>> getTokenTypePascal() {
         return {
             {"CONST", "const"},
             {"VAR", "var"},

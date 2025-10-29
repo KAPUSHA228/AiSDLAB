@@ -18,7 +18,6 @@
 #include "Expression/Function.h"
 #include "Expression/Procedure.h"
 
-using namespace std;
 
 class Parser {
 private:
@@ -38,6 +37,12 @@ public:
     void setType(types t){
         this->type=t;
     }
+    // Парсинг без выполнения - только структура
+    void parseOnly() {
+        initDeclaration();
+        // Не вызываем calc.ChangeEquation - только парсим структуру
+    }
+    
     void parse() {
         initDeclaration();
         vector<vector<Token>> copyIf;

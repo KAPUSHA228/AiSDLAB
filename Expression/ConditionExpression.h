@@ -19,6 +19,9 @@ private:
 public:
     ConditionExpression(const ConditionExpression& other) = default;
     static int getGlobalPos(){return posofEndofIf;}
+    ConditionExpression() {
+        y1=++y;
+    }
     ConditionExpression(int pos, vector<Token>list){
         y1=++y;
         doCondition(pos,list);
@@ -29,6 +32,10 @@ public:
     std::pair<vector<Token>, vector<Expression*>> getBody() {
         std::pair<vector<Token>, vector<Expression*>> condAndList(condition, expressionList);
         return condAndList;
+    }
+    // Add method to add body expressions
+    void addBodyExpression(Expression* expr) {
+        expressionList.push_back(expr);
     }
     void doCondition(int pos, vector<Token>list){
         posofEndofIf=pos;
@@ -184,6 +191,5 @@ public:
        --tab;
     }
 };
-
 
 #endif //CONDITIONEXPRESSION_H

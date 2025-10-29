@@ -33,13 +33,13 @@ public:
         this->pos = other.pos;
     };
     
-    std::string getType() {
+    std::string getType() const {
         return this->type;
     }
-    std::string getValue() {
+    std::string getValue() const {
         return this->value;
     }
-    int getPos() {
+    int getPos() const {
         return this->pos;
     }
     Token& operator=(const Token& other) {

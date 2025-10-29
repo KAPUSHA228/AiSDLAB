@@ -8,6 +8,8 @@
 #include "../Expression/StatementExpression.h"
 #include "../Expression/ConditionExpression.h"
 #include "../Expression/CaseOf.h"
+#include "../Expression/Procedure.h"
+#include "../Expression/Function.h"
 
 static int id = 1; //id элемента блок-схемы
 static int layer = 0;  //слой, глубина рекурсии
@@ -25,7 +27,7 @@ public:
         size_t sz = 0;
         while (sz < exprs.size()) {
             Expression *e = exprs[sz];
-            e->print(0);
+            //e->print(0);
             if (auto sx = dynamic_cast<StatementExpression *>(e)) {
                 std::string node =
                         sx->getList()[0].getValue() == "Writeln" || sx->getList()[0].getValue() == "Write" ||

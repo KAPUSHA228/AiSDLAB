@@ -29,6 +29,7 @@ add_executable(${PROJECT_NAME}
     Expression/FunctionExecutor.h
     Expression/Procedure.h
     Expression/CaseOf.h
+        Flowchart/PascalCodeGenerator.h
 )
 
 # Set output directory
