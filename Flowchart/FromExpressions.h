@@ -17,7 +17,7 @@ static int layer = 0;  //слой, глубина рекурсии
 class FlowchartFromExpressions {
 public:
     int tmpCondId[3] = {-1, -1, -1}; //tmp массив, преимущественно для if/else конструкций
-    int* tmpSwitchId;
+
     FlowchartFromExpressions() = default;
 
     std::string build(const std::vector<Expression *> &exprs) {
@@ -34,30 +34,23 @@ public:
                         sx->getList()[0].getValue() == "Readln" || sx->getList()[0].getValue() == "Read"
                         ? newOut(out, ++id, tokensToLine(sx->getList()))
                         : newProcess(out, ++id, tokensToLine(sx->getList()));
-                bool skipNormalLink = false;
-
-                // Проверяем предыдущий элемент ТОЛЬКО если он существует
-                if (sz > 0) {
-                    Expression *tmpe = exprs[sz - 1];
-                    if (auto tmpst = dynamic_cast<ConditionExpression *>(tmpe)) {
-                        if (tmpst->getCondition()[0].getValue() != "if" &&
-                            tmpst->getCondition()[0].getValue() != "else") {
-                            skipNormalLink = true;
+                if (tmpCondId[2] != -1) {
+                    link(out, "N" + to_string(tmpCondId[1]), node);
+                    link(out, "N" + to_string(tmpCondId[2]), node);
+                    tmpCondId[1] = -1;
+                    tmpCondId[2] = -1;
+                } else {
+                    if (sz != 0) {
+                        if (auto tmpst = dynamic_cast<ConditionExpression *>(exprs[sz - 1])) {
+                            if (tmpst->getCondition().front().getValue() == "if") {
+                                link(out, "N" + to_string(tmpCondId[0]), node, "false");
+                                link(out, "N" + to_string(tmpCondId[1]), node);
+                            }
                         }
-                    }
-                    if (auto tmpst = dynamic_cast<CaseOf *>(tmpe)){
-                        skipNormalLink = true;
-                    }
-                }
-                if (!skipNormalLink) {
-                    if (tmpCondId[2] != -1) {
-                        link(out, "N" + to_string(tmpCondId[1]), node);
-                        link(out, "N" + to_string(tmpCondId[2]), node);
-                        tmpCondId[1] = -1;
-                        tmpCondId[2] = -1;
-                    } else {
-                        if ((layer == 1 && sz != 0) || sz != 0) {
-                            link(out, last, node);
+                        else{
+                            if (dynamic_cast<CaseOf *>(exprs[sz - 1]) == nullptr) {
+                                link(out, last, node);
+                            }
                         }
                     }
                 }
@@ -66,7 +59,6 @@ public:
                 continue;
             }
             if (auto cx = dynamic_cast<ConditionExpression *>(e)) {
-                tmpCondId[0] = id + 1;//запомнить начальный элемент (условие для while/for и действие для until)
                 if (cx->getCondition().front().getValue() != "else" &&
                     cx->getCondition().front().getValue() != "until") {
                     std::string node;
@@ -75,33 +67,27 @@ public:
                     } else {
                         node = newDecision(out, ++id, tokensToLine(cx->getCondition()));  //создаём ромбик условия
                     }
-                    bool skipNormalLink = false;
-
-                    // Проверяем предыдущий элемент ТОЛЬКО если он существует
-                    if (sz > 0) {
-                        Expression *tmpe = exprs[sz - 1];
-                        if (auto tmpst = dynamic_cast<ConditionExpression *>(tmpe)) {
-                            if (tmpst->getCondition()[0].getValue() != "if" &&
-                                tmpst->getCondition()[0].getValue() != "else") {
-                                skipNormalLink = true;
+                    if (tmpCondId[2] != -1) { //если предыдущий блок содержал в себе две ветки (пресловутый if/else), то соединяем
+                        link(out, "N" + to_string(tmpCondId[1]), node);
+                        link(out, "N" + to_string(tmpCondId[2]), node);
+                        tmpCondId[1] = -1;
+                        tmpCondId[2] = -1;
+                    } else { //если одну, то тоже соединяем
+                        if (auto tmpst = dynamic_cast<ConditionExpression *>(exprs[sz - 1])) {
+                            if (tmpst->getCondition().front().getValue() == "if") {
+                                link(out, "N" + to_string(tmpCondId[0]), node, "false");
+                                link(out, "N" + to_string(tmpCondId[1]), node);
                             }
                         }
-                        if (auto tmpst = dynamic_cast<CaseOf *>(tmpe)){
-                            skipNormalLink = true;
-                        }
-                    }
-                    if (!skipNormalLink) {
-                        if (tmpCondId[2] != -1) { //если предыдущий блок содержал в себе две ветки (пресловутый if/else), то соединяем
-                            link(out, "N" + to_string(tmpCondId[1]), node);
-                            link(out, "N" + to_string(tmpCondId[2]), node);
-                            tmpCondId[1] = -1;
-                            tmpCondId[2] = -1;
-                        } else { //если одну, то тоже соединяем
-                            link(out, last, node);
+                        else{
+                            if (dynamic_cast<CaseOf *>(exprs[sz - 1])==nullptr) {
+                                link(out, last, node);
+                            }
                         }
                     }
                     last = node; //курсор на новом ромбике
                 }
+                tmpCondId[0] = id;//запомнить начальный элемент (условие для while/for и действие для until)
                 const auto body = cx->getBody().second;
                 std::string f = build(body); //обрабатываем тело
                 if (cx->getCondition().front().getValue() == "if") { //если тип if, то запускаем тело по ветке true
@@ -121,7 +107,7 @@ public:
                                                    tokensToLine(cx->getCondition())); //создаём ромбик условия
                     link(out, "N" + to_string(id - 1), node);
                     last = node;
-                    link(out, last, "N" + to_string(tmpCondId[0]), "true");
+                    link(out, last, "N" + to_string(tmpCondId[0]+1), "true");
                     link(out, last, "N" + to_string(id + 1), "false");
                 } else {
                     std::cout << "DIRBIRBEB" << std::endl;
@@ -130,18 +116,40 @@ public:
                 continue;
             }
             if (auto sw = dynamic_cast<CaseOf *>(e)) {
-                std::string node = newDecision(out, ++id, "case "+ tokensToLine(sw->getVal())+" of");
-                link(out, last, node);
-                last = node;
+                std::string node = newDecision(out, ++id, "case " + tokensToLine(sw->getVal()) + " of");
+                if (tmpCondId[2] != -1) { //если предыдущий блок содержал в себе две ветки (пресловутый if/else), то соединяем
+                    link(out, "N" + to_string(tmpCondId[1]), node);
+                    link(out, "N" + to_string(tmpCondId[2]), node);
+                    tmpCondId[1] = -1;
+                    tmpCondId[2] = -1;
+                } else { //если одну, то тоже соединяем
+                    if (auto tmpst = dynamic_cast<ConditionExpression *>(exprs[sz - 1])) {
+                        if (tmpst->getCondition().front().getValue() == "if") {
+                            link(out, "N" + to_string(tmpCondId[0]), node, "false");
+                            link(out, "N" + to_string(tmpCondId[1]), node);//////////////////////////////////////////
+                        }
+                    }
+                    else{
+                        if (auto tmpst = dynamic_cast<CaseOf *>(exprs[sz - 1])) {
+                            last = node;
+                            ++sz;
+                            continue;
+                        }
+                        else{
+                            link(out, last, node);//////////////////////////////////////////
+                        }
+                    }
+                }
+                last = node; //курсор на новом ромбике
                 const auto body = sw->getBody();
-                tmpSwitchId=new int [body.size()];
-                for(int i=0; i<body.size();i++) {
+                int *tmpSwitchId = new int[body.size()];
+                for (int i = 0; i < body.size(); i++) {
                     std::string f = build(body[i].second); //обрабатываем тело
-                    tmpSwitchId[i]=id;
+                    tmpSwitchId[i] = id;
                     link(out, last, f, tokensToLine(body[i].first));
                 }
-                for(int i=0; i<body.size();i++) {
-                    link(out,"N"+ to_string(tmpSwitchId[i]), "N"+ to_string(id+1));
+                for (int i = 0; i < body.size(); i++) {
+                    link(out, "N" + to_string(tmpSwitchId[i]), "N" + to_string(id + 1));
                 }
                 ++sz;
                 continue;
@@ -188,6 +196,7 @@ private:
         }
         return s;
     }
+
     std::string tokensToLine(Token t) {
         std::string s;
         if (!s.empty())

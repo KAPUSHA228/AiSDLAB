@@ -8,8 +8,8 @@
 #include "../Expression/StatementExpression.h"
 #include "../Expression/ConditionExpression.h"
 #include "../Expression/CaseOf.h"
-#include "../Token.h"
-#include "../json.hpp"
+#include "../Scripts/Token.h"
+#include "../Scripts/json.hpp"
 using json = nlohmann::json;
 
 class FlowchartExporterJson {
@@ -178,6 +178,8 @@ private:
 };
 
 #endif // FLOWCHART_EXPORTER_JSON_H
+
+
 
 
 

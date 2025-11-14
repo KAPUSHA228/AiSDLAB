@@ -11,11 +11,11 @@
 #include <iostream>
 #include "Stack.h"
 #include "SearchTreeTable.h"
-#include "Expression/Expression.h"
-#include "Expression/StatementExpression.h"
-#include "Expression/ConditionExpression.h"
-#include "Expression/FunctionExecutor.h"
-#include "Expression/CaseOf.h"
+#include "../Expression/Expression.h"
+#include "../Expression/StatementExpression.h"
+#include "../Expression/ConditionExpression.h"
+#include "../Expression/FunctionExecutor.h"
+#include "../Expression/CaseOf.h"
 
 using namespace std;
 

@@ -7,7 +7,7 @@
 #include "Expression.h"
 #include <bits/stdc++.h>
 #include "stdexcept"
-#include "../Token.h"
+#include "../Scripts/Token.h"
 static int y=0;
 static int posofEndofIf=0; //только для вложенных случаев нужен
 class ConditionExpression: public Expression{

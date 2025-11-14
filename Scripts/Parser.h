@@ -11,12 +11,12 @@
 #include "Lexer.h"
 #include "Token.h"
 #include "HierarchyList.h"
-#include "Expression/Expression.h"
-#include "Expression/StatementExpression.h"
-#include "Expression/ConditionExpression.h"
-#include "Expression/CaseOf.h"
-#include "Expression/Function.h"
-#include "Expression/Procedure.h"
+#include "../Expression/Expression.h"
+#include "../Expression/StatementExpression.h"
+#include "../Expression/ConditionExpression.h"
+#include "../Expression/CaseOf.h"
+#include "../Expression/Function.h"
+#include "../Expression/Procedure.h"
 
 
 class Parser {
