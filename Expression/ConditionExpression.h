@@ -51,17 +51,19 @@ public:
                 if(((list[posofEndofIf].getType()=="CONDITION"))|| //если хоть какую-то в нем вложенность находим
                    (list[posofEndofIf].getType()=="CYCLEFOR")|| // хоть вложенное условие, хоть вложенный цикл, то создаём новый объект
                    (list[posofEndofIf].getType()=="CYCLEWHILE")|| // не забываем про static переменную, она указывает новое место где мы окажемся
-                   (list[posofEndofIf].getType()=="CYCLEDOWHILE"))//поднявшись обратно наверх от вложенного объекта
+                   (list[posofEndofIf].getType()=="CYCLEDOWHILE")||
+                   (list[posofEndofIf].getType()=="UNCONDITION"))//поднявшись обратно наверх от вложенного объекта
                 {
-                        ConditionExpression* cx = new ConditionExpression(posofEndofIf,list);
-                        posofEndofIf=cx->getGlobalPos();
-                        expressionList.push_back(cx);
+                    ConditionExpression* cx = new ConditionExpression(posofEndofIf,list);
+                    posofEndofIf=cx->getGlobalPos();
+                    expressionList.push_back(cx);
                 }
                 else
                 {
                     while(list[posofEndofIf].getType()!="SEMICOLON"){ //если вложенности нет или мы с ней уже закончили, то формируем обычные выражения
                         localList.push_back(list[posofEndofIf]);
-                        posofEndofIf++;}
+                        posofEndofIf++;
+                    }
                     StatementExpression* rx= new StatementExpression(localList);
                     expressionList.push_back(rx);
                     localList.clear();
@@ -75,7 +77,10 @@ public:
         if(list[posofEndofIf].getType()=="UNCONDITION"){
             condition.push_back(list[posofEndofIf]);
             while(list[posofEndofIf].getType()!="BEGIN")
-            { posofEndofIf++;} posofEndofIf++;
+            {
+                posofEndofIf++;
+            }
+            posofEndofIf++;
             // те же шаги, что и при condition, но уже в цикле до ENDofCycle
             while(list[posofEndofIf].getType()!="ENDofCycle"){
                 if(((list[posofEndofIf].getType()=="CONDITION"))||

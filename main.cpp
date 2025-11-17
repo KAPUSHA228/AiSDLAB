@@ -32,10 +32,10 @@ int main() {
                 "Writeln ('From Read ' , Res ) ;"
                 "num1 := 12 div 2;"
                 "num1 := AddNumbers ( PI , PI);"
-//                "if 5 mod 3 > 0 then begin"
-//                    "Writeln ('Yes,if 1 ');"
-//                    "Writeln ('Yes,if 2 ');"
-//                "end"
+                "if 5 mod 3 > 0 then begin"
+                    "Writeln ('Yes,if 1 ');"
+                    "Writeln ('Yes,if 2 ');"
+                "end"
                 "case num1 of"
                 "begin"
                     "1 , 2 , 3 :"
@@ -59,40 +59,40 @@ int main() {
                     "Writeln ('No,else 1 ');"
                     "Writeln ('No,else 2 ');"
                 "end;"
-//                "if 5 mod 3 > 0 then begin"
-//                    "Writeln ('Yes,if 1 ');"
-//                    "Writeln ('Yes,if 2 ');"
-//                "end"
-//                "else begin"
-//                    "Writeln ('No,else 1 ');"
-//                    "Writeln ('No,else 2 ');"
-//                "end;"
+                "if 5 mod 3 > 0 then begin"
+                    "Writeln ('Yes,if 1 ');"
+                    "Writeln ('Yes,if 2 ');"
+                "end"
+                "else begin"
+                    "Writeln ('No,else 1 ');"
+                    "Writeln ('No,else 2 ');"
+                "end;"
                 "res2 := 'Hello world' ;"
                 "num1 := 2 ;"
                 "Writeln ('From table ' , num1);"
-//                "if PI <> num1 then begin"
-//                    "Writeln( 'Pim' );"
-//                    "if PI <> num1 then begin"
-//                        "Writeln ('Pam');"
-//                    "end"
-//                "end"
-//                "else begin"
-//                    "Writeln ('Pum');"
-//                "end;"
-//                "if PI <> num1 then begin"
-//                    "Writeln( 'Pim' );"
-//                    "if 5 mod 3 > 0 then begin"
-//                        "Writeln ('Yes,if 1 ');"
-//                        "Writeln ('Yes,if 2 ');"
-//                    "end"
-//                    "else begin"
-//                        "Writeln ('No,else 1 ');"
-//                        "Writeln ('No,else 2 ');"
-//                    "end;"
-//                "end"
-//                "else begin"
-//                    "Writeln ('Pum');"
-//                "end;"
+                "if PI <> num1 then begin"
+                    "Writeln( 'Pim' );"
+                    "if PI <> num1 then begin"
+                        "Writeln ('Pam');"
+                    "end"
+                "end"
+                "else begin"
+                    "Writeln ('Pum');"
+                "end;"
+                "if PI <> num1 then begin"
+                    "Writeln( 'Pim' );"
+                    "if 5 mod 3 > 0 then begin"
+                        "Writeln ('Yes,if 1 ');"
+                        "Writeln ('Yes,if 2 ');"
+                    "end"
+                    "else begin"
+                        "Writeln ('No,else 1 ');"
+                        "Writeln ('No,else 2 ');"
+                    "end;"
+                "end"
+                "else begin"
+                    "Writeln ('Pum');"
+                "end;"
                 "for i := 1 to 8 do begin"
                     "Write ( '3' ) ;"
                 "end;"
@@ -117,7 +117,7 @@ int main() {
             "end.";
 
 
-   // cout << "=== ORIGINAL CODE ===\n" << pascalCode << "\n\n";
+    cout << "=== ORIGINAL CODE ===\n" << pascalCode << "\n\n";
 
     // STEP 1: Parse Pascal -> Expression* (parseOnly - без выполнения)
     Lexer lexer(pascalCode, PASCAL);
@@ -128,25 +128,30 @@ int main() {
     cout << "Parsing: created " << exprs.size() << " expressions\n\n";
 
     // STEP 2: Export to Mermaid WITH METADATA
-    FlowchartFromExpressions exporter;
-    std::string mmd = exporter.build(exprs);
+//    FlowchartFromExpressions exporter;
+//    std::string mmd = exporter.build(exprs);
+//    mmd.insert(0,"graph TD\n"
+//                 "N1" "(["+title+"])\n"
+//                                 "N1 --> N2\n");
+    PascalToJSON exporter2;
     std::string title =  parser.getTitle();
-    mmd.insert(0,"graph TD\n"
-                 "N1" "(["+title+"])\n"
-                                 "N1 --> N2\n");
-    //std::cout<<"Output of mmd: \n"<<mmd<<"\n";
-    // Экспорт блок-схемы по существующим Expression (Mermaid и JSON)
-    std::ofstream f("flowchart.mmd");
-    f << mmd;
-    f.close();
-    cout << "Mermaid saved to flowchart.mmd\n\n";
 
-    // STEP 3: Import back from Mermaid and generate Pascal using PascalCodeGenerator
+    std::string mmd2 = exporter2.build(exprs,title);
+    std::cout<<"Output of mmd2: \n"<<mmd2<<"\n";
+    // Экспорт блок-схемы по существующим Expression (Mermaid и JSON)
+    std::ofstream f("flowchart.json");
+    f << mmd2;
+    f.close();
+    cout << "Mermaid saved to flowchart.json\n\n";
+
+    // STEP 3: Import back from JSON and generate Pascal using PascalCodeGenerator
     PascalCodeGenerator codeGenerator;
+    nlohmann::json jsonData = nlohmann::json::parse(mmd2);
+    std::string restoredPascal = codeGenerator.generatePascal(jsonData);
 //    Lexer l(mmd, MERMAID);
 //    l.printTokenList();
 
-    string restoredPascal = codeGenerator.generatePascal(mmd, title);
+    //string restoredPascal = codeGenerator.generatePascal(mmd, title);
     cout << "Import: restored Pascal code directly\n\n";
 
     cout << "=== RESTORED CODE ===\n" << restoredPascal << "\n\n";

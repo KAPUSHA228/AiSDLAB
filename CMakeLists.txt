@@ -15,21 +15,21 @@ endif()
 # Add executable
 add_executable(${PROJECT_NAME}
     main.cpp
-    Lexer.h
-    Token.h
+        Scripts/Lexer.h
+        Scripts/Token.h
     Expression/Expression.h
     Expression/StatementExpression.h
-    Parser.h
-    HierarchyList.h
+        Scripts/Parser.h
+        Scripts/HierarchyList.h
     Expression/ConditionExpression.h
-    Postfix.h
-    Stack.h
-    SearchTreeTable.h
+        Scripts/Postfix.h
+        Scripts/Stack.h
+        Scripts/SearchTreeTable.h
     Expression/Function.h
     Expression/FunctionExecutor.h
     Expression/Procedure.h
     Expression/CaseOf.h
-        Flowchart/PascalCodeGenerator.h
+        CodeGen/PascalCodeGenerator.h
 )
 
 # Set output directory

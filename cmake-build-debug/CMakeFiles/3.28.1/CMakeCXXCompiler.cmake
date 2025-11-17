@@ -1,4 +1,4 @@
-set(CMAKE_CXX_COMPILER "D:/Games/toolbox jb/CLion/bin/mingw/bin/g++.exe")
+set(CMAKE_CXX_COMPILER "D:/games/jetBrains/CLion/bin/mingw/bin/g++.exe")
 set(CMAKE_CXX_COMPILER_ARG1 "")
 set(CMAKE_CXX_COMPILER_ID "GNU")
 set(CMAKE_CXX_COMPILER_VERSION "13.1.0")
@@ -22,11 +22,11 @@ set(CMAKE_CXX_SIMULATE_VERSION "")
 
 
 
-set(CMAKE_AR "D:/Games/toolbox jb/CLion/bin/mingw/bin/ar.exe")
-set(CMAKE_CXX_COMPILER_AR "D:/Games/toolbox jb/CLion/bin/mingw/bin/gcc-ar.exe")
-set(CMAKE_RANLIB "D:/Games/toolbox jb/CLion/bin/mingw/bin/ranlib.exe")
-set(CMAKE_CXX_COMPILER_RANLIB "D:/Games/toolbox jb/CLion/bin/mingw/bin/gcc-ranlib.exe")
-set(CMAKE_LINKER "D:/Games/toolbox jb/CLion/bin/mingw/bin/ld.exe")
+set(CMAKE_AR "D:/games/jetBrains/CLion/bin/mingw/bin/ar.exe")
+set(CMAKE_CXX_COMPILER_AR "D:/games/jetBrains/CLion/bin/mingw/bin/gcc-ar.exe")
+set(CMAKE_RANLIB "D:/games/jetBrains/CLion/bin/mingw/bin/ranlib.exe")
+set(CMAKE_CXX_COMPILER_RANLIB "D:/games/jetBrains/CLion/bin/mingw/bin/gcc-ranlib.exe")
+set(CMAKE_LINKER "D:/games/jetBrains/CLion/bin/mingw/bin/ld.exe")
 set(CMAKE_MT "")
 set(CMAKE_TAPI "CMAKE_TAPI-NOTFOUND")
 set(CMAKE_COMPILER_IS_GNUCXX 1)
@@ -79,7 +79,7 @@ endif()
 
 
 
-set(CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES "D:/Games/toolbox jb/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++;D:/Games/toolbox jb/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/x86_64-w64-mingw32;D:/Games/toolbox jb/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/backward;D:/Games/toolbox jb/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include;D:/Games/toolbox jb/CLion/bin/mingw/include;D:/Games/toolbox jb/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include-fixed;D:/Games/toolbox jb/CLion/bin/mingw/x86_64-w64-mingw32/include")
-set(CMAKE_CXX_IMPLICIT_LINK_LIBRARIES "")
-set(CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES "")
+set(CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES "D:/games/jetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++;D:/games/jetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/x86_64-w64-mingw32;D:/games/jetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/backward;D:/games/jetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include;D:/games/jetBrains/CLion/bin/mingw/include;D:/games/jetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include-fixed;D:/games/jetBrains/CLion/bin/mingw/x86_64-w64-mingw32/include")
+set(CMAKE_CXX_IMPLICIT_LINK_LIBRARIES "stdc++;mingw32;gcc_s;gcc;moldname;mingwex;kernel32;pthread;advapi32;shell32;user32;kernel32;iconv;mingw32;gcc_s;gcc;moldname;mingwex;kernel32")
+set(CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES "D:/games/jetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0;D:/games/jetBrains/CLion/bin/mingw/lib/gcc;D:/games/jetBrains/CLion/bin/mingw/x86_64-w64-mingw32/lib;D:/games/jetBrains/CLion/bin/mingw/lib")
 set(CMAKE_CXX_IMPLICIT_LINK_FRAMEWORK_DIRECTORIES "")

@@ -126,7 +126,7 @@ public:
                     if (auto tmpst = dynamic_cast<ConditionExpression *>(exprs[sz - 1])) {
                         if (tmpst->getCondition().front().getValue() == "if") {
                             link(out, "N" + to_string(tmpCondId[0]), node, "false");
-                            link(out, "N" + to_string(tmpCondId[1]), node);//////////////////////////////////////////
+                            link(out, "N" + to_string(tmpCondId[1]), node);
                         }
                     }
                     else{
@@ -136,7 +136,7 @@ public:
                             continue;
                         }
                         else{
-                            link(out, last, node);//////////////////////////////////////////
+                            link(out, last, node);
                         }
                     }
                 }
