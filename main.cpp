@@ -9,6 +9,7 @@
 #include "Parser/PascalParserToExpression.h"
 #include "Parser/CParserToAST.h"
 #include "Parser/AstVisualizer.h"
+#include "Parser/ASTParserToJSON.h"
 
 using namespace std;
 
@@ -434,16 +435,13 @@ int main() {
     try {
         CParserToAST parser;
         auto ast = parser.parse(cCode);
-        //ast->printTree();
-        if (ast) {
-            std::cout << "AST parsed successfully!\n";
-            std::cout << "AST Structure:\n";
-
-            AstVisualizer visualizer;
-            ast->accept(visualizer);
-        } else {
-            std::cout << "Failed to parse AST\n";
-        }
+        std::cout<<"TEST cCode"<<std::endl;
+        std::cout<<cCode<<std::endl;
+        AstToJsonConverter converter;
+        nlohmann::json mmd3 = converter.convertProgram(ast);
+        std::ofstream f2("flowchart2.json");
+        f2 << mmd3.dump(4);
+        f2.close();
 //        for (int i = 0; i < 21; i++) {
 //            if (i == 16) continue;
 //            auto ast = parser.parse(tests[i]);

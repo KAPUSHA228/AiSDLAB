@@ -32,6 +32,7 @@ add_executable(${PROJECT_NAME}
         CodeGen/PascalCodeGenerator.h
         Parser/CParserToAST.h
         Parser/AstVisualizer.h
+        Parser/ASTParserToJSON.h
 )
 
 # Set output directory
