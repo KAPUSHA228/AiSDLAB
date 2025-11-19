@@ -444,15 +444,15 @@ private:
         }
     }
 
-    void addStructType(const std::string& name) {
+    void addStructType(const std::string &name) {
         knownStructs.insert(name);
     }
 
-    void addTypedef(const std::string& name) {
+    void addTypedef(const std::string &name) {
         knownTypedefs.insert(name);
     }
 
-    bool isStructType(const std::string& name) {
+    bool isStructType(const std::string &name) {
         return knownStructs.count(name) > 0 || knownTypedefs.count(name) > 0;
     }
 
@@ -893,24 +893,24 @@ private:
         }
     }
 
-    std::string exprToString(Expr* expr) {
+    std::string exprToString(Expr *expr) {
         if (!expr) return "null";
 
         // Для Identifier
-        if (auto ident = dynamic_cast<Identifier*>(expr)) {
+        if (auto ident = dynamic_cast<Identifier *>(expr)) {
             return ident->name;
         }
             // Для ArrayAccessExpr
-        else if (auto arrayAccess = dynamic_cast<ArrayAccessExpr*>(expr)) {
+        else if (auto arrayAccess = dynamic_cast<ArrayAccessExpr *>(expr)) {
             return exprToString(arrayAccess->array.get()) + "[" + exprToString(arrayAccess->index.get()) + "]";
         }
             // Для MemberAccessExpr
-        else if (auto memberAccess = dynamic_cast<MemberAccessExpr*>(expr)) {
+        else if (auto memberAccess = dynamic_cast<MemberAccessExpr *>(expr)) {
             std::string accessOp = memberAccess->isPointerAccess ? "->" : ".";
             return exprToString(memberAccess->object.get()) + accessOp + memberAccess->member;
         }
             // Для UnaryOp
-        else if (auto unary = dynamic_cast<UnaryOp*>(expr)) {
+        else if (auto unary = dynamic_cast<UnaryOp *>(expr)) {
             std::string op = unary->op;
             if (unary->postfix) {
                 return exprToString(unary->operand.get()) + op;
@@ -1166,17 +1166,17 @@ private:
                 // sizeof(type)
                 if (isTypeToken(peekType())) {
                     sizeofExpr->expression = parseType();
-                    sizeofExpr->isType=true;
+                    sizeofExpr->isType = true;
                 } else {
                     //sizeof(expression)
                     sizeofExpr->expression = parseExpression();
-                    sizeofExpr->isType=false;
+                    sizeofExpr->isType = false;
                 }
                 consume("CLOSEPARENTHESES", "Ожидалась ')' после sizeof");
             } else {
                 // sizeof expression (без скобок)
                 sizeofExpr->expression = parseUnary();
-                sizeofExpr->isType=false;
+                sizeofExpr->isType = false;
             }
 
             return sizeofExpr;
@@ -1580,8 +1580,7 @@ private:
                     pp->value = fullValue.substr(start + 1, end - start - 1);
                 }
             }
-        }
-        else if (tokenType == "DEFINE") {
+        } else if (tokenType == "DEFINE") {
             std::string macroName;
             std::string macroValue;
 
@@ -1603,8 +1602,7 @@ private:
             }
 
             std::cout << "DEBUG: #define " << macroName << " = " << macroValue << std::endl;
-        }
-        else {
+        } else {
             // Для других препроцессорных директив
             std::string content;
 
@@ -1627,7 +1625,7 @@ private:
         return pp;
     }
 
-    bool isStatementStart(const std::string& type) {
+    bool isStatementStart(const std::string &type) {
         static const std::vector<std::string> statementStarts = {
                 "INT", "VOID", "FLOAT", "DOUBLE", "CHAR", "SHORT", "LONG",
                 "STRUCT", "TYPEDEF", "CONST", "STATIC",
