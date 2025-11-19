@@ -19,7 +19,7 @@ add_executable(${PROJECT_NAME}
         Scripts/Token.h
     Expression/Expression.h
     Expression/StatementExpression.h
-        Scripts/Parser.h
+        Parser/PascalParserToExpression.h
         Scripts/HierarchyList.h
     Expression/ConditionExpression.h
         Scripts/Postfix.h
@@ -30,6 +30,8 @@ add_executable(${PROJECT_NAME}
     Expression/Procedure.h
     Expression/CaseOf.h
         CodeGen/PascalCodeGenerator.h
+        Parser/CParserToAST.h
+        Parser/AstVisualizer.h
 )
 
 # Set output directory

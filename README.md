@@ -1,4 +1,4 @@
-# AiSDLAB - Pascal-like Language Parser
+# AiSDLAB - Pascal-like Language PascalParserToExpression
 
 Этот проект представляет собой лексический анализатор и парсер для языка, похожего на Pascal.
 
@@ -66,7 +66,7 @@ make  # или cmake --build .
 
 - `main.cpp` - главный файл с тестовым кодом
 - `Lexer.h` - лексический анализатор
-- `Parser.h` - парсер
+- `PascalParserToExpression.h` - парсер
 - `Token.h` - класс токена
 - `Expression/` - папка с классами выражений
 - `Postfix.h` - постфиксный калькулятор

@@ -8,9 +8,9 @@
 
 #include <utility>
 #include "stdexcept"
-#include "Lexer.h"
-#include "Token.h"
-#include "HierarchyList.h"
+#include "../Scripts/Lexer.h"
+#include "../Scripts/Token.h"
+#include "../Scripts/HierarchyList.h"
 #include "../Expression/Expression.h"
 #include "../Expression/StatementExpression.h"
 #include "../Expression/ConditionExpression.h"
@@ -19,7 +19,7 @@
 #include "../Expression/Procedure.h"
 
 
-class Parser {
+class PascalParserToExpression {
 private:
     std::string title;
     TPostfixCalc calc;
@@ -30,7 +30,7 @@ private:
     int currentPos = 0;
     types type;
 public:
-    Parser(Lexer lexer, types type) {
+    PascalParserToExpression(Lexer lexer, types type) {
         this->tokenList = lexer.getTokenList();
         this->type=type;
     }

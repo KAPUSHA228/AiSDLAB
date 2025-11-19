@@ -378,6 +378,7 @@ public:
                 {"SIZEOF", "\\bsizeof\\b"},
 
                 // Многосимвольные операторы
+                {"PTRACCESS", "->"},
                 {"INCREMENT", "\\+\\+"},
                 {"DECREMENT", "--"},
                 {"PLUSASSIGN", "\\+="},
@@ -418,8 +419,8 @@ public:
                 {"CLOSEPARENTHESES", "\\)"},
                 {"OPENCURLY", "\\{"},
                 {"CLOSECURLY", "\\}"},
-                {"OPENSQUARE", "\\["},
-                {"CLOSESQUARE", "\\]"},
+                {"OPENBRACKET", "\\["},
+                {"CLOSEBRACKET", "\\]"},
                 {"DOT", "\\."},
 
                 // Литералы (УПРОЩЕННЫЕ)
