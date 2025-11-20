@@ -26,3 +26,4 @@ struct AstNode {
 };
 
 #endif // AST_CORE_H
+

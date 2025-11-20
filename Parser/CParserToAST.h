@@ -20,7 +20,7 @@ public:
     std::unique_ptr<Program> parse(const std::string &code) {
         Lexer lexer(code, types::C);
         tokens = lexer.getTokenList();
-        lexer.printTokenList();
+        //lexer.printTokenList();
         // Фильтруем пробелы и комментарии, если они вдруг остались
         std::vector<Token> filtered;
         filtered.reserve(tokens.size());

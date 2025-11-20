@@ -33,6 +33,16 @@ add_executable(${PROJECT_NAME}
         Parser/CParserToAST.h
         Parser/AstVisualizer.h
         Parser/ASTParserToJSON.h
+        CPPAst/CppAst.h
+        CPPAst/CppExpr.h
+        CPPAst/CppStmt.h
+        CPPAst/CppDecl.h
+        CPPAst/CppVisitor.h
+        Parser/CppParserToAST.h
+        CodeGen/CCodeGenerator.h
+        CPPAst/CppAstFw.h
+        CPPAst/CppExprAcceptImpl.h
+        Parser/CppAstVisualizer.h
 )
 
 # Set output directory

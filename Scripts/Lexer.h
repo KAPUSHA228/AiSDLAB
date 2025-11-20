@@ -11,7 +11,7 @@
 #include "Token.h"
 
 enum types{
-    PASCAL, C, CPLUSPLUS, MERMAID
+    PASCAL, C, CPP
 };
 class Lexer {
 private:
@@ -36,12 +36,9 @@ public:
                 vector =getTokenTypeC();
                 while (hasNext2()) {}
                 break;
-            case CPLUSPLUS:
+            case CPP:
                 vector =getTokenTypeCPlusPlus();
-                break;
-            case MERMAID:
-                vector =getTokenTypeMermaid();
-                while(hasNext3()){}
+                while (hasNext3()) {}
                 break;
             default:
                 break;
@@ -59,16 +56,12 @@ public:
                 pos += res.length();
                 if (item.first != "SPACE") {
                     tokenList.emplace_back(item.first, res, pos - res.length());
-                   /* std::cout<<"Type of lexema: " <<item.first <<
-                     "; Pos: " << ++i <<
-                      "; Value of lexema: "<<res<<" ;"<<std::endl;*/
                 }
                 return true;
             }
         }
         return false;
     }
-    // Специальный метод для языка C с приоритетами
     bool hasNext2() {
         if (pos >= input_string.length()) return false;
 
@@ -170,21 +163,166 @@ public:
         return true;
     }
     bool hasNext3() {
-            for (const auto &item: vector) {
-                const std::string s = input_string;
-                std::regex rgx("^" + item.second);
-                std::smatch match;
-                if (std::regex_search(s.begin() + pos, s.end(), match, rgx)) {
-                    std::string res = static_cast<std::string>(match[0]);
-                    pos += res.length();
-                    if (item.first != "SPACE") {
-                        tokenList.emplace_back(item.first, res, pos - res.length());
-                    }
+        if (pos >= input_string.length()) return false;
+
+        const std::string& s = input_string; // Используем ссылку!
+
+        // 1. Пропускаем пробелы быстро (без regex)
+        while (pos < s.length() && std::isspace(static_cast<unsigned char>(s[pos]))) {
+            pos++;
+        }
+        if (pos >= s.length()) return false;
+
+        // 2. Обработка строковых литералов (оптимизировано)
+        if (s[pos] == '"') {
+            size_t end_pos = pos + 1;
+            while (end_pos < s.length() && s[end_pos] != '"') {
+                if (s[end_pos] == '\\' && end_pos + 1 < s.length()) {
+                    end_pos += 2; // Пропускаем экранированный символ
+                } else {
+                    end_pos++;
+                }
+            }
+            if (end_pos < s.length()) {
+                tokenList.emplace_back("VALUESTRING", s.substr(pos, end_pos - pos + 1), pos);
+                pos = end_pos + 1;
+                return true;
+            }
+        }
+
+        // 3. Символьные литералы
+        if (s[pos] == '\'') {
+            size_t end_pos = pos + 1;
+            while (end_pos < s.length() && s[end_pos] != '\'') {
+                if (s[end_pos] == '\\' && end_pos + 1 < s.length()) {
+                    end_pos += 2;
+                } else {
+                    end_pos++;
+                }
+            }
+            if (end_pos < s.length()) {
+                tokenList.emplace_back("VALUECHAR", s.substr(pos, end_pos - pos + 1), pos);
+                pos = end_pos + 1;
+                return true;
+            }
+        }
+
+        // 4. Комментарии (оптимизировано)
+        if (pos + 1 < s.length()) {
+            if (s[pos] == '/' && s[pos + 1] == '/') {
+                // Однострочный комментарий
+                size_t end_pos = s.find('\n', pos + 2);
+                if (end_pos == std::string::npos) end_pos = s.length();
+                tokenList.emplace_back("COMMENT", s.substr(pos, end_pos - pos), pos);
+                pos = end_pos;
+                return true;
+            }
+            if (s[pos] == '/' && s[pos + 1] == '*') {
+                // Многострочный комментарий
+                size_t end_pos = s.find("*/", pos + 2);
+                if (end_pos != std::string::npos) {
+                    tokenList.emplace_back("COMMENT", s.substr(pos, end_pos - pos + 2), pos);
+                    pos = end_pos + 2;
                     return true;
                 }
             }
-            return false;
+        }
 
+        // 5. Быстрая проверка односимвольных токенов (без regex)
+        char current_char = s[pos];
+        switch (current_char) {
+            case ';': tokenList.emplace_back("SEMICOLON", ";", pos); pos++; return true;
+            case ',': tokenList.emplace_back("COMMA", ",", pos); pos++; return true;
+            case ':':
+                if (pos + 1 < s.length() && s[pos + 1] == ':') {
+                    tokenList.emplace_back("SCOPE", "::", pos); pos += 2; return true;
+                }
+                tokenList.emplace_back("COLON", ":", pos); pos++; return true;
+            case '(': tokenList.emplace_back("OPENPARENTHESES", "(", pos); pos++; return true;
+            case ')': tokenList.emplace_back("CLOSEPARENTHESES", ")", pos); pos++; return true;
+            case '{': tokenList.emplace_back("OPENCURLY", "{", pos); pos++; return true;
+            case '}': tokenList.emplace_back("CLOSECURLY", "}", pos); pos++; return true;
+            case '[': tokenList.emplace_back("OPENBRACKET", "[", pos); pos++; return true;
+            case ']': tokenList.emplace_back("CLOSEBRACKET", "]", pos); pos++; return true;
+            case '?': tokenList.emplace_back("QUESTION", "?", pos); pos++; return true;
+            case '~': tokenList.emplace_back("BITNOT", "~", pos); pos++; return true;
+        }
+
+        // 6. Многосимвольные операторы (быстрая проверка)
+        if (pos + 1 < s.length()) {
+            std::string two_chars = s.substr(pos, 2);
+            std::string three_chars = pos + 2 < s.length() ? s.substr(pos, 3) : "";
+
+            // Проверяем трехсимвольные операторы
+            if (!three_chars.empty()) {
+                if (three_chars == "...") { tokenList.emplace_back("ELLIPSIS", "...", pos); pos += 3; return true; }
+                if (three_chars == "->*") { tokenList.emplace_back("PTRMEMBER", "->*", pos); pos += 3; return true; }
+                if (three_chars == ".*") { tokenList.emplace_back("MEMBERPTR", ".*", pos); pos += 2; return true; }
+                if (three_chars == "<<=") { tokenList.emplace_back("SHIFTLEFTASSIGN", "<<=", pos); pos += 3; return true; }
+                if (three_chars == ">>=") { tokenList.emplace_back("SHIFTRIGHTASSIGN", ">>=", pos); pos += 3; return true; }
+            }
+
+            // Двухсимвольные операторы
+            if (two_chars == "->") { tokenList.emplace_back("PTRACCESS", "->", pos); pos += 2; return true; }
+            if (two_chars == "++") { tokenList.emplace_back("INCREMENT", "++", pos); pos += 2; return true; }
+            if (two_chars == "--") { tokenList.emplace_back("DECREMENT", "--", pos); pos += 2; return true; }
+            if (two_chars == "+=") { tokenList.emplace_back("PLUSASSIGN", "+=", pos); pos += 2; return true; }
+            if (two_chars == "-=") { tokenList.emplace_back("MINUSASSIGN", "-=", pos); pos += 2; return true; }
+            if (two_chars == "*=") { tokenList.emplace_back("MULTIASSIGN", "*=", pos); pos += 2; return true; }
+            if (two_chars == "/=") { tokenList.emplace_back("DIVASSIGN", "/=", pos); pos += 2; return true; }
+            if (two_chars == "%=") { tokenList.emplace_back("MODASSIGN", "%=", pos); pos += 2; return true; }
+            if (two_chars == "&=") { tokenList.emplace_back("ANDASSIGN", "&=", pos); pos += 2; return true; }
+            if (two_chars == "|=") { tokenList.emplace_back("ORASSIGN", "|=", pos); pos += 2; return true; }
+            if (two_chars == "^=") { tokenList.emplace_back("XORASSIGN", "^=", pos); pos += 2; return true; }
+            if (two_chars == "<<") { tokenList.emplace_back("BITSHIFTLEFT", "<<", pos); pos += 2; return true; }
+            if (two_chars == ">>") { tokenList.emplace_back("BITSHIFTRIGHT", ">>", pos); pos += 2; return true; }
+            if (two_chars == ">=") { tokenList.emplace_back("JGE", ">=", pos); pos += 2; return true; }
+            if (two_chars == "<=") { tokenList.emplace_back("JLE", "<=", pos); pos += 2; return true; }
+            if (two_chars == "!=") { tokenList.emplace_back("JNE", "!=", pos); pos += 2; return true; }
+            if (two_chars == "==") { tokenList.emplace_back("JE", "==", pos); pos += 2; return true; }
+            if (two_chars == "&&") { tokenList.emplace_back("AND", "&&", pos); pos += 2; return true; }
+            if (two_chars == "||") { tokenList.emplace_back("OR", "||", pos); pos += 2; return true; }
+        }
+
+        // 7. Односимвольные операторы (продолжение)
+        switch (current_char) {
+            case '+': tokenList.emplace_back("PLUS", "+", pos); pos++; return true;
+            case '-': tokenList.emplace_back("MINUS", "-", pos); pos++; return true;
+            case '*': tokenList.emplace_back("MULTI", "*", pos); pos++; return true;
+            case '/': tokenList.emplace_back("DIV", "/", pos); pos++; return true;
+            case '%': tokenList.emplace_back("MOD", "%", pos); pos++; return true;
+            case '=': tokenList.emplace_back("ASSIGN", "=", pos); pos++; return true;
+            case '>': tokenList.emplace_back("JG", ">", pos); pos++; return true;
+            case '<': tokenList.emplace_back("JL", "<", pos); pos++; return true;
+            case '!': tokenList.emplace_back("NOT", "!", pos); pos++; return true;
+            case '&': tokenList.emplace_back("BITAND", "&", pos); pos++; return true;
+            case '|': tokenList.emplace_back("BITOR", "|", pos); pos++; return true;
+            case '^': tokenList.emplace_back("BITXOR", "^", pos); pos++; return true;
+            case '.': tokenList.emplace_back("MEMBERACCESS", ".", pos); pos++; return true;
+        }
+
+        // 8. Только теперь используем regex для сложных случаев
+        std::smatch match;
+        for (const auto &item: vector) {
+            // Пропускаем уже обработанные типы
+            if (item.first == "SPACE" || item.first == "COMMENT" ||
+                item.first == "VALUESTRING" || item.first == "VALUECHAR") {
+                continue;
+            }
+
+            std::regex rgx("^" + item.second);
+            if (std::regex_search(s.begin() + pos, s.end(), match, rgx)) {
+                std::string res = match[0];
+                pos += res.length();
+                tokenList.emplace_back(item.first, res, pos - res.length());
+                return true;
+            }
+        }
+
+        // 9. Если ничего не найдено, продвигаемся
+        std::cout << "Unknown character: '" << s[pos] << "' at position " << pos << std::endl;
+        pos++;
+        return true;
     }
 
     void printTokenList() {
@@ -196,248 +334,159 @@ public:
     std::vector<Token> getTokenList() {
         return this->tokenList;
     }
-    
-    /**
-     * Разбирает метку узла из Mermaid на токены
-     * Пример: "if 5 mod 3 > 0 then" -> [CONDITION:if, VALUEINTEGER:5, MOD:mod, ...]
-     */
-    static std::vector<std::pair<std::string, std::string>> getTokenTypeMermaid() {
+
+   static std::vector<std::pair<std::string, std::string>> getTokenTypeCPlusPlus() {
         return {
-                // Основные ключевые слова блок-схем
-                {"FLOWCHART", "flowchart"},
-                {"GRAPH", "graph"},
+                // === ВЫСОКОПРИОРИТЕТНЫЕ ТОКЕНЫ ===
 
-                // Направления
-                {"DIRECTION_TB", "TB"},
-                {"DIRECTION_BT", "BT"},
-                {"DIRECTION_LR", "LR"},
-                {"DIRECTION_RL", "RL"},
-                {"DIRECTION_TD", "TD"},
+                // Комментарии (обрабатываются отдельно в hasNext2)
+                {"COMMENT", "//[^\\n]*|/\\*.*?\\*/"},
 
-                // Типы блоков (узлов)
-                {"START_END", "\\(\\[.*?\\]\\)"},                   // Начало/конец ([ ])
-                {"NEWFOR", "\\{\\{.*?\\}\\}"},                      // Отдельный блок для for {{ }}
-                {"DECISION", "\\{.*?\\}"},                          // Ромбик { }
-                {"INPUT_OUTPUT", "\\[\\/.*?\\/\\]"},                // Ввод/вывод [/ /]
-                {"SUBROUTINE", "\\[\\[.*?\\]\\]"},                  // Подпрограмма [[ ]]
-                {"DATABASE", "\\[\\(\\|.*?\\|\\)\\]"},              // База данных [(| |)]
-                {"JUSTBLOCK", "\\[.*?\\]"},                         // Блок [ ]
+                // Строковые и символьные литералы (обрабатываются отдельно)
+                {"VALUESTRING", "\"[^\"]*\""},
+                {"VALUECHAR", "'[^']*'"},
 
-                {"NODE_ID", "N\\d+"},
-                // Операторы связей
-                {"CONDITION_TRUE", "--\\>\\|true\\|"},
-                {"CONDITION_FALSE", "--\\>\\|false\\|"},
-                {"CONDITION_SWITCH", "--\\>\\|[0-9a-zA-Z'\" ]+\\|"},
-                {"ARROW_SOLID", "-->"},
+                // === ПРЕПРОЦЕССОР (оптимизировано) ===
+                {"INCLUDE", "#include\\s*<[^>]+>"},
+                {"INCLUDE", "#include\\s*\"[^\"]+\""},
+                {"DEFINE", "#define\\b"},
+                {"IFDEF", "#ifdef\\b"},
+                {"IFNDEF", "#ifndef\\b"},
+                {"ENDIF", "#endif\\b"},
+                {"PRAGMA", "#pragma\\b"},
 
-                {"LINK_SOLID", "---"},
-                {"LINK_THICK", "==="},
+                // === КЛЮЧЕВЫЕ СЛОВА (группированы по длине для оптимизации) ===
 
-                // Ветки условий (true/false)
+                // Длинные ключевые слова сначала
+                {"STATIC_ASSERT", "static_assert\\b"},
+                {"CONSTEXPR", "constexpr\\b"},
+                {"DECLTYPE", "decltype\\b"},
+                {"NOEXCEPT", "noexcept\\b"},
+                {"OPERATOR", "operator\\b"},
+                {"NAMESPACE", "namespace\\b"},
+                {"TYPENAME", "typename\\b"},
+                {"TEMPLATE", "template\\b"},
+                {"EXPLICIT", "explicit\\b"},
+                {"MUTABLE", "mutable\\b"},
+                {"VOLATILE", "volatile\\b"},
+                {"REGISTER", "register\\b"},
+                {"OVERRIDE", "override\\b"},
+                {"VIRTUAL", "virtual\\b"},
+                {"PRIVATE", "private\\b"},
+                {"PUBLIC", "public\\b"},
+                {"PROTECTED", "protected\\b"},
+                {"CONTINUE", "continue\\b"},
+                {"STATIC", "static\\b"},
+                {"EXTERN", "extern\\b"},
+                {"INLINE", "inline\\b"},
+                {"SIZEOF", "sizeof\\b"},
+                {"TYPEDEF", "typedef\\b"},
+                {"DELETE", "delete\\b"},
+                {"FRIEND", "friend\\b"},
+                {"RETURN", "return\\b"},
+                {"STRUCT", "struct\\b"},
+                {"SWITCH", "switch\\b"},
+                {"THROW", "throw\\b"},
+                {"CATCH", "catch\\b"},
+                {"CLASS", "class\\b"},
+                {"CONST", "const\\b"},
+                {"FINAL", "final\\b"},
+                {"USING", "using\\b"},
+                {"WHILE", "while\\b"},
+                {"BREAK", "break\\b"},
+                {"CASE", "case\\b"},
+                {"ELSE", "else\\b"},
+                {"ENUM", "enum\\b"},
+                {"GOTO", "goto\\b"},
+                {"AUTO", "auto\\b"},
+                {"BOOL", "bool\\b"},
+                {"CHAR", "char\\b"},
+                {"DOUBLE", "double\\b"},
+                {"FLOAT", "float\\b"},
+                {"LONG", "long\\b"},
+                {"SHORT", "short\\b"},
+                {"UNION", "union\\b"},
+                {"UNSIGNED", "unsigned\\b"},
+                {"SIGNED", "signed\\b"},
+                {"TRY", "try\\b"},
+                {"VOID", "void\\b"},
+                {"THIS", "this\\b"},
+                {"NEW", "new\\b"},
+                {"DO", "do\\b"},
+                {"IF", "if\\b"},
+                {"FOR", "for\\b"},
+                {"INT", "int\\b"},
 
-                {"ARROW_TEXT", "\\|.*?\\|"},
+                // === ОПЕРАТОРЫ (группированы по уникальности) ===
 
-                // Подграфы (группы)
-                {"SUBGRAPH_START", "subgraph"},
-                {"SUBGRAPH_END", "end"},
-
-                // Стили и классы
-                {"STYLE", "style"},
-                {"CLASS_DEF", "classDef"},
-                {"CLASS", "class"},
-                {"CLICK", "click"},
-                {"LINK_STYLE", "linkStyle"},
-
-                // Текст и содержимое
-                {"QUOTED_STRING", "\"[^\"]*\""},
-                {"IDENTIFIER", "N\\d*"},
-                {"TEXT_CONTENT", "[^\\s\\[\\]\\(\\)\\{\\}<>,;\"]+"},
-
-                // Символы и разделители
-                {"BRACKET_OPEN", "\\["},
-                {"BRACKET_CLOSE", "\\]"},
-                {"PAREN_OPEN", "\\("},
-                {"PAREN_CLOSE", "\\)"},
-                {"BRACE_OPEN", "\\{"},
-                {"BRACE_CLOSE", "\\}"},
-                {"ANGLE_OPEN", "<"},
-                {"ANGLE_CLOSE", ">"},
-                {"COMMA", ","},
-                {"SEMICOLON", ";"},
-                {"COLON", ":"},
-                {"EQUALS", "="},
-                {"PIPE", "\\|"},
-
-                // Комментарии
-                {"COMMENT", "%%[^\\n]*"},
-
-                // Пробельные символы
-                {"SPACE", "[ \t\n]"},
-                {"NEWLINE", "\\n"},
-
-        };
-    }
-    static std::vector<std::pair<std::string, std::string>> getTokenTypeCPlusPlus() {
-        return {
-                // Препроцессорные директивы C++
-                {"INCLUDE",             "#include[ ]*<[^>]+>"},
-                {"INCLUDE",             "#include[ ]*\"[^\"]+\""},
-                {"DEFINE",              "#define\\b"},
-                {"IFDEF",               "#ifdef\\b"},
-                {"IFNDEF",              "#ifndef\\b"},
-                {"ENDIF",               "#endif\\b"},
-                {"PRAGMA",              "#pragma\\b"},
-                {"PREPROCESSOR",        "#[a-zA-Z_][a-zA-Z0-9_]*"},
-
-                // Ключевые слова C++ (добавлены специфичные для C++)
-                {"CLASS",               "\\bclass\\b"},
-                {"PUBLIC",              "\\bpublic\\b"},
-                {"PRIVATE",             "\\bprivate\\b"},
-                {"PROTECTED",           "\\bprotected\\b"},
-                {"VIRTUAL",             "\\bvirtual\\b"},
-                {"OVERRIDE",            "\\boverride\\b"},
-                {"FINAL",               "\\bfinal\\b"},
-                {"FRIEND",              "\\bfriend\\b"},
-                {"OPERATOR",            "\\boperator\\b"},
-                {"THIS",                "\\bthis\\b"},
-                {"NEW",                 "\\bnew\\b"},
-                {"DELETE",              "\\bdelete\\b"},
-                {"NAMESPACE",           "\\bnamespace\\b"},
-                {"USING",               "\\busing\\b"},
-                {"TYPEDEF",             "\\btypedef\\b"},
-                {"TYPENAME",            "\\btypename\\b"},
-                {"TEMPLATE",            "\\btemplate\\b"},
-                {"THROW",               "\\bthrow\\b"},
-                {"TRY",                 "\\btry\\b"},
-                {"CATCH",               "\\bcatch\\b"},
-                {"EXPLICIT",            "\\bexplicit\\b"},
-                {"MUTABLE",             "\\bmutable\\b"},
-                {"VOLATILE",            "\\bvolatile\\b"},
-                {"REGISTER",            "\\bregister\\b"},
-                {"EXTERN",              "\\bextern\\b"},
-                {"INLINE",              "\\binline\\b"},
-                {"AUTO",                "\\bauto\\b"},  // C++11 и выше
-                {"DECLTYPE",            "\\bdecltype\\b"},
-                {"NOEXCEPT",            "\\bnoexcept\\b"},
-                {"CONSTEXPR",           "\\bconstexpr\\b"},
-                {"STATIC_ASSERT",       "\\bstatic_assert\\b"},
-
-                // Унаследованные из C
-                {"IF",                  "\\bif\\b"},
-                {"ELSE",                "\\belse\\b"},
-                {"WHILE",               "\\bwhile\\b"},
-                {"FOR",                 "\\bfor\\b"},
-                {"DO",                  "\\bdo\\b"},
-                {"SWITCH",              "\\bswitch\\b"},
-                {"CASE",                "\\bcase\\b"},
-                {"DEFAULT",             "\\bdefault\\b"},
-                {"BREAK",               "\\bbreak\\b"},
-                {"CONTINUE",            "\\bcontinue\\b"},
-                {"RETURN",              "\\breturn\\b"},
-                {"VOID",                "\\bvoid\\b"},
-                {"INT",                 "\\bint\\b"},
-                {"FLOAT",               "\\bfloat\\b"},
-                {"DOUBLE",              "\\bdouble\\b"},
-                {"CHAR",                "\\bchar\\b"},
-                {"BOOL",                "\\bbool\\b"},  // Добавлен для C++
-                {"SHORT",               "\\bshort\\b"},
-                {"LONG",                "\\blong\\b"},
-                {"SIGNED",              "\\bsigned\\b"},
-                {"UNSIGNED",            "\\bunsigned\\b"},
-                {"CONST",               "\\bconst\\b"},
-                {"STATIC",              "\\bstatic\\b"},
-                {"STRUCT",              "\\bstruct\\b"},
-                {"UNION",               "\\bunion\\b"},
-                {"ENUM",                "\\benum\\b"},
-                {"SIZEOF",              "\\bsizeof\\b"},
-                {"TYPEDEF",             "\\btypedef\\b"},
-
-                // Специфичные операторы C++
-                {"SCOPE",               "::"},
-                {"PTRACCESS",           "->"},
-                {"PTRMEMBER",           "->\\*"},  // Указатель на член класса
-                {"MEMBERACCESS",        "\\."},
-                {"MEMBERPTR",           "\\.\\*"},  // Доступ к члену через указатель
-                {"INCREMENT",           "\\+\\+"},
-                {"DECREMENT",           "--"},
-                {"PLUSASSIGN",          "\\+="},
-                {"MINUSASSIGN",         "-="},
-                {"MULTIASSIGN",         "\\*="},
-                {"DIVASSIGN",           "/="},
-                {"MODASSIGN",           "%="},
-                {"ANDASSIGN",           "&="},
-                {"ORASSIGN",            "\\|="},
-                {"XORASSIGN",           "\\^="},
-                {"SHIFTLEFTASSIGN",     "<<="},
-                {"SHIFTRIGHTASSIGN",    ">>="},
-                {"JGE",                 ">="},
-                {"JLE",                 "<="},
-                {"JNE",                 "!="},
-                {"JE",                  "=="},
-                {"SPACESHIP",           "<=>"},  // C++20
-                {"AND",                 "&&"},
-                {"OR",                  "\\|\\|"},
-                {"BITSHIFTLEFT",        "<<"},
-                {"BITSHIFTRIGHT",       ">>"},
-                {"QUESTION",            "\\?"},
-                {"ELLIPSIS",            "\\.\\.\\."},  // Для variadic templates
+                // Многосимвольные операторы сначала
+                {"PTRMEMBER", "->\\*"},
+                {"MEMBERPTR", "\\.\\*"},
+                {"SHIFTLEFTASSIGN", "<<="},
+                {"SHIFTRIGHTASSIGN", ">>="},
+                {"PLUSASSIGN", "\\+="},
+                {"MINUSASSIGN", "-="},
+                {"MULTIASSIGN", "\\*="},
+                {"DIVASSIGN", "/="},
+                {"MODASSIGN", "%="},
+                {"ANDASSIGN", "&="},
+                {"ORASSIGN", "\\|="},
+                {"XORASSIGN", "\\^="},
+                {"INCREMENT", "\\+\\+"},
+                {"DECREMENT", "--"},
+                {"PTRACCESS", "->"},
+                {"BITSHIFTLEFT", "<<"},
+                {"BITSHIFTRIGHT", ">>"},
+                {"ELLIPSIS", "\\.\\.\\."},
+                {"SPACESHIP", "<=>"},
+                {"JGE", ">="},
+                {"JLE", "<="},
+                {"JNE", "!="},
+                {"JE", "=="},
+                {"AND", "&&"},
+                {"OR", "\\|\\|"},
+                {"SCOPE", "::"},
 
                 // Односимвольные операторы
-                {"PLUS",                "\\+"},
-                {"MINUS",               "-"},
-                {"MULTI",               "\\*"},
-                {"DIV",                 "/"},
-                {"MOD",                 "%"},
-                {"ASSIGN",              "="},
-                {"JG",                  ">"},
-                {"JL",                  "<"},
-                {"NOT",                 "!"},
-                {"BITAND",              "&"},
-                {"BITOR",               "\\|"},
-                {"BITXOR",              "\\^"},
-                {"BITNOT",              "~"},
+                {"PLUS", "\\+"},
+                {"MINUS", "-"},
+                {"MULTI", "\\*"},
+                {"DIV", "/"},
+                {"MOD", "%"},
+                {"ASSIGN", "="},
+                {"JG", ">"},
+                {"JL", "<"},
+                {"NOT", "!"},
+                {"BITAND", "&"},
+                {"BITOR", "\\|"},
+                {"BITXOR", "\\^"},
+                {"BITNOT", "~"},
+                {"QUESTION", "\\?"},
+                {"MEMBERACCESS", "\\."},  // Убрали DOT - дублирование
 
-                // Разделители
-                {"SEMICOLON",           ";"},
-                {"COMMA",               ","},
-                {"COLON",               ":"},
-                {"OPENPARENTHESES",     "\\("},
-                {"CLOSEPARENTHESES",    "\\)"},
-                {"OPENCURLY",           "\\{"},
-                {"CLOSECURLY",          "\\}"},
-                {"OPENBRACKET",         "\\["},
-                {"CLOSEBRACKET",        "\\]"},
-                {"DOT",                 "\\."},
+                // === РАЗДЕЛИТЕЛИ ===
+                {"SEMICOLON", ";"},
+                {"COMMA", ","},
+                {"COLON", ":"},
+                {"OPENPARENTHESES", "\\("},
+                {"CLOSEPARENTHESES", "\\)"},
+                {"OPENCURLY", "\\{"},
+                {"CLOSECURLY", "\\}"},
+                {"OPENBRACKET", "\\["},
+                {"CLOSEBRACKET", "\\]"},
 
-                // Литералы C++ (расширенные)
-                {"VALUESTRING",         "L?\"[^\"]*\"?"},  // С поддержкой wide strings
-                {"VALUECHAR",           "L?'[^']*'?"},       // С поддержкой wide char
-                {"VALUEBOOL",           "\\b(true|false)\\b"},
-                {"VALUENULLPTR",        "\\bnullptr\\b"},  // C++11
-                {"VALUEHEX",            "0[xX][0-9a-fA-F]+[lLuU]?"},
-                {"VALUEOCTAL",          "0[0-7]+[lLuU]?"},
-                {"VALUEFLOAT",          "[0-9]+\\.[0-9]*[fF]?"},
-                {"VALUEDOUBLE",         "[0-9]+\\.[0-9]+"},
-                {"VALUEINTEGER",        "[0-9]+[lLuU]?"},
-                {"USERDEFINEDLITERAL",  "[0-9]+[a-zA-Z_][a-zA-Z0-9_]*"},  // Пользовательские литералы
+                // === ЛИТЕРАЛЫ ===
+                {"VALUEBOOL", "true\\b|false\\b"},
+                {"VALUENULLPTR", "nullptr\\b"},
+                {"VALUEHEX", "0[xX][0-9a-fA-F]+"},
+                {"VALUEOCTAL", "0[0-7]+"},
+                {"VALUEFLOAT", "[0-9]*\\.[0-9]+([eE][-+]?[0-9]+)?[fF]?"},
+                {"VALUEINTEGER", "[0-9]+"},
 
-                // Идентификаторы (включая операторы)
-                {"IDENTIFIER",          "[a-zA-Z_][a-zA-Z0-9_]*"},
-                {"OPERATOR_IDENTIFIER", "operator[ \\t\\n\\r]*[+\\-*/%&|^~!=<>()\\[\\]]+"},  // Операторы как идентификаторы
+                // === ИДЕНТИФИКАТОРЫ (в конце - самый общий паттерн) ===
+                {"IDENTIFIER", "[a-zA-Z_][a-zA-Z0-9_]*"},
 
-                // Шаблонные конструкции
-                {"TEMPLATE_START",      "template[ \\t\\n\\r]*<"},
-                {"TEMPLATE_END",        ">"},
-
-                // Лямбда-выражения (C++11+)
-                {"LAMBDA",              "\\[\\]"},
-                {"LAMBDA_CAPTURE",      "\\[[^\\]]*\\]"},
-
-                // Пробелы и комментарии
-                {"SPACE",               "[ \\t\\n\\r]"},
-                {"COMMENT",             "//[^\\n]*|/\\*.*?\\*/"}
         };
-
     }
     static std::vector<std::pair<std::string, std::string>> getTokenTypeC() {
         return {
