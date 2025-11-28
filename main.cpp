@@ -893,8 +893,8 @@ int main() {
             "    return 0;\n"
             "}\n"
     };
-
     const int TESTS_COUNT = 18;
+
     char *tests[21];
     tests[0] =
             "#include <stdio.h>\n"
@@ -1049,83 +1049,50 @@ int main() {
             "float calculateCircleArea(float radius) {\n"
             "    return PI_CONST * radius * radius;\n"
             "}\n";
-    //PASCAL TESTING
-    /*
-  //  cout << "=== ORIGINAL CODE ===\n" << pascalCode << "\n\n";
 
-//    // STEP 1: Parse Pascal -> Expression* (parseOnly - без выполнения)
-//    Lexer lexer(pascalCode, PASCAL);
-//    PascalParserToExpression parser(lexer, PASCAL);
-//    parser.parseOnly();  // Только структура, без выполнения
-//
-//    const auto &exprs = parser.getExpressionsOnly();
-//    cout << "Parsing: created " << exprs.size() << " expressions\n\n";
-//
-//    PascalToJSON exporter2;
-//    std::string title =  parser.getTitle();
-//
-//    std::string mmd2 = exporter2.build(exprs,title);
-//    //std::cout<<"Output of mmd2: \n"<<mmd2<<"\n";
-//    // Экспорт блок-схемы по существующим Expression (Mermaid и JSON)
-//    std::ofstream f("flowchart.json");
-//    f << mmd2;
-//    f.close();
-//    cout << "Mermaid saved to flowchart.json\n\n";
-//
-//    // STEP 3: Import back from JSON and generate Pascal using PascalCodeGenerator
-//    PascalCodeGenerator codeGenerator;
-//    nlohmann::json jsonData = nlohmann::json::parse(mmd2);
-//    std::string restoredPascal = codeGenerator.generatePascal(jsonData);
-//
-//    cout << "Import: restored Pascal code directly\n\n";
-//
-//    cout << "=== RESTORED CODE ===\n" << restoredPascal << "\n\n";
-//    // Comparison
-//    if (pascalCode == restoredPascal) {
-//        cout << "SUCCESS: Code is identical!\n";
-//    } else {
-//        cout << "NOTE: Code differs (formatting may vary)\n";
-//        cout << "Main structures should match.\n";
-//    }
+    //PASCAL TESTING
+
+    /* cout << "=== ORIGINAL CODE ===\n" << pascalCode << "\n\n";
+
+    // STEP 1: Parse Pascal -> Expression* (parseOnly - без выполнения)
+    Lexer lexer(pascalCode, PASCAL);
+    PascalParserToExpression parser(lexer, PASCAL);
+    parser.parseOnly();  // Только структура, без выполнения
+
+    const auto &exprs = parser.getExpressionsOnly();
+    cout << "Parsing: created " << exprs.size() << " expressions\n\n";
+
+    PascalToJSON exporter2;
+    std::string title =  parser.getTitle();
+
+    std::string mmd2 = exporter2.build(exprs,title);
+    //std::cout<<"Output of mmd2: \n"<<mmd2<<"\n";
+    // Экспорт блок-схемы по существующим Expression (Mermaid и JSON)
+    std::ofstream f("flowchart.json");
+    f << mmd2;
+    f.close();
+    cout << "Mermaid saved to flowchart.json\n\n";
+
+    // STEP 3: Import back from JSON and generate Pascal using PascalCodeGenerator
+    PascalCodeGenerator codeGenerator;
+    nlohmann::json jsonData = nlohmann::json::parse(mmd2);
+    std::string restoredPascal = codeGenerator.generatePascal(jsonData);
+
+    cout << "Import: restored Pascal code directly\n\n";
+
+    cout << "=== RESTORED CODE ===\n" << restoredPascal << "\n\n";
+    // Comparison
+    if (pascalCode == restoredPascal) {
+        cout << "SUCCESS: Code is identical!\n";
+    } else {
+        cout << "NOTE: Code differs (formatting may vary)\n";
+        cout << "Main structures should match.\n";
+    }
 */
 
-
-    //CPP TESTING
-    /*
-//    for (int i = 0; i < TESTS_COUNT; i++) {
-//        std::cout << "=== Testing part " << (i + 1) << " ===" << std::endl;
-//        try {
-//            CppParserToAST parser;
-//            std::cout << "TEST cCode" << std::endl;
-//            std::cout << tests2[i] << std::endl;
-//            auto result = parser.parse(tests2[i]);
-//            std::cout << "SUCCESS: Part " << (i + 1) << " parsed successfully" << std::endl;
-//            CppAstVisualizer visualizer;
-//            std::cout << "AST STRUCTURE:" << std::endl;
-//            result->accept(visualizer);
-//        } catch (const std::exception& e) {
-//            std::cout << "ERROR in part " << (i + 1) << ": " << e.what() << std::endl;
-//        }catch (...) {
-//            std::cerr << "Unknown error occurred" << std::endl;
-//            return 1;
-//        }
-//        std::cout << std::endl;
-//    }
-//    try {
-//        CppParserToAST parser;
-//        auto ast = parser.parse(CPPCode);
-//        std::cout << "TEST cppCode" << std::endl;
-//        std::cout << cCode << std::endl;
-//    } catch (const std::exception &e) {
-//        std::cerr << "Error: " << e.what() << std::endl;
-//        return 1;
-//    } catch (...) {
-//        std::cerr << "Unknown error occurred" << std::endl;
-//        return 1;
-//    }*/
-
     //C TESTING
-    CParserToAST parserC;
+
+    /* CParserToAST parserC;
     AstToJsonConverter converter;
     CCodeGenerator generator;
     try{
@@ -1160,8 +1127,45 @@ int main() {
 //            }
 //        }
 
+*/
 
 
+    //CPP TESTING
+
+//    for (int i = 0; i < TESTS_COUNT; i++) {
+//        std::cout << "=== Testing part " << (i + 1) << " ===" << std::endl;
+//        try {
+//            CppParserToAST parser;
+//            std::cout << "TEST cppCode" << std::endl;
+//            std::cout << tests2[i] << std::endl;
+//            auto result = parser.parse(tests2[i]);
+//            std::cout << "SUCCESS: Part " << (i + 1) << " parsed successfully" << std::endl;
+//            CppAstVisualizer visualizer;
+//            std::cout << "AST STRUCTURE:" << std::endl;
+//            result->accept(visualizer);
+//        } catch (const std::exception& e) {
+//            std::cout << "ERROR in part " << (i + 1) << ": " << e.what() << std::endl;
+//        }catch (...) {
+//            std::cerr << "Unknown error occurred" << std::endl;
+//            return 1;
+//        }
+//        std::cout << std::endl;
+//    }
+    try {
+        CppParserToAST parser;
+        auto ast = parser.parse(tests2[1]);
+        std::cout << "TEST cppCode" << std::endl;
+        std::cout << tests2[1] << std::endl;
+        CppAstVisualizer visualizer;
+        std::cout << "AST STRUCTURE:" << std::endl;
+        ast->accept(visualizer);
+    } catch (const std::exception &e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+        return 1;
+    } catch (...) {
+        std::cerr << "Unknown error occurred" << std::endl;
+        return 1;
+    }
 
 
     return 0;

@@ -43,6 +43,7 @@ add_executable(${PROJECT_NAME}
         CPPAst/CppAstFw.h
         CPPAst/CppExprAcceptImpl.h
         Parser/CppAstVisualizer.h
+        Parser/CppASTParserToJSON.h
 )
 
 # Set output directory
