@@ -895,160 +895,6 @@ int main() {
     };
     const int TESTS_COUNT = 18;
 
-    char *tests[21];
-    tests[0] =
-            "#include <stdio.h>\n"
-            "#include <stdlib.h>\n"
-            "#include <string.h>\n"
-            "#define PI 3.1415926\n"
-            "#define MAX_SIZE 100\n";
-
-    tests[1] =
-            "int addNumbers(int a, int b);\n"
-            "void greetUser(char* name);\n"
-            "float calculateCircleArea(float radius);\n";
-
-    tests[2] =
-            "const float PI_CONST = 3.1415926f;\n"
-            "int globalCounter = 0;\n";
-
-    tests[3] =
-            "struct Point {\n"
-            "    int x;\n"
-            "    int y;\n"
-            "};\n"
-            "\n"
-            "typedef struct Point Point;\n";
-
-    tests[4] =
-            "void test() {\n"
-            "    int num1, num2, i;\n"
-            "    float res, d;\n"
-            "    char res2[50];\n"
-            "    int array[10];\n"
-            "    Point p1;\n"
-            "}\n";
-
-    tests[5] =
-            "void test() {\n"
-            "    printf(\"Enter a number: \");\n"
-            "    scanf(\"%f\", &res);\n"
-            "    printf(\"From input: %.2f\\n\", res);\n"
-            "}\n";
-
-    tests[6] =
-            "void test() {\n"
-            "    num1 = 12 / 2;\n"
-            "    num2 = 15 % 4;\n"
-            "    num1 = addNumbers(5, 3);\n"
-            "}\n";
-    tests[7] =
-            "void test() {\n"
-            "    switch(num1) {\n"
-            "        case 1:\n"
-            "        case 2:\n"
-            "        case 3:\n"
-            "        case 4:\n"
-            "        case 5:\n"
-            "            printf(\"Switch works\\n\");\n"
-            "            break;\n"
-            "        default:\n"
-            "            printf(\"Switch no works\\n\");\n"
-            "            break;\n"
-            "    }\n"
-            "}\n";
-    tests[8] =
-            "void test() {\n"
-            "    if (5 % 3 > 0) {\n"
-            "        printf(\"Yes,if 1\\n\");\n"
-            "        printf(\"Yes,if 2\\n\");\n"
-            "    } else {\n"
-            "        printf(\"No,else 1\\n\");\n"
-            "        printf(\"No,else 2\\n\");\n"
-            "    }\n"
-            "}\n";
-    tests[9] =
-            "void test() {\n"
-            "    strcpy(res2, \"Hello world\");\n"
-            "    num1 = 2;\n"
-            "}\n";
-    tests[10] =
-            "void test() {\n"
-            "    if (PI_CONST != num1) {\n"
-            "        printf(\"Pim\\n\");\n"
-            "        if (PI_CONST != num1) {\n"
-            "            printf(\"Pam\\n\");\n"
-            "        }\n"
-            "    } else {\n"
-            "        printf(\"Pum\\n\");\n"
-            "    }\n"
-            "}\n";
-    tests[11] =
-            "void test() {\n"
-            "    for (i = 1; i <= 8; i++) {\n"
-            "        printf(\"3\");\n"
-            "    }\n"
-            "}\n";
-    tests[12] =
-            "void test() {\n"
-            "    while (num1 < 6) {\n"
-            "        printf(\"Yes\");\n"
-            "        num1 = num1 + 1;\n"
-            "    }\n"
-            "}\n";
-    tests[13] =
-            "void test() {\n"
-            "    do {\n"
-            "        printf(\"3\");\n"
-            "        num1 = num1 + 1;\n"
-            "    } while (num1 < 7);\n"
-            "}\n";
-    tests[14] =
-            "void test() {\n"
-            "    for (i = 0; i < 10; i++) {\n"
-            "        array[i] = i * 2;\n"
-            "    }\n"
-            "}\n";
-    tests[15] =
-            "void test() {\n"
-            "    p1.x = 10;\n"
-            "    p1.y = 20;\n"
-            "    int* ptr = &num1;\n"
-            "    *ptr = *ptr + 3;\n"
-            "}\n";
-    tests[16] =
-            "void test() {\n"
-            "    num1 = num1 + 3;\n"
-            "    num1 += 5;\n"
-            "    num1++;\n"
-            "}\n";
-    tests[17] =
-            "void test() {\n"
-            "    if (num1 > 10 && num2 < 20 || !(num1 == 15)) {\n"
-            "        printf(\"Complex condition works\\n\");\n"
-            "    }\n"
-            "}\n";
-    tests[18] =
-            "void test() {\n"
-            "    num1 = num1 & 0xFF;\n"
-            "    num2 = num1 | 0x0F;\n"
-            "}\n";
-    tests[19] =
-            "void test() {\n"
-            "    int result = (num1 > num2) ? num1 : num2;\n"
-            "}\n";
-    tests[20] =
-            "int addNumbers(int a, int b) {\n"
-            "    return a + b;\n"
-            "}\n"
-            "\n"
-            "void greetUser(char* name) {\n"
-            "    printf(\"Hello, %s!\\n\", name);\n"
-            "}\n"
-            "\n"
-            "float calculateCircleArea(float radius) {\n"
-            "    return PI_CONST * radius * radius;\n"
-            "}\n";
 
     //PASCAL TESTING
 
@@ -1091,6 +937,163 @@ int main() {
 */
 
     //C TESTING
+
+    /*
+  char *tests[21];
+  tests[0] =
+          "#include <stdio.h>\n"
+          "#include <stdlib.h>\n"
+          "#include <string.h>\n"
+          "#define PI 3.1415926\n"
+          "#define MAX_SIZE 100\n";
+
+  tests[1] =
+          "int addNumbers(int a, int b);\n"
+          "void greetUser(char* name);\n"
+          "float calculateCircleArea(float radius);\n";
+
+  tests[2] =
+          "const float PI_CONST = 3.1415926f;\n"
+          "int globalCounter = 0;\n";
+
+  tests[3] =
+          "struct Point {\n"
+          "    int x;\n"
+          "    int y;\n"
+          "};\n"
+          "\n"
+          "typedef struct Point Point;\n";
+
+  tests[4] =
+          "void test() {\n"
+          "    int num1, num2, i;\n"
+          "    float res, d;\n"
+          "    char res2[50];\n"
+          "    int array[10];\n"
+          "    Point p1;\n"
+          "}\n";
+
+  tests[5] =
+          "void test() {\n"
+          "    printf(\"Enter a number: \");\n"
+          "    scanf(\"%f\", &res);\n"
+          "    printf(\"From input: %.2f\\n\", res);\n"
+          "}\n";
+
+  tests[6] =
+          "void test() {\n"
+          "    num1 = 12 / 2;\n"
+          "    num2 = 15 % 4;\n"
+          "    num1 = addNumbers(5, 3);\n"
+          "}\n";
+  tests[7] =
+          "void test() {\n"
+          "    switch(num1) {\n"
+          "        case 1:\n"
+          "        case 2:\n"
+          "        case 3:\n"
+          "        case 4:\n"
+          "        case 5:\n"
+          "            printf(\"Switch works\\n\");\n"
+          "            break;\n"
+          "        default:\n"
+          "            printf(\"Switch no works\\n\");\n"
+          "            break;\n"
+          "    }\n"
+          "}\n";
+  tests[8] =
+          "void test() {\n"
+          "    if (5 % 3 > 0) {\n"
+          "        printf(\"Yes,if 1\\n\");\n"
+          "        printf(\"Yes,if 2\\n\");\n"
+          "    } else {\n"
+          "        printf(\"No,else 1\\n\");\n"
+          "        printf(\"No,else 2\\n\");\n"
+          "    }\n"
+          "}\n";
+  tests[9] =
+          "void test() {\n"
+          "    strcpy(res2, \"Hello world\");\n"
+          "    num1 = 2;\n"
+          "}\n";
+  tests[10] =
+          "void test() {\n"
+          "    if (PI_CONST != num1) {\n"
+          "        printf(\"Pim\\n\");\n"
+          "        if (PI_CONST != num1) {\n"
+          "            printf(\"Pam\\n\");\n"
+          "        }\n"
+          "    } else {\n"
+          "        printf(\"Pum\\n\");\n"
+          "    }\n"
+          "}\n";
+  tests[11] =
+          "void test() {\n"
+          "    for (i = 1; i <= 8; i++) {\n"
+          "        printf(\"3\");\n"
+          "    }\n"
+          "}\n";
+  tests[12] =
+          "void test() {\n"
+          "    while (num1 < 6) {\n"
+          "        printf(\"Yes\");\n"
+          "        num1 = num1 + 1;\n"
+          "    }\n"
+          "}\n";
+  tests[13] =
+          "void test() {\n"
+          "    do {\n"
+          "        printf(\"3\");\n"
+          "        num1 = num1 + 1;\n"
+          "    } while (num1 < 7);\n"
+          "}\n";
+  tests[14] =
+          "void test() {\n"
+          "    for (i = 0; i < 10; i++) {\n"
+          "        array[i] = i * 2;\n"
+          "    }\n"
+          "}\n";
+  tests[15] =
+          "void test() {\n"
+          "    p1.x = 10;\n"
+          "    p1.y = 20;\n"
+          "    int* ptr = &num1;\n"
+          "    *ptr = *ptr + 3;\n"
+          "}\n";
+  tests[16] =
+          "void test() {\n"
+          "    num1 = num1 + 3;\n"
+          "    num1 += 5;\n"
+          "    num1++;\n"
+          "}\n";
+  tests[17] =
+          "void test() {\n"
+          "    if (num1 > 10 && num2 < 20 || !(num1 == 15)) {\n"
+          "        printf(\"Complex condition works\\n\");\n"
+          "    }\n"
+          "}\n";
+  tests[18] =
+          "void test() {\n"
+          "    num1 = num1 & 0xFF;\n"
+          "    num2 = num1 | 0x0F;\n"
+          "}\n";
+  tests[19] =
+          "void test() {\n"
+          "    int result = (num1 > num2) ? num1 : num2;\n"
+          "}\n";
+  tests[20] =
+          "int addNumbers(int a, int b) {\n"
+          "    return a + b;\n"
+          "}\n"
+          "\n"
+          "void greetUser(char* name) {\n"
+          "    printf(\"Hello, %s!\\n\", name);\n"
+          "}\n"
+          "\n"
+          "float calculateCircleArea(float radius) {\n"
+          "    return PI_CONST * radius * radius;\n"
+          "}\n";
+          */
 
     /* CParserToAST parserC;
     AstToJsonConverter converter;
@@ -1153,9 +1156,10 @@ int main() {
 //    }
     try {
         CppParserToAST parser;
-        auto ast = parser.parse(tests2[1]);
+        int k=3;
+        auto ast = parser.parse(tests2[k]);
         std::cout << "TEST cppCode" << std::endl;
-        std::cout << tests2[1] << std::endl;
+        std::cout << tests2[k] << std::endl;
         CppAstVisualizer visualizer;
         std::cout << "AST STRUCTURE:" << std::endl;
         ast->accept(visualizer);

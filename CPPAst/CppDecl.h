@@ -51,7 +51,7 @@ struct CppClassDecl : CppDecl {
     std::vector<std::string> baseClasses;
     CppDeclList members;
     bool isStruct{false}; // struct vs class
-
+    bool isUnion {false};
     void accept(CppVisitor &v) override;
 };
 
