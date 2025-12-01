@@ -135,8 +135,9 @@ private:
                 std::cout << "DEBUG: Starting to parse class/struct at position " << current << std::endl;
                 auto classDecl = parseClass();
                 if (classDecl) {
+                    std::string className = classDecl->name;
                     block->statements.push_back(std::move(classDecl));
-                    knownClasses.insert(static_cast<CppClassDecl*>(classDecl.get())->name);
+                    knownClasses.insert(className);
                     std::cout << "DEBUG: Successfully added class to AST" << std::endl;
                 } else {
                     std::cout << "DEBUG: Failed to parse class/struct" << std::endl;
@@ -202,33 +203,56 @@ private:
     }
 
     void skipUntilSemicolon() {
-        while (!isAtEnd() && !check("SEMICOLON")) {
-            std::cout << "Skipping: " << peek().getValue() << std::endl;
+        int braceLevel = 0;
+        int parenLevel = 0;
+
+        while (!isAtEnd()) {
+            if (check("OPENCURLY")) braceLevel++;
+            else if (check("CLOSECURLY")) {
+                if (braceLevel == 0) break;
+                braceLevel--;
+            }
+            else if (check("OPENPARENTHESES")) parenLevel++;
+            else if (check("CLOSEPARENTHESES")) {
+                if (parenLevel == 0) break;
+                parenLevel--;
+            }
+            else if (check("SEMICOLON") && braceLevel == 0 && parenLevel == 0) {
+                advance(); // пропускаем точку с запятой
+                return;
+            }
+
+            std::cout << "Skipping in skipUntilSemicolon: " << peek().getValue() << std::endl;
             advance();
-        }
-        if (check("SEMICOLON")) {
-            advance(); // пропускаем точку с запятой
         }
     }
 
     void skipUntilSemicolonOrBrace() {
         int braceLevel = 0;
+        int parenLevel = 0;
+
         while (!isAtEnd()) {
             if (check("OPENCURLY")) {
                 braceLevel++;
             } else if (check("CLOSECURLY")) {
-                if (braceLevel == 0) break;
+                if (braceLevel == 0) {
+                    std::cout << "DEBUG: Reached closing brace, stopping skip" << std::endl;
+                    return; // НЕ потребляем закрывающую скобку!
+                }
                 braceLevel--;
-            } else if (check("SEMICOLON") && braceLevel == 0) {
-                break;
+            }else if (check("OPENPARENTHESES")) {
+                parenLevel++;
+            } else if (check("CLOSEPARENTHESES")) {
+                if (parenLevel > 0) parenLevel--;
+            }  else if (check("SEMICOLON") && braceLevel == 0 && parenLevel == 0) {
+                std::cout << "DEBUG: Reached semicolon, stopping skip" << std::endl;
+                advance(); // пропускаем точку с запятой
+                return;
             }
-            std::cout << "Skipping: " << peek().getValue() << std::endl;
+            std::cout << "Skipping in skipUntilSemicolonOrBrace: " << peek().getValue() << std::endl;
             advance();
         }
-        // НЕ потребляем точку с запятой или закрывающую скобку здесь!
-        // Пусть вызывающий код сам решит, что делать
     }
-
 
     Token lookAhead(size_t offset = 1) {
         size_t pos = current + offset;
@@ -320,57 +344,14 @@ private:
 
             consume("SEMICOLON", "Ожидался ';' после объявления");
 
-            // Правильное преобразование через dynamic_cast
             return std::unique_ptr<CppDecl>(dynamic_cast<CppDecl *>(decl.release()));
+
         } catch (const std::exception &e) {
             std::cerr << "Error in parseGlobalVarAsDecl: " << e.what() << std::endl;
             return nullptr;
         }
     }
 
-    template<typename To, typename From>
-    std::unique_ptr<To> safe_cast(std::unique_ptr<From> from) {
-        if (!from) return nullptr;
-
-        // Проверяем, что To является наследником From
-        static_assert(std::is_base_of_v<From, To>, "To must be derived from From");
-
-        To *ptr = dynamic_cast<To *>(from.get());
-        if (!ptr) {
-            return nullptr;
-        }
-        from.release(); // освобождаем владение из исходного unique_ptr
-        return std::unique_ptr<To>(ptr);
-    }
-
-    // Специализированные методы преобразования
-    std::unique_ptr<CppDecl> stmtToDecl(std::unique_ptr<CppStmt> stmt) {
-        if (!stmt) return nullptr;
-
-        // Используем dynamic_cast для безопасного преобразования
-        if (auto varDecl = dynamic_cast<CppVarDecl *>(stmt.get())) {
-            stmt.release();
-            return std::unique_ptr<CppDecl>(dynamic_cast<CppDecl *>(varDecl));
-        }
-        if (auto funcDecl = dynamic_cast<CppFunctionDecl *>(stmt.get())) {
-            stmt.release();
-            return std::unique_ptr<CppDecl>(dynamic_cast<CppDecl *>(funcDecl));
-        }
-        if (auto classDecl = dynamic_cast<CppClassDecl *>(stmt.get())) {
-            stmt.release();
-            return std::unique_ptr<CppDecl>(dynamic_cast<CppDecl *>(classDecl));
-        }
-        if (auto namespaceDecl = dynamic_cast<CppNamespaceDecl *>(stmt.get())) {
-            stmt.release();
-            return std::unique_ptr<CppDecl>(dynamic_cast<CppDecl *>(namespaceDecl));
-        }
-        if (auto enumDecl = dynamic_cast<CppEnumDecl *>(stmt.get())) {
-            stmt.release();
-            return std::unique_ptr<CppDecl>(dynamic_cast<CppDecl *>(enumDecl));
-        }
-
-        return nullptr;
-    }
 
     std::unique_ptr<CppTypedefDecl> parseTypedef() {
         auto typedefDecl = std::make_unique<CppTypedefDecl>();
@@ -468,6 +449,11 @@ private:
     }
 
     std::unique_ptr<CppClassDecl> parseClass() {
+
+        std::cout << "DEBUG: parseClass() called at position " << current
+                  << ", token: " << peek().getValue()
+                  << ", currentClass: " << std::endl;
+
         auto classDecl = std::make_unique<CppClassDecl>();
         classDecl->isStruct = previous().getType() == "STRUCT";
 
@@ -476,12 +462,37 @@ private:
             knownClasses.insert(classDecl->name);
             std::cout << "DEBUG: Parsing class/struct: " << classDecl->name << std::endl;
         }
+        // 🔥 ДОБАВЛЯЕМ ОБРАБОТКУ НАСЛЕДОВАНИЯ
+        if (match("COLON")) {
+            std::cout << "DEBUG: Found inheritance list" << std::endl;
+            do {
+                // Спецификатор доступа наследования
+                CppAccessSpecifier access = CppAccessSpecifier::Private;
+                if (match("PUBLIC")) {
+                    access = CppAccessSpecifier::Public;
+                } else if (match("PROTECTED")) {
+                    access = CppAccessSpecifier::Protected;
+                } else if (match("PRIVATE")) {
+                    access = CppAccessSpecifier::Private;
+                }
 
+                // Базовый класс
+                std::string baseClass = parseTypeName();
+                classDecl->baseClasses.push_back(baseClass);
+                classDecl->baseAccess.push_back(access);
+
+                std::cout << "DEBUG: Added base class: " << baseClass
+                          << " with access: " << (access == CppAccessSpecifier::Public ? "public" :
+                                                  access == CppAccessSpecifier::Protected ? "protected" : "private")
+                          << std::endl;
+
+            } while (match("COMMA"));
+        }
         if (!match("OPENCURLY")) {
             throw std::runtime_error("Expected '{' after class");
         }
 
-        CppClassDecl* previousClass = currentClass;
+        CppClassDecl *previousClass = currentClass;
         currentClass = classDecl.get();
         CppAccessSpecifier currentAccess = classDecl->isStruct ?
                                            CppAccessSpecifier::Public : CppAccessSpecifier::Private;
@@ -489,7 +500,8 @@ private:
         while (!isAtEnd() && !check("CLOSECURLY")) {
             if (isAtEnd()) break;
 
-            std::cout << "DEBUG: Class parsing at: " << peek().getValue() << " (" << peek().getType() << ")" << std::endl;
+            std::cout << "DEBUG: Class parsing at: " << peek().getValue() << " (" << peek().getType() << ")"
+                      << std::endl;
 
             // Спецификаторы доступа
             if (match("PUBLIC") || match("PROTECTED") || match("PRIVATE")) {
@@ -499,34 +511,242 @@ private:
                 consume("COLON", "Expected ':' after access specifier");
                 continue;
             }
-
-            // 🔥 ПЕРВОЕ: проверяем конструкторы
+            // 🔥 ПЕРВОЕ: проверяем деструкторы
+            if (check("BITNOT") && lookAhead(1).getType() == "IDENTIFIER" &&
+                currentClass && lookAhead(1).getValue() == currentClass->name) {
+                std::cout << "DEBUG: Trying to parse destructor: ~" << lookAhead(1).getValue() << std::endl;
+                try {
+                    auto dtor = parseDestructor();
+                    if (dtor) {
+                        auto method = std::make_unique<CppMethodDecl>();
+                        method->returnType = dtor->returnType;
+                        method->name = dtor->name;
+                        method->parameters = std::move(dtor->parameters);
+                        method->body = std::move(dtor->body);
+                        method->access = currentAccess;
+                        method->isVirtual = dtor->isVirtual;
+                        method->isOverride = dtor->isOverride;
+                        method->isConst = dtor->isConst;
+                        classDecl->members.push_back(std::unique_ptr<CppDecl>(method.release()));
+                        std::cout << "DEBUG: Successfully parsed destructor" << std::endl;
+                        continue;
+                    }
+                } catch (const std::exception &e) {
+                    std::cout << "DEBUG: Destructor parsing failed: " << e.what() << std::endl;
+                    // Продолжаем парсинг вместо пропуска
+                }
+            }
+            // 🔥 ВТОРОЕ: проверяем конструкторы
             if (check("IDENTIFIER") && currentClass && peek().getValue() == currentClass->name) {
-                std::cout << "DEBUG: Detected constructor, skipping: " << peek().getValue() << std::endl;
-                skipComplexMember();
-                continue;
+                std::cout << "DEBUG: Parsing constructor: " << peek().getValue() << std::endl;
+                try {
+                    auto ctor = parseConstructor();
+                    if (ctor) {
+                        // 🔥 ПРАВИЛЬНОЕ ПРЕОБРАЗОВАНИЕ В CppConstructorDecl
+                        if (auto funcDecl = dynamic_cast<CppFunctionDecl*>(ctor.get())) {
+                            auto constructor = std::make_unique<CppConstructorDecl>();
+                            constructor->name = funcDecl->name;
+                            constructor->parameters = std::move(funcDecl->parameters);
+                            constructor->body = std::move(funcDecl->body);
+                            constructor->access = currentAccess;
+                            std::cout<<"TODO: добавить парсинг списка инициализации";
+
+                            classDecl->members.push_back(std::unique_ptr<CppDecl>(constructor.release()));
+                            std::cout << "DEBUG: Successfully converted to CppConstructorDecl" << std::endl;
+                        } else {
+                            classDecl->members.push_back(std::move(ctor));
+                        }
+                        std::cout << "DEBUG: Successfully parsed constructor" << std::endl;
+                        continue;
+                    }
+                } catch (const std::exception &e) {
+                    std::cout << "DEBUG: Constructor parsing failed: " << e.what() << std::endl;
+                    // Продолжаем парсинг вместо пропуска
+                }
+            }
+            // 🔥 ТРЕТЬЕ: проверяем статические методы
+            if (match("STATIC")) {
+                std::cout << "DEBUG: Found static, trying to parse method" << std::endl;
+                if (isFunctionStart()) {
+                    try {
+                        auto func = parseFunction();
+                        if (func) {
+                            auto method = std::make_unique<CppMethodDecl>();
+                            method->returnType = func->returnType;
+                            method->name = func->name;
+                            method->parameters = std::move(func->parameters);
+                            method->body = std::move(func->body);
+                            method->isStatic = true;
+                            method->access = currentAccess;
+                            method->isVirtual = func->isVirtual;
+                            method->isOverride = func->isOverride;
+                            method->isConst = func->isConst;
+                            classDecl->members.push_back(std::unique_ptr<CppDecl>(method.release()));
+                            std::cout << "DEBUG: Successfully parsed static method: " << method->name << std::endl;
+                            continue;
+                        }
+                    } catch (const std::exception &e) {
+                        std::cout << "DEBUG: Static method parsing failed: " << e.what() << std::endl;
+                        current--; // откатываем STATIC
+                    }
+                } else {// Если не функция, возможно статическое поле
+                    current--; // откатываемся назад
+                }
+            }
+            // 🔥 ЧЕТВЕРТОЕ: проверяем обычные методы и операторы
+            if (isFunctionStart()) {
+                std::cout << "DEBUG: Trying to parse method/operator: " << peek().getValue() << std::endl;
+                size_t funcSave = current;
+                try {
+                    auto func = parseFunction();
+                    if (func) {
+                        std::cout << "DEBUG: Successfully parsed function: " << func->name << std::endl;
+                        if (func->name.find("operator") == 0) {
+                            // Это оператор
+                            std::cout << "DEBUG: Converting to CppOperatorDecl: " << func->name << std::endl;
+                            auto op = std::make_unique<CppOperatorDecl>();
+                            op->returnType = func->returnType;
+                            op->operatorSymbol = func->name.substr(8); // убираем "operator"
+                            op->parameters = std::move(func->parameters);
+                            op->body = std::move(func->body);
+                            op->isConst = func->isConst;
+                            op->access = currentAccess;
+                            std::cout << "DEBUG: Created operator: " << op->operatorSymbol << std::endl;
+                            classDecl->members.push_back(std::unique_ptr<CppDecl>(op.release()));
+                            std::cout << "DEBUG: Successfully parsed operator: " << op->operatorSymbol << std::endl;
+                        } else {
+                            // Обычный метод
+                            std::cout << "DEBUG: Converting to CppMethodDecl: " << func->name << std::endl;
+                            auto method = std::make_unique<CppMethodDecl>();
+                            method->returnType = func->returnType;
+                            method->name = func->name;
+                            method->parameters = std::move(func->parameters);
+                            method->body = std::move(func->body);
+                            method->isVirtual = func->isVirtual;
+                            method->isOverride = func->isOverride;
+                            method->isConst = func->isConst;
+                            method->access = currentAccess;
+                            std::cout << "DEBUG: Created method: " << method->name << std::endl;
+                            std::unique_ptr<CppDecl> methodAsDecl(method.release());
+                            classDecl->members.push_back(std::move(methodAsDecl));
+                            std::cout << "DEBUG: Successfully added method to class" << std::endl;
+                        }
+                        continue;
+                    }
+                } catch (const std::exception &e) {
+                    current = funcSave;
+                    std::cout << "DEBUG: Method/operator parsing failed: " << e.what() << std::endl;
+                }
             }
 
-            // 🔥 ВТОРОЕ: пробуем распарсить поле (ОСНОВНОЙ ПУТЬ)
+            // 🔥 ПЯТОЕ: дружественные функции (пропускаем для упрощения)
+            if (match("FRIEND")) {
+                std::cout << "DEBUG: Skipping friend declaration: " << peek().getValue() << std::endl;
+                skipUntilSemicolon();
+                continue;
+            }
+            // 🔥 ШЕСТОЕ: специальная обработка операторов (они могут не иметь возвращаемого типа)
+            if (check("OPERATOR")) {
+                std::cout << "DEBUG: Temporarily skipping operator: " << peek().getValue() << std::endl;
+                skipUntilSemicolonOrBrace();
+                continue;
+            }
+            /* if (check("OPERATOR")) {
+                std::cout << "DEBUG: Found operator keyword, trying to parse operator" << std::endl;
+                size_t opSave = current;
+
+                try {
+                    // Пропускаем "operator" и парсим оператор
+                    advance(); // operator
+
+                    // Собираем символ оператора
+                    std::string opSymbol;
+                    if (check("ASSIGN") || check("PLUS") || check("MINUS") || check("MULTI") ||
+                        check("DIV") || check("MOD") || check("JE") || check("JNE") ||
+                        check("JL") || check("JG") || check("JLE") || check("JGE") ||
+                        check("INCREMENT") || check("DECREMENT") || check("BITSHIFTLEFT") ||
+                        check("BITSHIFTRIGHT") || check("BITAND") || check("BITOR") ||
+                        check("BITXOR") || check("BITNOT") || check("AND") || check("OR") ||
+                        check("OPENBRACKET") || check("CLOSEBRACKET") || check("OPENPARENTHESES") ||
+                        check("CLOSEPARENTHESES") || check("MEMBERACCESS") || check("PTRACCESS") ||
+                        check("NEW") || check("DELETE")) {
+
+                        opSymbol = advance().getValue();
+                    } else {
+                        throw std::runtime_error("Unsupported operator");
+                    }
+
+                    // Проверяем, что дальше идет список параметров
+                    if (!check("OPENPARENTHESES")) {
+                        throw std::runtime_error("Expected '(' after operator");
+                    }
+
+                    // Парсим как обычную функцию с пустым возвращаемым типом
+                    auto op = std::make_unique<CppOperatorDecl>();
+                    op->returnType = ""; // операторы могут иметь разный возвращаемый тип
+                    op->operatorSymbol = opSymbol;
+                    op->access = currentAccess;
+
+                    // Параметры
+                    consume("OPENPARENTHESES", "Expected '(' after operator");
+                    op->parameters = parseParameters();
+                    consume("CLOSEPARENTHESES", "Expected ')' after parameters");
+
+                    // Квалификаторы
+                    if (match("CONST")) {
+                        op->isConst = true;
+                    }
+
+                    // Тело оператора
+                    if (match("OPENCURLY")) {
+                        op->body = std::unique_ptr<CppCompoundStmt>(
+                                static_cast<CppCompoundStmt*>(parseCompoundStmt().release()));
+                    } else if (match("SEMICOLON")) {
+                        // Объявление оператора без тела
+                    } else {
+                        throw std::runtime_error("Expected operator body or ';'");
+                    }
+
+                    classDecl->members.push_back(std::unique_ptr<CppDecl>(op.release()));
+                    std::cout << "DEBUG: Successfully parsed operator: " << opSymbol << std::endl;
+                    continue;
+
+                } catch (const std::exception& e) {
+                    current = opSave;
+                    std::cout << "DEBUG: Operator parsing failed: " << e.what() << std::endl;
+                }
+            }*/
+            // 🔥 СЕДЬМОЕ: пробуем распарсить поле (ОСНОВНОЙ ПУТЬ)
             size_t save = current;
             try {
-                auto field = parseFieldDecl();
-                if (field) {
-                    field->access = currentAccess;
-                    classDecl->members.push_back(std::move(field));
-
-                    if (auto fieldDecl = dynamic_cast<CppFieldDecl*>(classDecl->members.back().get())) {
-                        std::cout << "DEBUG: Successfully parsed field: " << fieldDecl->name
-                                  << " of type: " << fieldDecl->typeName << std::endl;
+                auto fieldOrBlock = parseFieldDecl();
+                if (fieldOrBlock) {
+                    // 🔥 ОБРАБАТЫВАЕМ КАК ОДИНОЧНОЕ ПОЛЕ ИЛИ БЛОК
+                    if (auto singleField = dynamic_cast<CppFieldDecl *>(fieldOrBlock.get())) {
+                        singleField->access = currentAccess;
+                        classDecl->members.push_back(std::move(fieldOrBlock));
+                        std::cout << "DEBUG: Added single field: " << singleField->name << std::endl;
+                    } else if (auto block = dynamic_cast<CppCompoundStmt *>(fieldOrBlock.get())) {
+                        // 🔥 ДОБАВЛЯЕМ ВСЕ ПОЛЯ ИЗ БЛОКА
+                        for (auto &stmt: block->statements) {
+                            if (auto field = dynamic_cast<CppFieldDecl *>(stmt.get())) {
+                                auto fieldCopy = std::make_unique<CppFieldDecl>();
+                                fieldCopy->typeName = field->typeName;
+                                fieldCopy->name = field->name;
+                                fieldCopy->access = currentAccess;
+                                classDecl->members.push_back(std::move(fieldCopy));
+                                std::cout << "DEBUG: Added field from multiple: " << field->name << std::endl;
+                            }
+                        }
                     }
                     continue;
                 }
-            } catch (const std::exception& e) {
+            } catch (const std::exception &e) {
                 current = save;
                 std::cout << "DEBUG: Field parsing failed: " << e.what() << std::endl;
             }
 
-            // 🔥 ТРЕТЬЕ: если не поле и не конструктор, пропускаем ОДИН токен
+            //если не поле и не конструктор, пропускаем ОДИН токен
             std::cout << "DEBUG: Skipping single token: " << peek().getValue() << std::endl;
             advance();
         }
@@ -543,8 +763,14 @@ private:
         std::cout << "DEBUG: After consuming '}' - current: " << current
                   << ", token: " << (isAtEnd() ? "END" : peek().getValue()) << std::endl;
 
-        consume("SEMICOLON", "Expected ';' after class");
-
+        // Безопасная проверка точки с запятой после класса
+        if (check("SEMICOLON")) {
+            advance();
+            std::cout << "DEBUG: Consumed semicolon after class" << std::endl;
+        } else {
+            std::cout << "DEBUG: WARNING: No semicolon after class, but continuing" << std::endl;
+            // Не бросаем исключение, а просто продолжаем
+        }
         std::cout << "DEBUG: After consuming ';' - current: " << current
                   << ", token: " << (isAtEnd() ? "END" : peek().getValue()) << std::endl;
 
@@ -555,6 +781,7 @@ private:
 
         return classDecl;
     }
+
     void skipComplexMember() {
         if (isAtEnd()) return;
 
@@ -603,47 +830,6 @@ private:
         }
     }
 
-    std::unique_ptr<CppDecl> parseClassMember(CppAccessSpecifier access) {
-        enterRecursion();
-
-        try {
-            // 🔥 САМОЕ ПРОСТОЕ РЕШЕНИЕ: пропускаем сложные члены классов
-            if (check("IDENTIFIER") && currentClass && peek().getValue() == currentClass->name) {
-                // Это конструктор - пропускаем для упрощения
-                std::cout << "DEBUG: Skipping constructor: " << peek().getValue() << std::endl;
-                skipUntilSemicolonOrBrace();
-                exitRecursion();
-                return nullptr;
-            }
-
-            // Только простые поля
-            if (isTypeToken(peekType())) {
-                size_t save = current;
-                try {
-                    auto field = parseFieldDecl();
-                    if (field) {
-                        field->access = access;
-                    }
-                    exitRecursion();
-                    return field;
-                } catch (...) {
-                    current = save;
-                }
-            }
-
-            // Пропускаем все остальное (функции, конструкторы и т.д.)
-            std::cout << "DEBUG: Skipping complex class member: " << peek().getValue() << std::endl;
-            skipUntilSemicolonOrBrace();
-
-            exitRecursion();
-            return nullptr;
-
-        } catch (...) {
-            exitRecursion();
-            throw;
-        }
-    }
-
     Token previous() {
         static Token dummy;
         if (current == 0 || tokens.empty()) return dummy;
@@ -668,7 +854,7 @@ private:
 
         // 🔥 ОБРАБОТКА СПИСКА ИНИЦИАЛИЗАЦИИ
         if (match("COLON")) {
-            // Парсим список инициализации членов
+            std::cout << "DEBUG: Parsing initializer list" << std::endl;
             do {
                 if (check("IDENTIFIER")) {
                     std::string memberName = advance().getValue();
@@ -703,14 +889,33 @@ private:
         func->name = "~" + advance().getValue(); // имя деструктора
         func->returnType = ""; // деструкторы не имеют возвращаемого типа
 
+        std::cout << "DEBUG: Parsing destructor parameters for: " << func->name << std::endl;
+
         // Параметры (у деструктора нет параметров)
         if (!match("OPENPARENTHESES")) {
             throw std::runtime_error("Expected '(' after destructor name");
         }
 
+        // У деструктора могут быть пустые параметры или с void
+        if (!check("CLOSEPARENTHESES")) {
+            // Если есть параметры, пропускаем их для упрощения
+            skipUntilCommaOrParen();
+        }
+
         if (!match("CLOSEPARENTHESES")) {
             throw std::runtime_error("Expected ')' after destructor parameters");
         }
+
+        // Квалификаторы
+        if (match("OVERRIDE")) {
+            func->isOverride = true;
+        }
+        if (match("FINAL")) {
+            // final qualifier
+        }
+
+        std::cout << "DEBUG: Parsing destructor body for: " << func->name << std::endl;
+
 
         // Тело деструктора
         if (match("OPENCURLY")) {
@@ -721,51 +926,48 @@ private:
         } else {
             throw std::runtime_error("Expected destructor body or ';'");
         }
+        std::cout << "DEBUG: Successfully parsed destructor: " << func->name << std::endl;
 
         return func;
     }
 
-    std::unique_ptr<CppFieldDecl> parseFieldDecl() {
+    std::unique_ptr<CppDecl> parseFieldDecl() {  // 🔥 ИЗМЕНИТЬ ВОЗВРАЩАЕМЫЙ ТИП
         size_t save = current;
 
         try {
-            auto field = std::make_unique<CppFieldDecl>();
-            // 🔥 ПРОБУЕМ РАСПАРСИТЬ ТИП (включая пользовательские типы)
-            try {
-                field->typeName = parseTypeName();
-            } catch (const std::exception& e) {
-                current = save;
-                return nullptr;
-            }
+            // Парсим общий тип для всех объявлений
+            std::string commonType = parseTypeName();
+
             if (!check("IDENTIFIER")) {
                 current = save;
                 return nullptr;
             }
 
-            field->name = advance().getValue();
+            // Первое объявление
+            auto firstField = std::make_unique<CppFieldDecl>();
+            firstField->typeName = commonType;
+            firstField->name = advance().getValue();
 
-            // 🔥 УПРОЩЕННАЯ ОБРАБОТКА: пропускаем все до точки с запятой
-            while (!isAtEnd() && !check("SEMICOLON")) {
-                if (check("COMMA")) {
-                    // Множественные объявления - пропускаем
-                    advance();
-                    if (check("IDENTIFIER")) {
-                        advance(); // пропускаем имя дополнительного поля
-                    }
-                } else if (check("ASSIGN")) {
-                    // Инициализатор - пропускаем выражение
-                    advance();
-                    skipUntilCommaOrSemicolon();
-                } else {
-                    advance();
-                }
+            // 🔥 ОБРАБАТЫВАЕМ ДОПОЛНИТЕЛЬНЫЕ ОБЪЯВЛЕНИЯ ЧЕРЕЗ ЗАПЯТУЮ
+            while (match("COMMA")) {
+                if (!check("IDENTIFIER")) break;
+
+                // Пропускаем дополнительные имена, но не создаем для них поля
+                // (для упрощения сохраняем только первое поле)
+                advance(); // пропускаем имя
+            }
+
+            // Пропускаем инициализаторы если есть
+            if (match("ASSIGN")) {
+                skipUntilCommaOrSemicolon();
             }
 
             if (!match("SEMICOLON")) {
                 throw std::runtime_error("Expected ';' after field declaration");
             }
 
-            return field;
+            // 🔥 ВОЗВРАЩАЕМ КАК CppDecl (корректный тип)
+            return std::unique_ptr<CppDecl>(firstField.release());
 
         } catch (const std::exception &e) {
             current = save;
@@ -775,28 +977,16 @@ private:
 
     std::unique_ptr<CppFunctionDecl> parseFunction() {
 
-        // Проверяем, является ли это конструктором/деструктором
-        if (currentClass) {
-            if (check("IDENTIFIER") && peek().getValue() == currentClass->name) {
-                return parseConstructor();
-            }
-            if (check("BITNOT") && lookAhead(1).getType() == "IDENTIFIER" &&
-                lookAhead(1).getValue() == currentClass->name) {
-                return parseDestructor();
-            }
-        }
         std::cout << "DEBUG: Starting parseFunction at token: " << peek().getValue() << std::endl;
 
         auto func = std::make_unique<CppFunctionDecl>();
 
-
-
         // Возвращаемый тип
         try {
             func->returnType = parseTypeName();
+            std::cout << "DEBUG: Parsed return type: " << func->returnType << std::endl;
         } catch (const std::exception &e) {
-            // Если не удалось распарсить тип, возможно это метод класса
-            // который уже имеет тип, или это ошибка
+            std::cout << "DEBUG: Failed to parse return type: " << e.what() << std::endl;
             func->returnType = "";
         }
 
@@ -810,20 +1000,22 @@ private:
         }
 
 
-        // Шаблонные специализации
-        if (match("OPENANGLE")) {
-            // Пропускаем template arguments для упрощения
-            while (!isAtEnd() && !check("CLOSEANGLE")) {
-                advance();
-            }
-            consume("CLOSEANGLE", "Expected '>'");
-        }
+//        // Шаблонные специализации
+//        if (match("OPENANGLE")) {
+//            // Пропускаем template arguments для упрощения
+//            while (!isAtEnd() && !check("CLOSEANGLE")) {
+//                advance();
+//            }
+//            consume("CLOSEANGLE", "Expected '>'");
+//        }
 
         // Параметры
         if (!match("OPENPARENTHESES")) {
             std::cout << "DEBUG: Expected '(', got: " << peek().getValue() << std::endl;
             throw std::runtime_error("Expected '(' after function name");
         }
+
+
         std::cout << "DEBUG: Parsing parameters..." << std::endl;
 
         func->parameters = parseParameters();
@@ -833,55 +1025,40 @@ private:
             throw std::runtime_error("Expected ')' after parameters");
         }
 
-        if (match("COLON")) {
-            // Парсим список инициализации
-            do {
-                // Упрощенная обработка - пропускаем инициализаторы членов
-                if (check("IDENTIFIER")) {
-                    advance(); // имя члена
-                    if (match("OPENPARENTHESES")) {
-                        // Пропускаем аргументы инициализации
-                        while (!isAtEnd() && !check("CLOSEPARENTHESES")) {
-                            advance();
-                        }
-                        consume("CLOSEPARENTHESES", "Expected ')'");
-                    }
-                }
-            } while (match("COMMA"));
+        // Квалификаторы
+        if (match("CONST")) {
+            func->isConst = true;
         }
-//        // Квалификаторы
-//        if (match("CONST")) {
-//            func->isConst = true;
-//        }
-//        if (match("VOLATILE")) {
-//            // volatile qualifier
-//        }
-//        if (match("NOEXCEPT")) {
-//            func->isNoexcept = true;
-//            if (match("OPENPARENTHESES")) {
-//                // Пропускаем condition
-//                parseExpression();
-//                consume("CLOSEPARENTHESES", "Expected ')' after noexcept");
-//            }
-//        }
-//        if (match("OVERRIDE")) {
-//            func->isOverride = true;
-//        }
-//        if (match("FINAL")) {
-//            func->isFinal = true;
-//        }
+        if (match("VOLATILE")) {
+            // volatile qualifier
+        }
+        if (match("NOEXCEPT")) {
+            //func->isNoexcept = true;
+            if (match("OPENPARENTHESES")) {
+                // Пропускаем condition
+                parseExpression();
+                consume("CLOSEPARENTHESES", "Expected ')' after noexcept");
+            }
+        }
+        if (match("OVERRIDE")) {
+            func->isOverride = true;
+        }
+        if (match("FINAL")) {
+            //func->isFinal = true;
+        }
 
         // Тело функции
-        if (match("ASSIGN")) {
-            if (match("ZERO")) { // = 0 (pure virtual)
-                // pure virtual function
-            } else if (match("DEFAULT")) { // = default
-                // defaulted function
-            } else if (match("DELETE")) { // = delete
-                // deleted function
-            }
-            consume("SEMICOLON", "Expected ';'");
-        } else if (match("OPENCURLY")) {
+//        if (match("ASSIGN")) {
+//            if (match("ZERO")) { // = 0 (pure virtual)
+//                // pure virtual function
+//            } else if (match("DEFAULT")) { // = default
+//                // defaulted function
+//            } else if (match("DELETE")) { // = delete
+//                // deleted function
+//            }
+//            consume("SEMICOLON", "Expected ';'");
+//        } else
+        if (match("OPENCURLY")) {
             func->body = std::unique_ptr<CppCompoundStmt>(
                     static_cast<CppCompoundStmt *>(parseCompoundStmt().release()));
         } else if (match("SEMICOLON")) {
@@ -1308,7 +1485,6 @@ private:
         return parsePostfix();
     }
 
-
     std::unique_ptr<CppDecl> parseUnion() {
         auto unionDecl = std::make_unique<CppClassDecl>(); // или специальный UnionDecl
         unionDecl->isStruct = true; // обрабатываем union аналогично struct
@@ -1326,8 +1502,10 @@ private:
             if (isTypeToken(peekType())) {
                 auto field = parseFieldDecl();
                 if (field) {
-                    field->access = CppAccessSpecifier::Public; // в union все public
-                    unionDecl->members.push_back(std::move(field));
+                    if (auto fieldDecl = dynamic_cast<CppFieldDecl *>(field.get())) {
+                        fieldDecl->access = CppAccessSpecifier::Public; // в union все public
+                        unionDecl->members.push_back(std::move(field));
+                    }
                 }
             } else {
                 advance();
@@ -1550,10 +1728,15 @@ private:
 
     std::vector<CppParameter> parseParameters() {
         std::vector<CppParameter> params;
-        if (check("CLOSEPARENTHESES")) return params;
+
+        if (check("CLOSEPARENTHESES")) {
+            std::cout << "DEBUG: Empty parameter list" << std::endl;
+            return params;
+        }
 
         do {
             CppParameter param;
+            size_t paramStart = current;
 
             try {
                 // 🔥 УПРОЩЕННЫЙ ПАРСИНГ ТИПА - избегаем рекурсивных вызовов
@@ -1566,15 +1749,20 @@ private:
 
                 // Значение по умолчанию - пропускаем для упрощения
                 if (match("ASSIGN")) {
+                    std::cout << "DEBUG: Skipping default value for parameter" << std::endl;
                     skipUntilCommaOrParen();
                 }
 
                 params.push_back(param);
+                std::cout << "DEBUG: Added parameter: " << param.typeName << " " << param.name << std::endl;
             } catch (const std::exception &e) {
                 // Если не удалось распарсить параметр, пропускаем его
+                std::cout << "DEBUG: Parameter parsing failed: " << e.what() << std::endl;
+                current = paramStart;
                 skipUntilCommaOrParen();
             }
         } while (match("COMMA"));
+        std::cout << "DEBUG: Finished parsing " << params.size() << " parameters" << std::endl;
 
         return params;
     }
@@ -1597,7 +1785,7 @@ private:
     std::string parseSimpleTypeName() {
         std::string typeName;
         size_t start = current;
-
+        try{
         // Только базовые квалификаторы
         while (match("CONST") || match("VOLATILE")) {
             if (!typeName.empty()) typeName += " ";
@@ -1618,8 +1806,18 @@ private:
             else if (previous().getType() == "BITAND") typeName += "&";
             else if (previous().getType() == "BITANDAND") typeName += "&&";
         }
+            if (typeName.empty()) {
+                throw std::runtime_error("Failed to parse type");
+            }
 
-        return typeName;
+            std::cout << "DEBUG: Successfully parsed simple type: " << typeName << std::endl;
+
+            return typeName;
+        }catch (const std::exception& e) {
+            current = start;
+            std::cout << "DEBUG: Failed to parse simple type: " << e.what() << std::endl;
+            throw;
+        }
     }
 
     void skipUntilCommaOrParen() {
@@ -1672,7 +1870,7 @@ private:
             std::cout << "DEBUG: Successfully parsed type: " << typeName << std::endl;
             return typeName;
 
-        } catch (const std::exception& e) {
+        } catch (const std::exception &e) {
             current = start;
             std::cout << "DEBUG: Failed to parse type: " << e.what()
                       << " at token: " << (isAtEnd() ? "END" : peek().getValue()) << std::endl;
@@ -1690,9 +1888,11 @@ private:
     }
 
     std::unique_ptr<CppStmt> parseStatement() {
-        if (isAtEnd()) return nullptr;
-
-// Отладочный вывод
+        if (isAtEnd()) {
+            std::cout << "DEBUG parseStatement: at end" << std::endl;
+            return nullptr;
+        }
+        // Отладочный вывод
         std::cout << "DEBUG parseStatement: " << peek().getValue() << " (" << peek().getType() << ")" << std::endl;
 
 
@@ -1998,22 +2198,28 @@ private:
     }
 
     CppStmtPtr parseCompoundStmt() {
+        std::cout << "DEBUG: Starting parseCompoundStmt" << std::endl;
         auto block = std::make_unique<CppCompoundStmt>();
 
         while (!isAtEnd() && !check("CLOSECURLY")) {
             if (auto stmt = parseStatement()) {
                 block->statements.push_back(std::move(stmt));
             } else {
+                std::cout << "DEBUG: Skipping token in compound stmt: " << peek().getValue() << std::endl;
                 advance();
             }
         }
+        if (isAtEnd()) {
+            throw std::runtime_error("Unexpected end of file while parsing compound statement");
+        }
 
         consume("CLOSECURLY", "Expected '}'");
+        std::cout << "DEBUG: Finished parseCompoundStmt with " << block->statements.size() << " statements" << std::endl;
+
         return block;
     }
+
     // ============ УТИЛИТЫ ============
-
-
     bool isPreprocessor(const std::string &type) {
         return type == "INCLUDE" || type == "DEFINE" ||
                type == "IFDEF" || type == "IFNDEF" || type == "ENDIF";
@@ -2031,20 +2237,17 @@ private:
     bool isFunctionStart() {
         size_t save = current;
 
-//        // Просто проверяем паттерн: тип + идентификатор + (
-//        if (!isTypeToken(peekType())) {
-//            current = save;
-//            return false;
-//        }
-//        advance(); // тип
-
         try {
+            // Для методов может не быть возвращаемого типа (конструкторы/деструкторы)
+            // или он может быть сложным
             std::string typeName = parseTypeName();
 
             if (!check("IDENTIFIER") && !check("OPERATOR")) {
                 current = save;
                 return false;
             }
+
+            std::string name = peek().getValue();
             advance(); // имя
 
             bool isFunc = check("OPENPARENTHESES");
@@ -2053,6 +2256,30 @@ private:
 
         } catch (...) {
             current = save;
+            // Проверяем случай оператора
+            if (check("OPERATOR")) {
+                size_t opSave = current;
+                advance(); // operator
+
+                // Проверяем различные типы операторов
+                if (check("ASSIGN") || check("PLUS") || check("MINUS") || check("MULTI") ||
+                    check("DIV") || check("MOD") || check("JE") || check("JNE") ||
+                    check("JL") || check("JG") || check("JLE") || check("JGE") ||
+                    check("INCREMENT") || check("DECREMENT") || check("BITSHIFTLEFT") ||
+                    check("BITSHIFTRIGHT") || check("BITAND") || check("BITOR") ||
+                    check("BITXOR") || check("BITNOT") || check("AND") || check("OR") ||
+                    check("OPENBRACKET") || check("CLOSEBRACKET") || check("OPENPARENTHESES") ||
+                    check("CLOSEPARENTHESES") || check("MEMBERACCESS") || check("PTRACCESS") ||
+                    check("NEW") || check("DELETE")) {
+
+                    advance(); // оператор
+                    bool isOpFunc = check("OPENPARENTHESES");
+                    current = opSave;
+                    return isOpFunc;
+                }
+                current = opSave;
+            }
+
             return false;
         }
     }
@@ -2141,6 +2368,92 @@ private:
     Token consume(const std::string &type, const std::string &message) {
         if (check(type)) return advance();
         throw std::runtime_error(message);
+    }
+
+    std::unique_ptr<CppDecl> parseClassMember(CppAccessSpecifier access) {
+        enterRecursion();
+
+        try {
+            // 🔥 САМОЕ ПРОСТОЕ РЕШЕНИЕ: пропускаем сложные члены классов
+            if (check("IDENTIFIER") && currentClass && peek().getValue() == currentClass->name) {
+                // Это конструктор - пропускаем для упрощения
+                std::cout << "DEBUG: Skipping constructor: " << peek().getValue() << std::endl;
+                skipUntilSemicolonOrBrace();
+                exitRecursion();
+                return nullptr;
+            }
+
+            // Только простые поля
+            if (isTypeToken(peekType())) {
+                size_t save = current;
+                try {
+                    auto field = parseFieldDecl();
+                    if (field) {
+                        if (auto fieldDecl = dynamic_cast<CppFieldDecl *>(field.get())) {
+                            fieldDecl->access = access;
+                        }
+                    }
+                    exitRecursion();
+                    return field;
+                } catch (...) {
+                    current = save;
+                }
+            }
+
+            // Пропускаем все остальное (функции, конструкторы и т.д.)
+            std::cout << "DEBUG: Skipping complex class member: " << peek().getValue() << std::endl;
+            skipUntilSemicolonOrBrace();
+
+            exitRecursion();
+            return nullptr;
+
+        } catch (...) {
+            exitRecursion();
+            throw;
+        }
+    }
+
+    template<typename To, typename From>
+    std::unique_ptr<To> safe_cast(std::unique_ptr<From> from) {
+        if (!from) return nullptr;
+
+        // Проверяем, что To является наследником From
+        static_assert(std::is_base_of_v<From, To>, "To must be derived from From");
+
+        To *ptr = dynamic_cast<To *>(from.get());
+        if (!ptr) {
+            return nullptr;
+        }
+        from.release(); // освобождаем владение из исходного unique_ptr
+        return std::unique_ptr<To>(ptr);
+    }
+
+    std::unique_ptr<CppDecl> stmtToDecl(std::unique_ptr<CppStmt> stmt) {
+        if (!stmt) return nullptr;
+
+        // Используем dynamic_cast для безопасного преобразования
+        if (auto varDecl = dynamic_cast<CppVarDecl *>(stmt.get())) {
+            stmt.release();
+            return std::unique_ptr<CppDecl>(dynamic_cast<CppDecl *>(varDecl));
+        }
+        if (auto funcDecl = dynamic_cast<CppFunctionDecl *>(stmt.get())) {
+            stmt.release();
+            return std::unique_ptr<CppDecl>(dynamic_cast<CppDecl *>(funcDecl));
+        }
+        if (auto classDecl = dynamic_cast<CppClassDecl *>(stmt.get())) {
+            stmt.release();
+            return std::unique_ptr<CppDecl>(dynamic_cast<CppDecl *>(classDecl));
+        }
+        if (auto namespaceDecl = dynamic_cast<CppNamespaceDecl *>(stmt.get())) {
+            stmt.release();
+            return std::unique_ptr<CppDecl>(dynamic_cast<CppDecl *>(namespaceDecl));
+        }
+        if (auto enumDecl = dynamic_cast<CppEnumDecl *>(stmt.get())) {
+            stmt.release();
+            return std::unique_ptr<CppDecl>(dynamic_cast<CppDecl *>(enumDecl));
+        }
+
+        return nullptr;
     }
 
 };

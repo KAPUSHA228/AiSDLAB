@@ -277,108 +277,107 @@ int main() {
             "program qq;"
             "function AddNumbers ( a , b : integer ) : integer ;"
             "begin"
-            "AddNumbers := a + b;"
+            "   AddNumbers := a + b;"
             "end;"
             "procedure GreetUser ( name : string ) ;"
             "begin"
-            "Writeln ( 'Hello,' , name , '!' );"
+            "   Writeln ( 'Hello,' , name , '!' );"
             "end;"
             "const"
-            "PI: real = 3.1415926;"
+            "   PI: real = 3.1415926;"
             "var"
-            "num1, num2, i: integer;"
-            "Res, d: real;"
-            "res2: string;"
+            "   num1, num2, i: integer;"
+            "   Res, d: real;"
+            "   res2: string;"
             "begin"
-            "Read ( Res ) ;"
-            "Writeln ('From Read ' , Res ) ;"
-            "num1 := 12 div 2;"
-            "num1 := AddNumbers ( PI , PI);"
-            "if 5 mod 3 > 0 then begin"
-            "Writeln ('Yes,if 1 ');"
-            "Writeln ('Yes,if 2 ');"
-            "end"
-            "case num1 of"
-            "begin"
-            "1 , 2 , 3 :"
-            "begin"
-            "Writeln ( 'Switch works 1' );"
-            "end;"
-            "4 , 5 :"
-            "begin"
-            "Writeln ( 'Switch works 2' );"
-            "end;"
-            "else :"
-            "begin"
-            "Writeln ( 'Switch no works' );"
-            "end;"
-            "end;"
-            "if 5 mod 3 > 0 then begin"
-            "Writeln ('Yes,if 1 ');"
-            "Writeln ('Yes,if 2 ');"
-            "end"
-            "else begin"
-            "Writeln ('No,else 1 ');"
-            "Writeln ('No,else 2 ');"
-            "end;"
-            "if 5 mod 3 > 0 then begin"
-            "Writeln ('Yes,if 1 ');"
-            "Writeln ('Yes,if 2 ');"
-            "end"
-            "else begin"
-            "Writeln ('No,else 1 ');"
-            "Writeln ('No,else 2 ');"
-            "end;"
-            "res2 := 'Hello world' ;"
-            "num1 := 2 ;"
-            "Writeln ('From table ' , num1);"
-            "if PI <> num1 then begin"
-            "Writeln( 'Pim' );"
-            "if PI <> num1 then begin"
-            "Writeln ('Pam');"
-            "end"
-            "end"
-            "else begin"
-            "Writeln ('Pum');"
-            "end;"
-            "if PI <> num1 then begin"
-            "Writeln( 'Pim' );"
-            "if 5 mod 3 > 0 then begin"
-            "Writeln ('Yes,if 1 ');"
-            "Writeln ('Yes,if 2 ');"
-            "end"
-            "else begin"
-            "Writeln ('No,else 1 ');"
-            "Writeln ('No,else 2 ');"
-            "end;"
-            "end"
-            "else begin"
-            "Writeln ('Pum');"
-            "end;"
-            "for i := 1 to 8 do begin"
-            "Write ( '3' ) ;"
-            "end;"
-            "while num1 < 6 do begin"
-            "Write('Yes');"
-            "num1 := num1 + 1;"
-            "end;"
-            "if 5 mod 3 > 0 then begin"
-            "Writeln ('Yes,if 1 ');"
-            "Writeln ('Yes,if 2 ');"
-            "end"
-            "else begin"
-            "Writeln ('No,else 1 ');"
-            "Writeln ('No,else 2 ');"
-            "end;"
-            "repeat begin"
-            "Write('3');"
-            "num1 := num1 + 1;"
-            "end;"
-            "until num1 < 7 ;"
-            "num1 := num1 + 3;"
+            "   Read ( Res ) ;"
+            "   Writeln ('From Read ' , Res ) ;"
+            "   num1 := 12 div 2;"
+            "   num1 := AddNumbers ( PI , PI);"
+            "   if 5 mod 3 > 0 then begin"
+            "       Writeln ('Yes,if 1 ');"
+            "       Writeln ('Yes,if 2 ');"
+            "   end"
+            "   case num1 of"
+            "   begin"
+            "       1 , 2 , 3 :"
+            "       begin"
+            "           Writeln ( 'Switch works 1' );"
+            "       end;"
+            "       4 , 5 :"
+            "       begin"
+            "           Writeln ( 'Switch works 2' );"
+            "       end;"
+            "       else :"
+            "       begin"
+            "           Writeln ( 'Switch no works' );"
+            "       end;"
+            "   end;"
+            "   if 5 mod 3 > 0 then begin"
+            "       Writeln ('Yes,if 1 ');"
+            "       Writeln ('Yes,if 2 ');"
+            "   end"
+            "   else begin"
+            "       Writeln ('No,else 1 ');"
+            "       Writeln ('No,else 2 ');"
+            "   end;"
+            "   if 5 mod 3 > 0 then begin"
+            "       Writeln ('Yes,if 1 ');"
+            "       Writeln ('Yes,if 2 ');"
+            "   end"
+            "   else begin"
+            "       Writeln ('No,else 1 ');"
+            "       Writeln ('No,else 2 ');"
+            "   end;"
+            "   res2 := 'Hello world' ;"
+            "   num1 := 2 ;"
+            "   Writeln ('From table ' , num1);"
+            "   if PI <> num1 then begin"
+            "       Writeln( 'Pim' );"
+            "       if PI <> num1 then begin"
+            "           Writeln ('Pam');"
+            "       end"
+            "   end"
+            "   else begin"
+            "       Writeln ('Pum');"
+            "   end;"
+            "   if PI <> num1 then begin"
+            "       Writeln( 'Pim' );"
+            "       if 5 mod 3 > 0 then begin"
+            "           Writeln ('Yes,if 1 ');"
+            "           Writeln ('Yes,if 2 ');"
+            "       end"
+            "       else begin"
+            "           Writeln ('No,else 1 ');"
+            "           Writeln ('No,else 2 ');"
+            "       end;"
+            "   end"
+            "   else begin"
+            "       Writeln ('Pum');"
+            "   end;"
+            "   for i := 1 to 8 do begin"
+            "       Write ( '3' ) ;"
+            "   end;"
+            "   while num1 < 6 do begin"
+            "       Write('Yes');"
+            "       num1 := num1 + 1;"
+            "   end;"
+            "   if 5 mod 3 > 0 then begin"
+            "       Writeln ('Yes,if 1 ');"
+            "       Writeln ('Yes,if 2 ');"
+            "   end"
+            "   else begin"
+            "       Writeln ('No,else 1 ');"
+            "       Writeln ('No,else 2 ');"
+            "   end;"
+            "   repeat begin"
+            "       Write('3');"
+            "       num1 := num1 + 1;"
+            "   end;"
+            "   until num1 < 7 ;"
+            "   num1 := num1 + 3;"
             "end.";
-
-    string cCode =
+ string cCode =
             "#include <stdio.h>\n"
             "#include <stdlib.h>\n"
             "#include <string.h>\n"
@@ -1135,28 +1134,29 @@ int main() {
 
     //CPP TESTING
 
-//    for (int i = 0; i < TESTS_COUNT; i++) {
-//        std::cout << "=== Testing part " << (i + 1) << " ===" << std::endl;
-//        try {
-//            CppParserToAST parser;
-//            std::cout << "TEST cppCode" << std::endl;
-//            std::cout << tests2[i] << std::endl;
-//            auto result = parser.parse(tests2[i]);
-//            std::cout << "SUCCESS: Part " << (i + 1) << " parsed successfully" << std::endl;
-//            CppAstVisualizer visualizer;
-//            std::cout << "AST STRUCTURE:" << std::endl;
-//            result->accept(visualizer);
-//        } catch (const std::exception& e) {
-//            std::cout << "ERROR in part " << (i + 1) << ": " << e.what() << std::endl;
-//        }catch (...) {
-//            std::cerr << "Unknown error occurred" << std::endl;
-//            return 1;
-//        }
-//        std::cout << std::endl;
-//    }
+/*    for (int i = 0; i < TESTS_COUNT; i++) {
+        std::cout << "=== Testing part " << (i + 1) << " ===" << std::endl;
+        try {
+            CppParserToAST parser;
+            std::cout << "TEST cppCode" << std::endl;
+            std::cout << tests2[i] << std::endl;
+            auto result = parser.parse(tests2[i]);
+            std::cout << "SUCCESS: Part " << (i + 1) << " parsed successfully" << std::endl;
+            CppAstVisualizer visualizer;
+            std::cout << "AST STRUCTURE:" << std::endl;
+            result->accept(visualizer);
+        } catch (const std::exception& e) {
+            std::cout << "ERROR in part " << (i + 1) << ": " << e.what() << std::endl;
+        }catch (...) {
+            std::cerr << "Unknown error occurred" << std::endl;
+            return 1;
+        }
+        std::cout << std::endl;
+    }*/
+
     try {
         CppParserToAST parser;
-        int k=3;
+        int k = 5;
         auto ast = parser.parse(tests2[k]);
         std::cout << "TEST cppCode" << std::endl;
         std::cout << tests2[k] << std::endl;
