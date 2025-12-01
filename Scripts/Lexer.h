@@ -4,15 +4,17 @@
 
 #ifndef LEXER_H
 #define LEXER_H
+
 #include <iostream>
 #include <regex>
 #include <vector>
 #include <string>
 #include "Token.h"
 
-enum types{
+enum types {
     PASCAL, C, CPP
 };
+
 class Lexer {
 private:
     // Вектор Токенов в коде Паскаль/С/С++
@@ -27,17 +29,17 @@ public:
     Lexer(const std::string &input_string, types type) {
         this->input_string = input_string;
         copy_input_string = input_string;
-        switch (type){
+        switch (type) {
             case PASCAL:
-                vector =getTokenTypePascal();
+                vector = getTokenTypePascal();
                 while (hasNext()) {}
                 break;
             case C:
-                vector =getTokenTypeC();
+                vector = getTokenTypeC();
                 while (hasNext2()) {}
                 break;
             case CPP:
-                vector =getTokenTypeCPlusPlus();
+                vector = getTokenTypeCPlusPlus();
                 while (hasNext3()) {}
                 break;
             default:
@@ -62,6 +64,7 @@ public:
         }
         return false;
     }
+
     bool hasNext2() {
         if (pos >= input_string.length()) return false;
 
@@ -146,7 +149,8 @@ public:
         // 5. Затем все остальные токены
         for (const auto &item: vector) {
             if (item.first == "SPACE" || item.first == "COMMENT" ||
-                item.first == "VALUESTRING" || item.first == "VALUECHAR") continue;
+                item.first == "VALUESTRING" || item.first == "VALUECHAR")
+                continue;
 
             std::regex rgx("^" + item.second);
             if (std::regex_search(s.begin() + pos, s.end(), match, rgx)) {
@@ -162,10 +166,11 @@ public:
         pos++;
         return true;
     }
+
     bool hasNext3() {
         if (pos >= input_string.length()) return false;
 
-        const std::string& s = input_string; // Используем ссылку!
+        const std::string &s = input_string; // Используем ссылку!
 
         // 1. Пропускаем пробелы быстро (без regex)
         while (pos < s.length() && std::isspace(static_cast<unsigned char>(s[pos]))) {
@@ -231,21 +236,55 @@ public:
         // 5. Быстрая проверка односимвольных токенов (без regex)
         char current_char = s[pos];
         switch (current_char) {
-            case ';': tokenList.emplace_back("SEMICOLON", ";", pos); pos++; return true;
-            case ',': tokenList.emplace_back("COMMA", ",", pos); pos++; return true;
+            case ';':
+                tokenList.emplace_back("SEMICOLON", ";", pos);
+                pos++;
+                return true;
+            case ',':
+                tokenList.emplace_back("COMMA", ",", pos);
+                pos++;
+                return true;
             case ':':
                 if (pos + 1 < s.length() && s[pos + 1] == ':') {
-                    tokenList.emplace_back("SCOPE", "::", pos); pos += 2; return true;
+                    tokenList.emplace_back("SCOPE", "::", pos);
+                    pos += 2;
+                    return true;
                 }
-                tokenList.emplace_back("COLON", ":", pos); pos++; return true;
-            case '(': tokenList.emplace_back("OPENPARENTHESES", "(", pos); pos++; return true;
-            case ')': tokenList.emplace_back("CLOSEPARENTHESES", ")", pos); pos++; return true;
-            case '{': tokenList.emplace_back("OPENCURLY", "{", pos); pos++; return true;
-            case '}': tokenList.emplace_back("CLOSECURLY", "}", pos); pos++; return true;
-            case '[': tokenList.emplace_back("OPENBRACKET", "[", pos); pos++; return true;
-            case ']': tokenList.emplace_back("CLOSEBRACKET", "]", pos); pos++; return true;
-            case '?': tokenList.emplace_back("QUESTION", "?", pos); pos++; return true;
-            case '~': tokenList.emplace_back("BITNOT", "~", pos); pos++; return true;
+                tokenList.emplace_back("COLON", ":", pos);
+                pos++;
+                return true;
+            case '(':
+                tokenList.emplace_back("OPENPARENTHESES", "(", pos);
+                pos++;
+                return true;
+            case ')':
+                tokenList.emplace_back("CLOSEPARENTHESES", ")", pos);
+                pos++;
+                return true;
+            case '{':
+                tokenList.emplace_back("OPENCURLY", "{", pos);
+                pos++;
+                return true;
+            case '}':
+                tokenList.emplace_back("CLOSECURLY", "}", pos);
+                pos++;
+                return true;
+            case '[':
+                tokenList.emplace_back("OPENBRACKET", "[", pos);
+                pos++;
+                return true;
+            case ']':
+                tokenList.emplace_back("CLOSEBRACKET", "]", pos);
+                pos++;
+                return true;
+            case '?':
+                tokenList.emplace_back("QUESTION", "?", pos);
+                pos++;
+                return true;
+            case '~':
+                tokenList.emplace_back("BITNOT", "~", pos);
+                pos++;
+                return true;
         }
 
         // 6. Многосимвольные операторы (быстрая проверка)
@@ -255,50 +294,185 @@ public:
 
             // Проверяем трехсимвольные операторы
             if (!three_chars.empty()) {
-                if (three_chars == "...") { tokenList.emplace_back("ELLIPSIS", "...", pos); pos += 3; return true; }
-                if (three_chars == "->*") { tokenList.emplace_back("PTRMEMBER", "->*", pos); pos += 3; return true; }
-                if (three_chars == ".*") { tokenList.emplace_back("MEMBERPTR", ".*", pos); pos += 2; return true; }
-                if (three_chars == "<<=") { tokenList.emplace_back("SHIFTLEFTASSIGN", "<<=", pos); pos += 3; return true; }
-                if (three_chars == ">>=") { tokenList.emplace_back("SHIFTRIGHTASSIGN", ">>=", pos); pos += 3; return true; }
+                if (three_chars == "...") {
+                    tokenList.emplace_back("ELLIPSIS", "...", pos);
+                    pos += 3;
+                    return true;
+                }
+                if (three_chars == "->*") {
+                    tokenList.emplace_back("PTRMEMBER", "->*", pos);
+                    pos += 3;
+                    return true;
+                }
+                if (three_chars == ".*") {
+                    tokenList.emplace_back("MEMBERPTR", ".*", pos);
+                    pos += 2;
+                    return true;
+                }
+                if (three_chars == "<<=") {
+                    tokenList.emplace_back("SHIFTLEFTASSIGN", "<<=", pos);
+                    pos += 3;
+                    return true;
+                }
+                if (three_chars == ">>=") {
+                    tokenList.emplace_back("SHIFTRIGHTASSIGN", ">>=", pos);
+                    pos += 3;
+                    return true;
+                }
             }
 
             // Двухсимвольные операторы
-            if (two_chars == "->") { tokenList.emplace_back("PTRACCESS", "->", pos); pos += 2; return true; }
-            if (two_chars == "++") { tokenList.emplace_back("INCREMENT", "++", pos); pos += 2; return true; }
-            if (two_chars == "--") { tokenList.emplace_back("DECREMENT", "--", pos); pos += 2; return true; }
-            if (two_chars == "+=") { tokenList.emplace_back("PLUSASSIGN", "+=", pos); pos += 2; return true; }
-            if (two_chars == "-=") { tokenList.emplace_back("MINUSASSIGN", "-=", pos); pos += 2; return true; }
-            if (two_chars == "*=") { tokenList.emplace_back("MULTIASSIGN", "*=", pos); pos += 2; return true; }
-            if (two_chars == "/=") { tokenList.emplace_back("DIVASSIGN", "/=", pos); pos += 2; return true; }
-            if (two_chars == "%=") { tokenList.emplace_back("MODASSIGN", "%=", pos); pos += 2; return true; }
-            if (two_chars == "&=") { tokenList.emplace_back("ANDASSIGN", "&=", pos); pos += 2; return true; }
-            if (two_chars == "|=") { tokenList.emplace_back("ORASSIGN", "|=", pos); pos += 2; return true; }
-            if (two_chars == "^=") { tokenList.emplace_back("XORASSIGN", "^=", pos); pos += 2; return true; }
-            if (two_chars == "<<") { tokenList.emplace_back("BITSHIFTLEFT", "<<", pos); pos += 2; return true; }
-            if (two_chars == ">>") { tokenList.emplace_back("BITSHIFTRIGHT", ">>", pos); pos += 2; return true; }
-            if (two_chars == ">=") { tokenList.emplace_back("JGE", ">=", pos); pos += 2; return true; }
-            if (two_chars == "<=") { tokenList.emplace_back("JLE", "<=", pos); pos += 2; return true; }
-            if (two_chars == "!=") { tokenList.emplace_back("JNE", "!=", pos); pos += 2; return true; }
-            if (two_chars == "==") { tokenList.emplace_back("JE", "==", pos); pos += 2; return true; }
-            if (two_chars == "&&") { tokenList.emplace_back("AND", "&&", pos); pos += 2; return true; }
-            if (two_chars == "||") { tokenList.emplace_back("OR", "||", pos); pos += 2; return true; }
+            if (two_chars == "->") {
+                tokenList.emplace_back("PTRACCESS", "->", pos);
+                pos += 2;
+                return true;
+            }
+            if (two_chars == "++") {
+                tokenList.emplace_back("INCREMENT", "++", pos);
+                pos += 2;
+                return true;
+            }
+            if (two_chars == "--") {
+                tokenList.emplace_back("DECREMENT", "--", pos);
+                pos += 2;
+                return true;
+            }
+            if (two_chars == "+=") {
+                tokenList.emplace_back("PLUSASSIGN", "+=", pos);
+                pos += 2;
+                return true;
+            }
+            if (two_chars == "-=") {
+                tokenList.emplace_back("MINUSASSIGN", "-=", pos);
+                pos += 2;
+                return true;
+            }
+            if (two_chars == "*=") {
+                tokenList.emplace_back("MULTIASSIGN", "*=", pos);
+                pos += 2;
+                return true;
+            }
+            if (two_chars == "/=") {
+                tokenList.emplace_back("DIVASSIGN", "/=", pos);
+                pos += 2;
+                return true;
+            }
+            if (two_chars == "%=") {
+                tokenList.emplace_back("MODASSIGN", "%=", pos);
+                pos += 2;
+                return true;
+            }
+            if (two_chars == "&=") {
+                tokenList.emplace_back("ANDASSIGN", "&=", pos);
+                pos += 2;
+                return true;
+            }
+            if (two_chars == "|=") {
+                tokenList.emplace_back("ORASSIGN", "|=", pos);
+                pos += 2;
+                return true;
+            }
+            if (two_chars == "^=") {
+                tokenList.emplace_back("XORASSIGN", "^=", pos);
+                pos += 2;
+                return true;
+            }
+            if (two_chars == "<<") {
+                tokenList.emplace_back("BITSHIFTLEFT", "<<", pos);
+                pos += 2;
+                return true;
+            }
+            if (two_chars == ">>") {
+                tokenList.emplace_back("BITSHIFTRIGHT", ">>", pos);
+                pos += 2;
+                return true;
+            }
+            if (two_chars == ">=") {
+                tokenList.emplace_back("JGE", ">=", pos);
+                pos += 2;
+                return true;
+            }
+            if (two_chars == "<=") {
+                tokenList.emplace_back("JLE", "<=", pos);
+                pos += 2;
+                return true;
+            }
+            if (two_chars == "!=") {
+                tokenList.emplace_back("JNE", "!=", pos);
+                pos += 2;
+                return true;
+            }
+            if (two_chars == "==") {
+                tokenList.emplace_back("JE", "==", pos);
+                pos += 2;
+                return true;
+            }
+            if (two_chars == "&&") {
+                tokenList.emplace_back("AND", "&&", pos);
+                pos += 2;
+                return true;
+            }
+            if (two_chars == "||") {
+                tokenList.emplace_back("OR", "||", pos);
+                pos += 2;
+                return true;
+            }
         }
 
         // 7. Односимвольные операторы (продолжение)
         switch (current_char) {
-            case '+': tokenList.emplace_back("PLUS", "+", pos); pos++; return true;
-            case '-': tokenList.emplace_back("MINUS", "-", pos); pos++; return true;
-            case '*': tokenList.emplace_back("MULTI", "*", pos); pos++; return true;
-            case '/': tokenList.emplace_back("DIV", "/", pos); pos++; return true;
-            case '%': tokenList.emplace_back("MOD", "%", pos); pos++; return true;
-            case '=': tokenList.emplace_back("ASSIGN", "=", pos); pos++; return true;
-            case '>': tokenList.emplace_back("JG", ">", pos); pos++; return true;
-            case '<': tokenList.emplace_back("JL", "<", pos); pos++; return true;
-            case '!': tokenList.emplace_back("NOT", "!", pos); pos++; return true;
-            case '&': tokenList.emplace_back("BITAND", "&", pos); pos++; return true;
-            case '|': tokenList.emplace_back("BITOR", "|", pos); pos++; return true;
-            case '^': tokenList.emplace_back("BITXOR", "^", pos); pos++; return true;
-            case '.': tokenList.emplace_back("MEMBERACCESS", ".", pos); pos++; return true;
+            case '+':
+                tokenList.emplace_back("PLUS", "+", pos);
+                pos++;
+                return true;
+            case '-':
+                tokenList.emplace_back("MINUS", "-", pos);
+                pos++;
+                return true;
+            case '*':
+                tokenList.emplace_back("MULTI", "*", pos);
+                pos++;
+                return true;
+            case '/':
+                tokenList.emplace_back("DIV", "/", pos);
+                pos++;
+                return true;
+            case '%':
+                tokenList.emplace_back("MOD", "%", pos);
+                pos++;
+                return true;
+            case '=':
+                tokenList.emplace_back("ASSIGN", "=", pos);
+                pos++;
+                return true;
+            case '>':
+                tokenList.emplace_back("JG", ">", pos);
+                pos++;
+                return true;
+            case '<':
+                tokenList.emplace_back("JL", "<", pos);
+                pos++;
+                return true;
+            case '!':
+                tokenList.emplace_back("NOT", "!", pos);
+                pos++;
+                return true;
+            case '&':
+                tokenList.emplace_back("BITAND", "&", pos);
+                pos++;
+                return true;
+            case '|':
+                tokenList.emplace_back("BITOR", "|", pos);
+                pos++;
+                return true;
+            case '^':
+                tokenList.emplace_back("BITXOR", "^", pos);
+                pos++;
+                return true;
+            case '.':
+                tokenList.emplace_back("MEMBERACCESS", ".", pos);
+                pos++;
+                return true;
         }
 
         // 8. Только теперь используем regex для сложных случаев
@@ -335,320 +509,322 @@ public:
         return this->tokenList;
     }
 
-   static std::vector<std::pair<std::string, std::string>> getTokenTypeCPlusPlus() {
+    static std::vector<std::pair<std::string, std::string>> getTokenTypeCPlusPlus() {
         return {
                 // === ВЫСОКОПРИОРИТЕТНЫЕ ТОКЕНЫ ===
 
                 // Комментарии (обрабатываются отдельно в hasNext3)
-                {"COMMENT", "//[^\\n]*|/\\*.*?\\*/"},
+                {"COMMENT",          "//[^\\n]*|/\\*.*?\\*/"},
 
                 // Строковые и символьные литералы (обрабатываются отдельно)
-                {"VALUESTRING", "\"[^\"]*\""},
-                {"VALUECHAR", "'[^']*'"},
+                {"VALUESTRING",      "\"[^\"]*\""},
+                {"VALUECHAR",        "'[^']*'"},
 
                 // === ПРЕПРОЦЕССОР (оптимизировано) ===
-                {"INCLUDE", "#include\\s*<[^>]+>"},
-                {"INCLUDE", "#include\\s*\"[^\"]+\""},
-                {"DEFINE", "#define\\b"},
-                {"IFDEF", "#ifdef\\b"},
-                {"IFNDEF", "#ifndef\\b"},
-                {"ENDIF", "#endif\\b"},
-                {"PRAGMA", "#pragma\\b"},
+                {"INCLUDE",          "#include\\s*<[^>]+>"},
+                {"INCLUDE",          "#include\\s*\"[^\"]+\""},
+                {"DEFINE",           "#define\\b"},
+                {"IFDEF",            "#ifdef\\b"},
+                {"IFNDEF",           "#ifndef\\b"},
+                {"ENDIF",            "#endif\\b"},
+                {"PRAGMA",           "#pragma\\b"},
 
                 // === КЛЮЧЕВЫЕ СЛОВА (группированы по длине для оптимизации) ===
 
                 // Длинные ключевые слова сначала
-                {"STATIC_ASSERT", "static_assert\\b"},
-                {"CONSTEXPR", "constexpr\\b"},
-                {"DECLTYPE", "decltype\\b"},
-                {"NOEXCEPT", "noexcept\\b"},
-                {"OPERATOR", "operator\\b"},
-                {"NAMESPACE", "namespace\\b"},
-                {"TYPENAME", "typename\\b"},
-                {"TEMPLATE", "template\\b"},
-                {"EXPLICIT", "explicit\\b"},
-                {"MUTABLE", "mutable\\b"},
-                {"VOLATILE", "volatile\\b"},
-                {"REGISTER", "register\\b"},
-                {"OVERRIDE", "override\\b"},
-                {"VIRTUAL", "virtual\\b"},
-                {"PRIVATE", "private\\b"},
-                {"PUBLIC", "public\\b"},
-                {"PROTECTED", "protected\\b"},
-                {"CONTINUE", "continue\\b"},
-                {"STATIC", "static\\b"},
-                {"EXTERN", "extern\\b"},
-                {"INLINE", "inline\\b"},
-                {"SIZEOF", "sizeof\\b"},
-                {"TYPEDEF", "typedef\\b"},
-                {"DELETE", "delete\\b"},
-                {"FRIEND", "friend\\b"},
-                {"RETURN", "return\\b"},
-                {"STRUCT", "struct\\b"},
-                {"SWITCH", "switch\\b"},
-                {"THROW", "throw\\b"},
-                {"CATCH", "catch\\b"},
-                {"CLASS", "class\\b"},
-                {"CONST", "const\\b"},
-                {"FINAL", "final\\b"},
-                {"USING", "using\\b"},
-                {"WHILE", "while\\b"},
-                {"BREAK", "break\\b"},
-                {"CASE", "case\\b"},
-                {"ELSE", "else\\b"},
-                {"ENUM", "enum\\b"},
-                {"GOTO", "goto\\b"},
-                {"AUTO", "auto\\b"},
-                {"BOOL", "bool\\b"},
-                {"CHAR", "char\\b"},
-                {"DOUBLE", "double\\b"},
-                {"FLOAT", "float\\b"},
-                {"LONG", "long\\b"},
-                {"SHORT", "short\\b"},
-                {"UNION", "union\\b"},
-                {"UNSIGNED", "unsigned\\b"},
-                {"SIGNED", "signed\\b"},
-                {"TRY", "try\\b"},
-                {"VOID", "void\\b"},
-                {"THIS", "this\\b"},
-                {"NEW", "new\\b"},
-                {"DO", "do\\b"},
-                {"IF", "if\\b"},
-                {"FOR", "for\\b"},
-                {"INT", "int\\b"},
+                {"STATIC_ASSERT",    "static_assert\\b"},
+                {"CONSTEXPR",        "constexpr\\b"},
+                {"DECLTYPE",         "decltype\\b"},
+                {"NOEXCEPT",         "noexcept\\b"},
+                {"OPERATOR",         "operator\\b"},
+                {"NAMESPACE",        "namespace\\b"},
+                {"TYPENAME",         "typename\\b"},
+                {"TEMPLATE",         "template\\b"},
+                {"EXPLICIT",         "explicit\\b"},
+                {"MUTABLE",          "mutable\\b"},
+                {"VOLATILE",         "volatile\\b"},
+                {"REGISTER",         "register\\b"},
+                {"OVERRIDE",         "override\\b"},
+                {"VIRTUAL",          "virtual\\b"},
+                {"PRIVATE",          "private\\b"},
+                {"PUBLIC",           "public\\b"},
+                {"PROTECTED",        "protected\\b"},
+                {"CONTINUE",         "continue\\b"},
+                {"STATIC",           "static\\b"},
+                {"EXTERN",           "extern\\b"},
+                {"INLINE",           "inline\\b"},
+                {"SIZEOF",           "sizeof\\b"},
+                {"TYPEDEF",          "typedef\\b"},
+                {"DELETE",           "delete\\b"},
+                {"FRIEND",           "friend\\b"},
+                {"RETURN",           "return\\b"},
+                {"STRUCT",           "struct\\b"},
+                {"SWITCH",           "switch\\b"},
+                {"THROW",            "throw\\b"},
+                {"CATCH",            "catch\\b"},
+                {"CLASS",            "class\\b"},
+                {"CONST",            "const\\b"},
+                {"FINAL",            "final\\b"},
+                {"USING",            "using\\b"},
+                {"WHILE",            "while\\b"},
+                {"BREAK",            "break\\b"},
+                {"CASE",             "case\\b"},
+                {"ELSE",             "else\\b"},
+                {"ENUM",             "enum\\b"},
+                {"GOTO",             "goto\\b"},
+                {"AUTO",             "auto\\b"},
+                {"BOOL",             "bool\\b"},
+                {"CHAR",             "char\\b"},
+                {"DOUBLE",           "double\\b"},
+                {"FLOAT",            "float\\b"},
+                {"LONG",             "long\\b"},
+                {"SHORT",            "short\\b"},
+                {"UNION",            "union\\b"},
+                {"UNSIGNED",         "unsigned\\b"},
+                {"SIGNED",           "signed\\b"},
+                {"TRY",              "try\\b"},
+                {"VOID",             "void\\b"},
+                {"THIS",             "this\\b"},
+                {"NEW",              "new\\b"},
+                {"DO",               "do\\b"},
+                {"IF",               "if\\b"},
+                {"FOR",              "for\\b"},
+                {"INT",              "int\\b"},
 
                 // === ОПЕРАТОРЫ (группированы по уникальности) ===
 
                 // Многосимвольные операторы сначала
-                {"PTRMEMBER", "->\\*"},
-                {"MEMBERPTR", "\\.\\*"},
-                {"SHIFTLEFTASSIGN", "<<="},
+                {"PTRMEMBER",        "->\\*"},
+                {"MEMBERPTR",        "\\.\\*"},
+                {"SHIFTLEFTASSIGN",  "<<="},
                 {"SHIFTRIGHTASSIGN", ">>="},
-                {"PLUSASSIGN", "\\+="},
-                {"MINUSASSIGN", "-="},
-                {"MULTIASSIGN", "\\*="},
-                {"DIVASSIGN", "/="},
-                {"MODASSIGN", "%="},
-                {"ANDASSIGN", "&="},
-                {"ORASSIGN", "\\|="},
-                {"XORASSIGN", "\\^="},
-                {"INCREMENT", "\\+\\+"},
-                {"DECREMENT", "--"},
-                {"PTRACCESS", "->"},
-                {"BITSHIFTLEFT", "<<"},
-                {"BITSHIFTRIGHT", ">>"},
-                {"ELLIPSIS", "\\.\\.\\."},
-                {"SPACESHIP", "<=>"},
-                {"JGE", ">="},
-                {"JLE", "<="},
-                {"JNE", "!="},
-                {"JE", "=="},
-                {"AND", "&&"},
-                {"OR", "\\|\\|"},
-                {"SCOPE", "::"},
+                {"PLUSASSIGN",       "\\+="},
+                {"MINUSASSIGN",      "-="},
+                {"MULTIASSIGN",      "\\*="},
+                {"DIVASSIGN",        "/="},
+                {"MODASSIGN",        "%="},
+                {"ANDASSIGN",        "&="},
+                {"ORASSIGN",         "\\|="},
+                {"XORASSIGN",        "\\^="},
+                {"INCREMENT",        "\\+\\+"},
+                {"DECREMENT",        "--"},
+                {"PTRACCESS",        "->"},
+                {"BITSHIFTLEFT",     "<<"},
+                {"BITSHIFTRIGHT",    ">>"},
+                {"ELLIPSIS",         "\\.\\.\\."},
+                {"SPACESHIP",        "<=>"},
+                {"JGE",              ">="},
+                {"JLE",              "<="},
+                {"JNE",              "!="},
+                {"JE",               "=="},
+                {"AND",              "&&"},
+                {"OR",               "\\|\\|"},
+                {"SCOPE",            "::"},
 
                 // Односимвольные операторы
-                {"PLUS", "\\+"},
-                {"MINUS", "-"},
-                {"MULTI", "\\*"},
-                {"DIV", "/"},
-                {"MOD", "%"},
-                {"ASSIGN", "="},
-                {"JG", ">"},
-                {"JL", "<"},
-                {"NOT", "!"},
-                {"BITAND", "&"},
-                {"BITOR", "\\|"},
-                {"BITXOR", "\\^"},
-                {"BITNOT", "~"},
-                {"QUESTION", "\\?"},
-                {"MEMBERACCESS", "\\."},  // Убрали DOT - дублирование
+                {"PLUS",             "\\+"},
+                {"MINUS",            "-"},
+                {"MULTI",            "\\*"},
+                {"DIV",              "/"},
+                {"MOD",              "%"},
+                {"ASSIGN",           "="},
+                {"JG",               ">"},
+                {"JL",               "<"},
+                {"NOT",              "!"},
+                {"BITAND",           "&"},
+                {"BITOR",            "\\|"},
+                {"BITXOR",           "\\^"},
+                {"BITNOT",           "~"},
+                {"QUESTION",         "\\?"},
+                {"MEMBERACCESS",     "\\."},  // Убрали DOT - дублирование
 
                 // === РАЗДЕЛИТЕЛИ ===
-                {"SEMICOLON", ";"},
-                {"COMMA", ","},
-                {"COLON", ":"},
-                {"OPENPARENTHESES", "\\("},
+                {"SEMICOLON",        ";"},
+                {"COMMA",            ","},
+                {"COLON",            ":"},
+                {"OPENPARENTHESES",  "\\("},
                 {"CLOSEPARENTHESES", "\\)"},
-                {"OPENCURLY", "\\{"},
-                {"CLOSECURLY", "\\}"},
-                {"OPENBRACKET", "\\["},
-                {"CLOSEBRACKET", "\\]"},
+                {"OPENCURLY",        "\\{"},
+                {"CLOSECURLY",       "\\}"},
+                {"OPENBRACKET",      "\\["},
+                {"CLOSEBRACKET",     "\\]"},
 
                 // === ЛИТЕРАЛЫ ===
-                {"VALUEBOOL", "true\\b|false\\b"},
-                {"VALUENULLPTR", "nullptr\\b"},
-                {"VALUEHEX", "0[xX][0-9a-fA-F]+"},
-                {"VALUEOCTAL", "0[0-7]+"},
-                {"VALUEFLOAT", "[0-9]*\\.[0-9]+([eE][-+]?[0-9]+)?[fF]?"},
-                {"VALUEINTEGER", "[0-9]+"},
+                {"VALUEBOOL",        "true\\b|false\\b"},
+                {"VALUENULLPTR",     "nullptr\\b"},
+                {"VALUEHEX",         "0[xX][0-9a-fA-F]+"},
+                {"VALUEOCTAL",       "0[0-7]+"},
+                {"VALUEFLOAT",       "[0-9]*\\.[0-9]+([eE][-+]?[0-9]+)?[fF]?"},
+                {"VALUEINTEGER",     "[0-9]+"},
 
                 // === ИДЕНТИФИКАТОРЫ (в конце - самый общий паттерн) ===
-                {"IDENTIFIER", "[a-zA-Z_][a-zA-Z0-9_]*"},
+                {"IDENTIFIER",       "[a-zA-Z_][a-zA-Z0-9_]*"},
 
         };
     }
+
     static std::vector<std::pair<std::string, std::string>> getTokenTypeC() {
         return {
                 // Препроцессорные директивы
-                {"INCLUDE", "#include[ ]*<[^>]+>"},
-                {"INCLUDE", "#include[ ]*\"[^\"]+\""},
-                {"DEFINE", "#define\\b"},
-                {"PREPROCESSOR", "#[a-zA-Z_][a-zA-Z0-9_]*"},
+                {"INCLUDE",          "#include[ ]*<[^>]+>"},
+                {"INCLUDE",          "#include[ ]*\"[^\"]+\""},
+                {"DEFINE",           "#define\\b"},
+                {"PREPROCESSOR",     "#[a-zA-Z_][a-zA-Z0-9_]*"},
 
                 // Ключевые слова
-                {"IF", "\\bif\\b"},
-                {"ELSE", "\\belse\\b"},
-                {"WHILE", "\\bwhile\\b"},
-                {"FOR", "\\bfor\\b"},
-                {"DO", "\\bdo\\b"},
-                {"SWITCH", "\\bswitch\\b"},
-                {"CASE", "\\bcase\\b"},
-                {"DEFAULT", "\\bdefault\\b"},
-                {"BREAK", "\\bbreak\\b"},
-                {"CONTINUE", "\\bcontinue\\b"},
-                {"RETURN", "\\breturn\\b"},
-                {"VOID", "\\bvoid\\b"},
-                {"INT", "\\bint\\b"},
-                {"FLOAT", "\\bfloat\\b"},
-                {"DOUBLE", "\\bdouble\\b"},
-                {"CHAR", "\\bchar\\b"},
-                {"SHORT", "\\bshort\\b"},
-                {"LONG", "\\blong\\b"},
-                {"SIGNED", "\\bsigned\\b"},
-                {"UNSIGNED", "\\bunsigned\\b"},
-                {"CONST", "\\bconst\\b"},
-                {"STATIC", "\\bstatic\\b"},
-                {"STRUCT", "\\bstruct\\b"},
-                {"TYPEDEF", "\\btypedef\\b"},
-                {"SIZEOF", "\\bsizeof\\b"},
+                {"IF",               "\\bif\\b"},
+                {"ELSE",             "\\belse\\b"},
+                {"WHILE",            "\\bwhile\\b"},
+                {"FOR",              "\\bfor\\b"},
+                {"DO",               "\\bdo\\b"},
+                {"SWITCH",           "\\bswitch\\b"},
+                {"CASE",             "\\bcase\\b"},
+                {"DEFAULT",          "\\bdefault\\b"},
+                {"BREAK",            "\\bbreak\\b"},
+                {"CONTINUE",         "\\bcontinue\\b"},
+                {"RETURN",           "\\breturn\\b"},
+                {"VOID",             "\\bvoid\\b"},
+                {"INT",              "\\bint\\b"},
+                {"FLOAT",            "\\bfloat\\b"},
+                {"DOUBLE",           "\\bdouble\\b"},
+                {"CHAR",             "\\bchar\\b"},
+                {"SHORT",            "\\bshort\\b"},
+                {"LONG",             "\\blong\\b"},
+                {"SIGNED",           "\\bsigned\\b"},
+                {"UNSIGNED",         "\\bunsigned\\b"},
+                {"CONST",            "\\bconst\\b"},
+                {"STATIC",           "\\bstatic\\b"},
+                {"STRUCT",           "\\bstruct\\b"},
+                {"TYPEDEF",          "\\btypedef\\b"},
+                {"SIZEOF",           "\\bsizeof\\b"},
 
                 // Многосимвольные операторы
-                {"PTRACCESS", "->"},
-                {"INCREMENT", "\\+\\+"},
-                {"DECREMENT", "--"},
-                {"PLUSASSIGN", "\\+="},
-                {"MINUSASSIGN", "-="},
-                {"MULTIASSIGN", "\\*="},
-                {"DIVASSIGN", "/="},
-                {"MODASSIGN", "%="},
-                {"JGE", ">="},
-                {"JLE", "<="},
-                {"JNE", "!="},
-                {"JE", "=="},
-                {"AND", "&&"},
-                {"OR", "\\|\\|"},
-                {"BITSHIFTLEFT", "<<"},
-                {"BITSHIFTRIGHT", ">>"},
-                {"QUESTION", "\\?"},  // Тернарный оператор
+                {"PTRACCESS",        "->"},
+                {"INCREMENT",        "\\+\\+"},
+                {"DECREMENT",        "--"},
+                {"PLUSASSIGN",       "\\+="},
+                {"MINUSASSIGN",      "-="},
+                {"MULTIASSIGN",      "\\*="},
+                {"DIVASSIGN",        "/="},
+                {"MODASSIGN",        "%="},
+                {"JGE",              ">="},
+                {"JLE",              "<="},
+                {"JNE",              "!="},
+                {"JE",               "=="},
+                {"AND",              "&&"},
+                {"OR",               "\\|\\|"},
+                {"BITSHIFTLEFT",     "<<"},
+                {"BITSHIFTRIGHT",    ">>"},
+                {"QUESTION",         "\\?"},  // Тернарный оператор
 
                 // Односимвольные операторы
-                {"PLUS", "\\+"},
-                {"MINUS", "-"},
-                {"MULTI", "\\*"},
-                {"DIV", "/"},
-                {"MOD", "%"},
-                {"ASSIGN", "="},
-                {"JG", ">"},
-                {"JL", "<"},
-                {"NOT", "!"},
-                {"BITAND", "&"},
-                {"BITOR", "\\|"},
-                {"BITXOR", "\\^"},
-                {"BITNOT", "~"},
+                {"PLUS",             "\\+"},
+                {"MINUS",            "-"},
+                {"MULTI",            "\\*"},
+                {"DIV",              "/"},
+                {"MOD",              "%"},
+                {"ASSIGN",           "="},
+                {"JG",               ">"},
+                {"JL",               "<"},
+                {"NOT",              "!"},
+                {"BITAND",           "&"},
+                {"BITOR",            "\\|"},
+                {"BITXOR",           "\\^"},
+                {"BITNOT",           "~"},
 
                 // Разделители
-                {"SEMICOLON", ";"},
-                {"COMMA", ","},
-                {"COLON", ":"},
-                {"OPENPARENTHESES", "\\("},
+                {"SEMICOLON",        ";"},
+                {"COMMA",            ","},
+                {"COLON",            ":"},
+                {"OPENPARENTHESES",  "\\("},
                 {"CLOSEPARENTHESES", "\\)"},
-                {"OPENCURLY", "\\{"},
-                {"CLOSECURLY", "\\}"},
-                {"OPENBRACKET", "\\["},
-                {"CLOSEBRACKET", "\\]"},
-                {"DOT", "\\."},
+                {"OPENCURLY",        "\\{"},
+                {"CLOSECURLY",       "\\}"},
+                {"OPENBRACKET",      "\\["},
+                {"CLOSEBRACKET",     "\\]"},
+                {"DOT",              "\\."},
 
                 // Литералы (УПРОЩЕННЫЕ)
-                {"VALUESTRING", "\"[^\"]*\"?"},  // Простая строка до закрывающей кавычки
-                {"VALUECHAR", "'[^']*'?"},
-                {"VALUEHEX", "0[xX][0-9a-fA-F]+"},
-                {"VALUEOCTAL", "0[0-7]+"},
-                {"VALUEFLOAT", "[0-9]+\\.[0-9]+[fF]?"},
-                {"VALUEDOUBLE", "[0-9]+\\.[0-9]+"},
-                {"VALUEINTEGER", "[0-9]+"},
+                {"VALUESTRING",      "\"[^\"]*\"?"},  // Простая строка до закрывающей кавычки
+                {"VALUECHAR",        "'[^']*'?"},
+                {"VALUEHEX",         "0[xX][0-9a-fA-F]+"},
+                {"VALUEOCTAL",       "0[0-7]+"},
+                {"VALUEFLOAT",       "[0-9]+\\.[0-9]+[fF]?"},
+                {"VALUEDOUBLE",      "[0-9]+\\.[0-9]+"},
+                {"VALUEINTEGER",     "[0-9]+"},
 
                 // Идентификаторы
-                {"IDENTIFIER", "[a-zA-Z_][a-zA-Z0-9_]*"},
+                {"IDENTIFIER",       "[a-zA-Z_][a-zA-Z0-9_]*"},
 
                 // Пробелы и комментарии
-                {"SPACE", "[ \\t\\n\\r]"},
-              //  {"COMMENT", "//[^\\n]*|/\\*.*?\\*/"}
+                {"SPACE",            "[ \\t\\n\\r]"},
+                //  {"COMMENT", "//[^\\n]*|/\\*.*?\\*/"}
         };
     }
+
     static std::vector<std::pair<std::string, std::string>> getTokenTypePascal() {
         return {
-            {"CONST", "const"},
-            {"VAR", "var"},
-            {"INC","to"},
-            {"DEC","downto"},
-            {"THEN", "then"},
-            {"DO", "do"},
-            {"OF", "of"},
-            {"MOD", "mod"},
-            {"DIV", "div"},
-            {"PLUS", "[\+]"},
-            {"MINUS","[-]"},
-            {"MULTI","[\*]"},
-            {"SWITCH", "case"},
-            {"FUNCTION", "function"},
-            {"PROCEDURE","procedure"},
-            {"BEGIN", "begin"},
-            {"ENDofCycle", "end;"},
-            {"ENDofPROGRAM", "end[\.]"},
-            {"ENDofIF","end"},
-            {"TYPEINTEGER", "integer"},
-            {"TYPEREAL", "real"},
-            {"TYPESTRING", "string"},
-            {"TYPECHAR", "char"},
-            {"TYPEBOOLEAN", "boolean"},
-            {"VALUEREAL", "[0-9]+\.[0-9]+"},
-            {"VALUEINTEGER", "[0-9]+"},
-            {"VALUECHAR", "['][A-Za-z0-9][']"},
-            {"VALUESTRING", "['][A-Za-z0-9!?,\.: _-]+[']"},
-            {"VALUEBOOLEANTrue", "True"},
-            {"VALUEBOOLEANFalse", "False"},
-            {"ASSIGN", ":="},
-            {"JGE", ">="},
-            {"JLE", "<="},
-            {"JNE", "<>"},
-            {"JG", ">"},
-            {"JL", "<"},
-            {"JE", "="},
-            {"AND", "and"},
-            {"OR", "or"},
-            {"NOT", "not"},
-            {"XOR", "xor"},
-            {"COLON", ":"},
-            {"COMMA", ","},
-            {"SEMICOLON", ";"},
-            {"TITLE", "program [A-Za-z0-9_]+"},
-            {"OPENPARENTHESES", "[(]"},
-            {"CLOSEPARENTHESES", "[)]"},
-            {"OPENSQUARE", "[\[]"},
-            {"CLOSESQUARE", "[\]]"},
-            {"CONDITION", "if"},
-            {"UNCONDITION", "else"},
-            {"WRITELN","Writeln"},
-            {"READLN","Readln"},
-            {"WRITE", "Write"},
-            {"READ", "Read"},
-            {"CYCLEFOR", "for"},
-            {"CYCLEWHILE", "while"},
-            {"CYCLEDOWHILE","repeat"},
-            {"UNTIL","until"},
-            {"VARIABLE", "[a-z0-9A-Z_-]+"},
-            {"SPACE", "[ \t\n]"}
+                {"CONST",             "const"},
+                {"VAR",               "var"},
+                {"INC",               "to"},
+                {"DEC",               "downto"},
+                {"THEN",              "then"},
+                {"DO",                "do"},
+                {"OF",                "of"},
+                {"MOD",               "mod"},
+                {"DIV",               "div"},
+                {"PLUS",              "[\\+]"},
+                {"MINUS",             "[-]"},
+                {"MULTI",             "[\\*]"},
+                {"SWITCH",            "case"},
+                {"FUNCTION",          "function"},
+                {"PROCEDURE",         "procedure"},
+                {"BEGIN",             "begin"},
+                {"ENDofCycle",        "end;"},
+                {"ENDofPROGRAM",      "end[\\.]"},
+                {"ENDofIF",           "end"},
+                {"TYPEINTEGER",       "integer"},
+                {"TYPEREAL",          "real"},
+                {"TYPESTRING",        "string"},
+                {"TYPECHAR",          "char"},
+                {"TYPEBOOLEAN",       "boolean"},
+                {"VALUEREAL",         "[0-9]+\\.[0-9]+"},
+                {"VALUEINTEGER",      "[0-9]+"},
+                {"VALUECHAR",         "['][A-Za-z0-9][']"},
+                {"VALUESTRING",       "['][A-Za-z0-9!?,\\.: _-]+[']"},
+                {"VALUEBOOLEANTrue",  "True"},
+                {"VALUEBOOLEANFalse", "False"},
+                {"ASSIGN",            ":="},
+                {"JGE",               ">="},
+                {"JLE",               "<="},
+                {"JNE",               "<>"},
+                {"JG",                ">"},
+                {"JL",                "<"},
+                {"JE",                "="},
+                {"AND",               "and"},
+                {"OR",                "or"},
+                {"NOT",               "not"},
+                {"XOR",               "xor"},
+                {"COLON",             ":"},
+                {"COMMA",             ","},
+                {"SEMICOLON",         ";"},
+                {"TITLE",             "program [A-Za-z0-9_]+"},
+                {"OPENPARENTHESES",   "[(]"},
+                {"CLOSEPARENTHESES",  "[)]"},
+                {"OPENSQUARE",        "[\\[]"},
+                {"CLOSESQUARE",       "[\\]]"},
+                {"CONDITION",         "if"},
+                {"UNCONDITION",       "else"},
+                {"WRITELN",           "Writeln"},
+                {"READLN",            "Readln"},
+                {"WRITE",             "Write"},
+                {"READ",              "Read"},
+                {"CYCLEFOR",          "for"},
+                {"CYCLEWHILE",        "while"},
+                {"CYCLEDOWHILE",      "repeat"},
+                {"UNTIL",             "until"},
+                {"VARIABLE",          "[a-z0-9A-Z_-]+"},
+                {"SPACE",             "[ \\t\\n]"}
         };
     }
 };
