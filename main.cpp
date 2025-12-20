@@ -17,6 +17,7 @@
 using namespace std;
 
 int main() {
+
     std::string CPPCode =
             "#include <iostream>\n"
             "#include <vector>\n"
@@ -377,7 +378,8 @@ int main() {
             "   until num1 < 7 ;"
             "   num1 := num1 + 3;"
             "end.";
- string cCode =
+
+    string cCode =
             "#include <stdio.h>\n"
             "#include <stdlib.h>\n"
             "#include <string.h>\n"
@@ -495,6 +497,245 @@ int main() {
             "float calculateCircleArea(float radius) {\n"
             "    return PI_CONST * radius * radius;\n"
             "}";
+
+    //PASCAL TESTING
+
+     cout << "=== ORIGINAL CODE ===\n" << pascalCode << "\n\n";
+
+    // STEP 1: Parse Pascal -> Expression* (parseOnly - без выполнения)
+    Lexer lexer(pascalCode, PASCAL);
+    lexer.printTokenList();
+    PascalParserToExpression parser(lexer, PASCAL);
+    parser.parseOnly();  // Только структура, без выполнения
+
+    const auto &exprs = parser.getExpressionsOnly();
+    cout << "Parsing: created " << exprs.size() << " expressions\n\n";
+
+    PascalToJSON exporter2;
+    std::string title =  parser.getTitle();
+
+    std::string mmd2 = exporter2.build(exprs,title);
+    //std::cout<<"Output of mmd2: \n"<<mmd2<<"\n";
+    // Экспорт блок-схемы по существующим Expression (JSON)
+    std::ofstream f("flowchart.json");
+    f << mmd2;
+    f.close();
+    cout << "Code-parse saved to flowchart.json\n\n";
+
+    // STEP 3: Import back from JSON and generate Pascal using PascalCodeGenerator
+    PascalCodeGenerator codeGenerator;
+    nlohmann::json jsonData = nlohmann::json::parse(mmd2);
+    std::string restoredPascal = codeGenerator.generatePascal(jsonData);
+
+    cout << "Import: restored Pascal code directly\n\n";
+
+    cout << "=== RESTORED CODE ===\n" << restoredPascal << "\n\n";
+    // Comparison
+    if (pascalCode == restoredPascal) {
+        cout << "SUCCESS: Code is identical!\n";
+    } else {
+        cout << "NOTE: Code differs (formatting may vary)\n";
+        cout << "Main structures should match.\n";
+    }
+
+    //C TESTING
+
+    /*
+  char *tests[21];
+  tests[0] =
+          "#include <stdio.h>\n"
+          "#include <stdlib.h>\n"
+          "#include <string.h>\n"
+          "#define PI 3.1415926\n"
+          "#define MAX_SIZE 100\n";
+
+  tests[1] =
+          "int addNumbers(int a, int b);\n"
+          "void greetUser(char* name);\n"
+          "float calculateCircleArea(float radius);\n";
+
+  tests[2] =
+          "const float PI_CONST = 3.1415926f;\n"
+          "int globalCounter = 0;\n";
+
+  tests[3] =
+          "struct Point {\n"
+          "    int x;\n"
+          "    int y;\n"
+          "};\n"
+          "\n"
+          "typedef struct Point Point;\n";
+
+  tests[4] =
+          "void test() {\n"
+          "    int num1, num2, i;\n"
+          "    float res, d;\n"
+          "    char res2[50];\n"
+          "    int array[10];\n"
+          "    Point p1;\n"
+          "}\n";
+
+  tests[5] =
+          "void test() {\n"
+          "    printf(\"Enter a number: \");\n"
+          "    scanf(\"%f\", &res);\n"
+          "    printf(\"From input: %.2f\\n\", res);\n"
+          "}\n";
+
+  tests[6] =
+          "void test() {\n"
+          "    num1 = 12 / 2;\n"
+          "    num2 = 15 % 4;\n"
+          "    num1 = addNumbers(5, 3);\n"
+          "}\n";
+  tests[7] =
+          "void test() {\n"
+          "    switch(num1) {\n"
+          "        case 1:\n"
+          "        case 2:\n"
+          "        case 3:\n"
+          "        case 4:\n"
+          "        case 5:\n"
+          "            printf(\"Switch works\\n\");\n"
+          "            break;\n"
+          "        default:\n"
+          "            printf(\"Switch no works\\n\");\n"
+          "            break;\n"
+          "    }\n"
+          "}\n";
+  tests[8] =
+          "void test() {\n"
+          "    if (5 % 3 > 0) {\n"
+          "        printf(\"Yes,if 1\\n\");\n"
+          "        printf(\"Yes,if 2\\n\");\n"
+          "    } else {\n"
+          "        printf(\"No,else 1\\n\");\n"
+          "        printf(\"No,else 2\\n\");\n"
+          "    }\n"
+          "}\n";
+  tests[9] =
+          "void test() {\n"
+          "    strcpy(res2, \"Hello world\");\n"
+          "    num1 = 2;\n"
+          "}\n";
+  tests[10] =
+          "void test() {\n"
+          "    if (PI_CONST != num1) {\n"
+          "        printf(\"Pim\\n\");\n"
+          "        if (PI_CONST != num1) {\n"
+          "            printf(\"Pam\\n\");\n"
+          "        }\n"
+          "    } else {\n"
+          "        printf(\"Pum\\n\");\n"
+          "    }\n"
+          "}\n";
+  tests[11] =
+          "void test() {\n"
+          "    for (i = 1; i <= 8; i++) {\n"
+          "        printf(\"3\");\n"
+          "    }\n"
+          "}\n";
+  tests[12] =
+          "void test() {\n"
+          "    while (num1 < 6) {\n"
+          "        printf(\"Yes\");\n"
+          "        num1 = num1 + 1;\n"
+          "    }\n"
+          "}\n";
+  tests[13] =
+          "void test() {\n"
+          "    do {\n"
+          "        printf(\"3\");\n"
+          "        num1 = num1 + 1;\n"
+          "    } while (num1 < 7);\n"
+          "}\n";
+  tests[14] =
+          "void test() {\n"
+          "    for (i = 0; i < 10; i++) {\n"
+          "        array[i] = i * 2;\n"
+          "    }\n"
+          "}\n";
+  tests[15] =
+          "void test() {\n"
+          "    p1.x = 10;\n"
+          "    p1.y = 20;\n"
+          "    int* ptr = &num1;\n"
+          "    *ptr = *ptr + 3;\n"
+          "}\n";
+  tests[16] =
+          "void test() {\n"
+          "    num1 = num1 + 3;\n"
+          "    num1 += 5;\n"
+          "    num1++;\n"
+          "}\n";
+  tests[17] =
+          "void test() {\n"
+          "    if (num1 > 10 && num2 < 20 || !(num1 == 15)) {\n"
+          "        printf(\"Complex condition works\\n\");\n"
+          "    }\n"
+          "}\n";
+  tests[18] =
+          "void test() {\n"
+          "    num1 = num1 & 0xFF;\n"
+          "    num2 = num1 | 0x0F;\n"
+          "}\n";
+  tests[19] =
+          "void test() {\n"
+          "    int result = (num1 > num2) ? num1 : num2;\n"
+          "}\n";
+  tests[20] =
+          "int addNumbers(int a, int b) {\n"
+          "    return a + b;\n"
+          "}\n"
+          "\n"
+          "void greetUser(char* name) {\n"
+          "    printf(\"Hello, %s!\\n\", name);\n"
+          "}\n"
+          "\n"
+          "float calculateCircleArea(float radius) {\n"
+          "    return PI_CONST * radius * radius;\n"
+          "}\n";
+
+
+     CParserToAST parserC;
+    AstToJsonConverter converter;
+    CCodeGenerator generator;
+    try{
+        auto result = parserC.parse(cCode);
+        nlohmann::json mmd3 = converter.convertProgram(result);
+        std::ofstream f2("flowchart2.json");
+        f2 << mmd3.dump(4);
+        f2.close();
+        std::string restored_codeC= generator.generate(mmd3);
+        std::cout<<std::endl<<restored_codeC;
+    } catch (const std::exception& e) {
+        std::cout << "ERROR in part " << (i + 1) << ": " << e.what() << std::endl;
+    }catch (...) {
+        std::cerr << "Unknown error occurred" << std::endl;
+        return 1;
+    }
+*/
+
+    /*
+//        for (int i = 0; i < 21; i++) {
+//            if (i == 16) continue;
+//            auto ast = parser.parse(tests[i]);
+//            //ast->printTree();
+//            if (ast) {
+//                std::cout << "AST parsed successfully!\n";
+//                std::cout << "AST Structure:\n";
+//
+//                AstVisualizer visualizer;
+//                ast->accept(visualizer);
+//            } else {
+//                std::cout << "Failed to parse AST\n";
+//            }
+//        }
+
+*/
+
+    //CPP TESTING
+
     char *tests2[] = {
             // 1. Препроцессор и макросы (включая параметризованные)
             "#include <iostream>\n"
@@ -895,246 +1136,7 @@ int main() {
     const int TESTS_COUNT = 18;
 
 
-    //PASCAL TESTING
-
-    /* cout << "=== ORIGINAL CODE ===\n" << pascalCode << "\n\n";
-
-    // STEP 1: Parse Pascal -> Expression* (parseOnly - без выполнения)
-    Lexer lexer(pascalCode, PASCAL);
-    PascalParserToExpression parser(lexer, PASCAL);
-    parser.parseOnly();  // Только структура, без выполнения
-
-    const auto &exprs = parser.getExpressionsOnly();
-    cout << "Parsing: created " << exprs.size() << " expressions\n\n";
-
-    PascalToJSON exporter2;
-    std::string title =  parser.getTitle();
-
-    std::string mmd2 = exporter2.build(exprs,title);
-    //std::cout<<"Output of mmd2: \n"<<mmd2<<"\n";
-    // Экспорт блок-схемы по существующим Expression (Mermaid и JSON)
-    std::ofstream f("flowchart.json");
-    f << mmd2;
-    f.close();
-    cout << "Mermaid saved to flowchart.json\n\n";
-
-    // STEP 3: Import back from JSON and generate Pascal using PascalCodeGenerator
-    PascalCodeGenerator codeGenerator;
-    nlohmann::json jsonData = nlohmann::json::parse(mmd2);
-    std::string restoredPascal = codeGenerator.generatePascal(jsonData);
-
-    cout << "Import: restored Pascal code directly\n\n";
-
-    cout << "=== RESTORED CODE ===\n" << restoredPascal << "\n\n";
-    // Comparison
-    if (pascalCode == restoredPascal) {
-        cout << "SUCCESS: Code is identical!\n";
-    } else {
-        cout << "NOTE: Code differs (formatting may vary)\n";
-        cout << "Main structures should match.\n";
-    }
-*/
-
-    //C TESTING
-
-    /*
-  char *tests[21];
-  tests[0] =
-          "#include <stdio.h>\n"
-          "#include <stdlib.h>\n"
-          "#include <string.h>\n"
-          "#define PI 3.1415926\n"
-          "#define MAX_SIZE 100\n";
-
-  tests[1] =
-          "int addNumbers(int a, int b);\n"
-          "void greetUser(char* name);\n"
-          "float calculateCircleArea(float radius);\n";
-
-  tests[2] =
-          "const float PI_CONST = 3.1415926f;\n"
-          "int globalCounter = 0;\n";
-
-  tests[3] =
-          "struct Point {\n"
-          "    int x;\n"
-          "    int y;\n"
-          "};\n"
-          "\n"
-          "typedef struct Point Point;\n";
-
-  tests[4] =
-          "void test() {\n"
-          "    int num1, num2, i;\n"
-          "    float res, d;\n"
-          "    char res2[50];\n"
-          "    int array[10];\n"
-          "    Point p1;\n"
-          "}\n";
-
-  tests[5] =
-          "void test() {\n"
-          "    printf(\"Enter a number: \");\n"
-          "    scanf(\"%f\", &res);\n"
-          "    printf(\"From input: %.2f\\n\", res);\n"
-          "}\n";
-
-  tests[6] =
-          "void test() {\n"
-          "    num1 = 12 / 2;\n"
-          "    num2 = 15 % 4;\n"
-          "    num1 = addNumbers(5, 3);\n"
-          "}\n";
-  tests[7] =
-          "void test() {\n"
-          "    switch(num1) {\n"
-          "        case 1:\n"
-          "        case 2:\n"
-          "        case 3:\n"
-          "        case 4:\n"
-          "        case 5:\n"
-          "            printf(\"Switch works\\n\");\n"
-          "            break;\n"
-          "        default:\n"
-          "            printf(\"Switch no works\\n\");\n"
-          "            break;\n"
-          "    }\n"
-          "}\n";
-  tests[8] =
-          "void test() {\n"
-          "    if (5 % 3 > 0) {\n"
-          "        printf(\"Yes,if 1\\n\");\n"
-          "        printf(\"Yes,if 2\\n\");\n"
-          "    } else {\n"
-          "        printf(\"No,else 1\\n\");\n"
-          "        printf(\"No,else 2\\n\");\n"
-          "    }\n"
-          "}\n";
-  tests[9] =
-          "void test() {\n"
-          "    strcpy(res2, \"Hello world\");\n"
-          "    num1 = 2;\n"
-          "}\n";
-  tests[10] =
-          "void test() {\n"
-          "    if (PI_CONST != num1) {\n"
-          "        printf(\"Pim\\n\");\n"
-          "        if (PI_CONST != num1) {\n"
-          "            printf(\"Pam\\n\");\n"
-          "        }\n"
-          "    } else {\n"
-          "        printf(\"Pum\\n\");\n"
-          "    }\n"
-          "}\n";
-  tests[11] =
-          "void test() {\n"
-          "    for (i = 1; i <= 8; i++) {\n"
-          "        printf(\"3\");\n"
-          "    }\n"
-          "}\n";
-  tests[12] =
-          "void test() {\n"
-          "    while (num1 < 6) {\n"
-          "        printf(\"Yes\");\n"
-          "        num1 = num1 + 1;\n"
-          "    }\n"
-          "}\n";
-  tests[13] =
-          "void test() {\n"
-          "    do {\n"
-          "        printf(\"3\");\n"
-          "        num1 = num1 + 1;\n"
-          "    } while (num1 < 7);\n"
-          "}\n";
-  tests[14] =
-          "void test() {\n"
-          "    for (i = 0; i < 10; i++) {\n"
-          "        array[i] = i * 2;\n"
-          "    }\n"
-          "}\n";
-  tests[15] =
-          "void test() {\n"
-          "    p1.x = 10;\n"
-          "    p1.y = 20;\n"
-          "    int* ptr = &num1;\n"
-          "    *ptr = *ptr + 3;\n"
-          "}\n";
-  tests[16] =
-          "void test() {\n"
-          "    num1 = num1 + 3;\n"
-          "    num1 += 5;\n"
-          "    num1++;\n"
-          "}\n";
-  tests[17] =
-          "void test() {\n"
-          "    if (num1 > 10 && num2 < 20 || !(num1 == 15)) {\n"
-          "        printf(\"Complex condition works\\n\");\n"
-          "    }\n"
-          "}\n";
-  tests[18] =
-          "void test() {\n"
-          "    num1 = num1 & 0xFF;\n"
-          "    num2 = num1 | 0x0F;\n"
-          "}\n";
-  tests[19] =
-          "void test() {\n"
-          "    int result = (num1 > num2) ? num1 : num2;\n"
-          "}\n";
-  tests[20] =
-          "int addNumbers(int a, int b) {\n"
-          "    return a + b;\n"
-          "}\n"
-          "\n"
-          "void greetUser(char* name) {\n"
-          "    printf(\"Hello, %s!\\n\", name);\n"
-          "}\n"
-          "\n"
-          "float calculateCircleArea(float radius) {\n"
-          "    return PI_CONST * radius * radius;\n"
-          "}\n";
-          */
-
-    /* CParserToAST parserC;
-    AstToJsonConverter converter;
-    CCodeGenerator generator;
-    try{
-        auto result = parserC.parse(cCode);
-        nlohmann::json mmd3 = converter.convertProgram(result);
-        std::ofstream f2("flowchart2.json");
-        f2 << mmd3.dump(4);
-        f2.close();
-        std::string restored_codeC= generator.generate(mmd3);
-        std::cout<<std::endl<<restored_codeC;
-    } catch (const std::exception& e) {
-        std::cout << "ERROR in part " << (i + 1) << ": " << e.what() << std::endl;
-    }catch (...) {
-        std::cerr << "Unknown error occurred" << std::endl;
-        return 1;
-    }
-
-
-
-//        for (int i = 0; i < 21; i++) {
-//            if (i == 16) continue;
-//            auto ast = parser.parse(tests[i]);
-//            //ast->printTree();
-//            if (ast) {
-//                std::cout << "AST parsed successfully!\n";
-//                std::cout << "AST Structure:\n";
-//
-//                AstVisualizer visualizer;
-//                ast->accept(visualizer);
-//            } else {
-//                std::cout << "Failed to parse AST\n";
-//            }
-//        }
-
-*/
-
-
-    //CPP TESTING
-
-/*    for (int i = 0; i < TESTS_COUNT; i++) {
+    /*    for (int i = 0; i < TESTS_COUNT; i++) {
         std::cout << "=== Testing part " << (i + 1) << " ===" << std::endl;
         try {
             CppParserToAST parser;
@@ -1154,22 +1156,22 @@ int main() {
         std::cout << std::endl;
     }*/
 
-    try {
-        CppParserToAST parser;
-        int k = 5;
-        auto ast = parser.parse(tests2[k]);
-        std::cout << "TEST cppCode" << std::endl;
-        std::cout << tests2[k] << std::endl;
-        CppAstVisualizer visualizer;
-        std::cout << "AST STRUCTURE:" << std::endl;
-        ast->accept(visualizer);
-    } catch (const std::exception &e) {
-        std::cerr << "Error: " << e.what() << std::endl;
-        return 1;
-    } catch (...) {
-        std::cerr << "Unknown error occurred" << std::endl;
-        return 1;
-    }
+//    try {
+//        CppParserToAST parser;
+//        int k = 5;
+//        auto ast = parser.parse(tests2[k]);
+//        std::cout << "TEST cppCode" << std::endl;
+//        std::cout << tests2[k] << std::endl;
+//        CppAstVisualizer visualizer;
+//        std::cout << "AST STRUCTURE:" << std::endl;
+//        ast->accept(visualizer);
+//    } catch (const std::exception &e) {
+//        std::cerr << "Error: " << e.what() << std::endl;
+//        return 1;
+//    } catch (...) {
+//        std::cerr << "Unknown error occurred" << std::endl;
+//        return 1;
+//    }
 
 
     return 0;

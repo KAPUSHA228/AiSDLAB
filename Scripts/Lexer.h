@@ -22,7 +22,7 @@ private:
     std::string input_string;
     std::string copy_input_string;
     // Вектор всех возможных типов слов в ПаскальАБС/C/C++
-    std::vector<std::pair<std::string, std::string> > vector;
+    std::vector<std::pair<std::string, std::string> > dictionary;
     int pos = 0;
 
 public:
@@ -31,15 +31,15 @@ public:
         copy_input_string = input_string;
         switch (type) {
             case PASCAL:
-                vector = getTokenTypePascal();
+                dictionary = getTokenTypePascal();
                 while (hasNext()) {}
                 break;
             case C:
-                vector = getTokenTypeC();
+                dictionary = getTokenTypeC();
                 while (hasNext2()) {}
                 break;
             case CPP:
-                vector = getTokenTypeCPlusPlus();
+                dictionary = getTokenTypeCPlusPlus();
                 while (hasNext3()) {}
                 break;
             default:
@@ -49,7 +49,7 @@ public:
     }
 
     bool hasNext() {
-        for (const auto &item: vector) {
+        for (const auto &item: dictionary) {
             const std::string s = input_string;
             std::regex rgx("^" + item.second);
             std::smatch match;
@@ -147,7 +147,7 @@ public:
         }
 
         // 5. Затем все остальные токены
-        for (const auto &item: vector) {
+        for (const auto &item: dictionary) {
             if (item.first == "SPACE" || item.first == "COMMENT" ||
                 item.first == "VALUESTRING" || item.first == "VALUECHAR")
                 continue;
@@ -477,7 +477,7 @@ public:
 
         // 8. Только теперь используем regex для сложных случаев
         std::smatch match;
-        for (const auto &item: vector) {
+        for (const auto &item: dictionary) {
             // Пропускаем уже обработанные типы
             if (item.first == "SPACE" || item.first == "COMMENT" ||
                 item.first == "VALUESTRING" || item.first == "VALUECHAR") {
